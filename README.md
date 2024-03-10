@@ -1,7 +1,5 @@
-# You can use this nim template to jump start your nim library or project.
+# openai_leap
 
-This template includes:
-* MIT licence
-* src directory and a private common.nim
-* test directory
-* GitHub Actions to run the tests on GitHub
+- WIP
+- Nim OpenAI api library
+- Ollama API client: https://github.com/monofuel/llama_leap
