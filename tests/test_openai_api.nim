@@ -36,3 +36,9 @@ suite "openai_leap":
       let resp = openai.generateEmbeddings(TestEmbedding, "how are you today?")
       let vec = resp.data[0].embedding
       echo "Embedding Length: " & $vec.len
+  suite "completions":
+    test "create":
+      let system = "Please talk like a pirate. you are Longbeard the Llama."
+      let prompt = "How are you today?"
+      let resp = openai.createChatCompletion(TestModel, system, prompt)
+      echo resp

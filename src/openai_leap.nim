@@ -1,4 +1,4 @@
-import curly, jsony, std/[os, options, strformat]
+import curly, jsony, std/[os, json, options, strformat, tables]
 ## OpenAI Api Library
 ## https://platform.openai.com/docs/api-reference/introduction
 
@@ -39,17 +39,89 @@ type
     objectStr*: string
     model*: string
     usage*: Usage
+  ToolFunctionResp* = ref object
+    name*: string
+    arguments*: string
+  ToolCallResp* = ref object
+    id*: string
+    typeStr*: string
+    function*: ToolFunctionResp
+  Message* = ref object
+    content*: Option[string]    # requied for role = system | user
+    role*: string               # system | user | assisant | tool
+    name*: Option[string]
+    toolCalls*: Option[seq[ToolCallResp]]
+    toolCallid*: Option[string] # required for role = tool
+  ResponseFormatObj* = ref object
+    typeStr*: string # must be text or json_object
+  ToolFunction* = ref object
+    description*: Option[string]
+    name*: string
+    parameters*: Option[JsonNode] # JSON Schema Object
+  ToolCall* = ref object
+    typeStr*: string
+    function*: ToolFunction
+  ToolChoiceFuncion* = ref object
+    name*: string
+  ToolChoice* = ref object
+    typeStr*: string
+    function*: ToolChoiceFuncion
+  CreateChatCompletionReq* = ref object
+    messages*: seq[Message]
+    model*: string
+    frequencyPenalty*: Option[float32] # between -2.0 and 2.0
+    logitBias*: Option[Table[string, float32]]
+    logprobs*: Option[bool]
+    topLogprobs*: Option[int]          # 0 - 20
+    maxTokens*: Option[int]
+    n*: Option[int]                    # count of completion choices to generate
+    presencePenalty*: Option[float32]  # between -2.0 and 2.0
+    responseFormat*: Option[ResponseFormatObj]
+    seed*: Option[int]
+    stop*: Option[string]              # up to 4 stop sequences
+                          #stop*: Option[string | seq[string]] # up to 4 stop sequences
+    stream*: Option[bool]              # always use false for this library
+    topP*: Option[float32]             # between 0.0 and 1.0
+    tools*: Option[seq[ToolCall]]
+    # toolChoice*: Option[string | ToolChoice] # "auto" | function to use
+    user*: Option[string]
+    # function_call
+    # functions
+  CreateChatMessage* = ref object
+    finishReason*: string
+    index*: int
+    message: Message
+    logProbs*: Option[JsonNode]
+  CreateChatCompletionResp* = ref object
+    id*: string
+    choices*: seq[CreateChatMessage]
+    created*: int
+    model*: string
+    systemFingerprint*: string
+    objectStr*: string
+    usage*: Usage
 
 
-proc renameHook(v: var OpenAIModel | ListModelResponse | DeleteModelResponse |
-    CreateEmbeddingRespObj | CreateEmbeddingResp, fieldName: var string) =
+
+type HookedTypes = OpenAIModel | ListModelResponse | DeleteModelResponse |
+  CreateEmbeddingRespObj | CreateEmbeddingResp | ToolCall | ToolCallResp |
+  ResponseFormatObj | ToolChoice
+
+proc renameHook(v: var HookedTypes, fieldName: var string) =
   ## `object` is a special keyword in nim, so we need to rename it during serialization
   if fieldName == "object":
     fieldName = "object_str"
-proc dumpHook(v: var OpenAIModel | ListModelResponse | DeleteModelResponse |
-    CreateEmbeddingRespObj | CreateEmbeddingResp, fieldName: var string) =
+  ## `type` is a special keyword in nim, so we need to rename it during serialization
+  if fieldName == "type":
+    fieldName = "type_str"
+
+proc dumpHook(v: var HookedTypes, fieldName: var string) =
   if fieldName == "object_str":
     fieldName = "object"
+  if fieldName == "type_str":
+    fieldName = "type"
+
+
 
 proc dumpHook(s: var string, v: object) =
   ## jsony `hack` to skip optional fields that are nil
@@ -168,3 +240,28 @@ proc generateEmbeddings*(
   let reqBody = toJson(req)
   let resp = post(api, "/embeddings", reqBody)
   result = fromJson(resp.body, CreateEmbeddingResp)
+
+proc createChatCompletion*(
+  api: OpenAIAPI,
+  req: CreateChatCompletionReq
+): CreateChatCompletionResp =
+  ## Create a chat completion
+  let reqBody = toJson(req)
+  let resp = post(api, "/chat/completions", reqBody)
+  result = fromJson(resp.body, CreateChatCompletionResp)
+
+proc createChatCompletion*(
+  api: OpenAIAPI,
+  model: string,
+  systemPrompt: string,
+  input: string
+): string =
+  ## Create a chat completion
+  let req = CreateChatCompletionReq()
+  req.model = model
+  req.messages = @[
+    Message(role: "system", content: option(systemPrompt)),
+    Message(role: "user", content: option(input))
+    ]
+  let resp = api.createChatCompletion(req)
+  result = resp.choices[0].message.content.get
