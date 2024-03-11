@@ -79,7 +79,7 @@ type
     responseFormat*: Option[ResponseFormatObj]
     seed*: Option[int]
     stop*: Option[string]              # up to 4 stop sequences
-                          #stop*: Option[string | seq[string]] # up to 4 stop sequences
+                            #stop*: Option[string | seq[string]] # up to 4 stop sequences
     stream*: Option[bool]              # always use false for this library
     topP*: Option[float32]             # between 0.0 and 1.0
     tools*: Option[seq[ToolCall]]
@@ -107,7 +107,7 @@ type HookedTypes = OpenAIModel | ListModelResponse | DeleteModelResponse |
   CreateEmbeddingRespObj | CreateEmbeddingResp | ToolCall | ToolCallResp |
   ResponseFormatObj | ToolChoice
 
-proc renameHook(v: var HookedTypes, fieldName: var string) =
+proc renameHook*(v: var HookedTypes, fieldName: var string) =
   ## `object` is a special keyword in nim, so we need to rename it during serialization
   if fieldName == "object":
     fieldName = "object_str"
@@ -115,7 +115,7 @@ proc renameHook(v: var HookedTypes, fieldName: var string) =
   if fieldName == "type":
     fieldName = "type_str"
 
-proc dumpHook(v: var HookedTypes, fieldName: var string) =
+proc dumpHook*(v: var HookedTypes, fieldName: var string) =
   if fieldName == "object_str":
     fieldName = "object"
   if fieldName == "type_str":
