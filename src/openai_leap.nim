@@ -110,15 +110,15 @@ type HookedTypes = OpenAIModel | ListModelResponse | DeleteModelResponse |
 proc renameHook*(v: var HookedTypes, fieldName: var string) =
   ## `object` is a special keyword in nim, so we need to rename it during serialization
   if fieldName == "object":
-    fieldName = "object_str"
+    fieldName = "objectStr"
   ## `type` is a special keyword in nim, so we need to rename it during serialization
   if fieldName == "type":
-    fieldName = "type_str"
+    fieldName = "typeStr"
 
 proc dumpHook*(v: var HookedTypes, fieldName: var string) =
-  if fieldName == "object_str":
+  if fieldName == "objectStr":
     fieldName = "object"
-  if fieldName == "type_str":
+  if fieldName == "typeStr":
     fieldName = "type"
 
 
