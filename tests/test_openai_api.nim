@@ -1,28 +1,5 @@
 import openai_leap, jsony, std/[unittest, os]
 
-proc dumpHook*(s: var string, v: object) =
-  ## jsony skip optional fields that are nil
-  s.add '{'
-  var i = 0
-  # Normal objects.
-  for k, e in v.fieldPairs:
-    when compiles(e.isSome):
-      if e.isSome:
-        if i > 0:
-          s.add ','
-        s.dumpHook(k)
-        s.add ':'
-        s.dumpHook(e)
-        inc i
-    else:
-      if i > 0:
-        s.add ','
-      s.dumpHook(k)
-      s.add ':'
-      s.dumpHook(e)
-      inc i
-  s.add '}'
-
 const
   TestModel = "gpt-3.5-turbo"
   TestEmbedding = "text-embedding-3-small"

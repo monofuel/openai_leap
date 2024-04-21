@@ -121,7 +121,7 @@ proc dumpHook*(v: var HookedTypes, fieldName: var string) =
   if fieldName == "typeStr":
     fieldName = "type"
 
-proc dumpHook*(s: var string, v: object) =
+proc dumpHook(s: var string, v: object) =
   ## jsony skip optional fields that are nil
   s.add '{'
   var i = 0
