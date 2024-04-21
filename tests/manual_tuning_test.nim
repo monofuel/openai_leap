@@ -19,8 +19,18 @@ suite "OpenAI finetuning":
     openai.close()
 
   suite "finetune":
+    var dataset: OpenAIFile
+
     test "upload dataset":
-      let model = openai.createFineTuneDataset("tests/test-dataset.jsonl")
-      assert model.id != ""
-      assert model.purpose == "fine-tune"
-      
+      dataset = openai.createFineTuneDataset("tests/test-dataset.jsonl")
+      assert dataset.id != ""
+      assert dataset.purpose == "fine-tune"
+    test "list datasets":
+      let datasets = openai.listFiles()
+      # echo toJson(datasets)
+      assert datasets.data.len > 0
+    test "cleanup":
+      let datasets = openai.listFiles()
+      for dataset in datasets.data:
+        if dataset.filename == "test-dataset.jsonl":
+          openai.deleteFile(dataset.id)

@@ -108,17 +108,20 @@ type
     content*: string
   OpenAIFineTuneChat* = ref object
     messages*: seq[OpenAIFineTuneMessage]
-  OpenAIFinetuneModel* = ref object
+  OpenAIFile* = ref object
     id*: string
     objectStr*: string
     bytes*: int
     createdAt*: int
     filename*: string
     purpose*: string
+  OpenAIListFiles* = ref object
+    data*: seq[OpenAIFile]
+    objectStr*: string
 
 type HookedTypes = OpenAIModel | ListModelResponse | DeleteModelResponse |
   CreateEmbeddingRespObj | CreateEmbeddingResp | ToolCall | ToolCallResp |
-  ResponseFormatObj | ToolChoice | OpenAIFinetuneModel
+  ResponseFormatObj | ToolChoice | OpenAIFile | OpenAIListFiles
 
 proc renameHook*(v: var HookedTypes, fieldName: var string) =
   ## `object` is a special keyword in nim, so we need to rename it during serialization
@@ -282,7 +285,7 @@ proc createChatCompletion*(
 # at least 10 examples are required. 50 to 100 recommended.
 # For a training file with 100,000 tokens trained over 3 epochs, the expected cost would be ~$2.40 USD.
 
-proc createFineTuneDataset*(api: OpenAIAPI, filepath: string): OpenAIFinetuneModel =
+proc createFineTuneDataset*(api: OpenAIAPI, filepath: string): OpenAIFile =
   # file will take time to process while uploading
   # maximum file size is 512MB, but not recommended that big.
   # 100gb limit across an organization
@@ -308,31 +311,42 @@ curl -s https://api.openai.com/v1/files \
   let (output, res) = execCmdEx(curlUploadCmd)
   if res != 0:
     raise newException(CatchableError, "Failed to upload file, curl returned " & $res)
-  result = fromJson(output, OpenAIFinetuneModel)
+  result = fromJson(output, OpenAIFile)
   
+proc listFiles*(api: OpenAIAPI): OpenAIListFiles =
+  let resp = api.get("/files")
+  result = fromJson(resp.body, OpenAIListFiles)
 
-proc createFineTuneModel(api: OpenAIAPI, model: string, dataset: string, name: string, description: string) =
+proc getFileDetails*(api: OpenAIAPI, fileId: string): OpenAIFile =
+  let resp = api.get("/files/" & fileId)
+  result = fromJson(resp.body, OpenAIFile)
+
+proc deleteFile*(api: OpenAIAPI, fileId: string) =
+  discard api.delete("/files/" & fileId)
+
+# TODO retrieve file content
+
+proc createFineTuneModel*(api: OpenAIAPI, model: string, dataset: string, name: string, description: string) =
   echo "TODO"
   # model will take time to train
 
-proc getFineTuneModel(api: OpenAIAPI, modelId: string) =
+proc getFineTuneModel*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
   # get the status of the model
-proc listFineTuneModels(api: OpenAIAPI) =
+proc listFineTuneModels*(api: OpenAIAPI) =
   echo "TODO"
-  # list all the fine tune models
 
-proc listFineTuneModelEvents(api: OpenAIAPI, modelId: string) =
+proc listFineTuneModelEvents*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
   # list all the events for the fine tune model
-proc listFineTuneCheckpoints(api: OpenAIAPI, modelId: string) =
+proc listFineTuneCheckpoints*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
   # https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints
   # list all the checkpoints for the fine tune model
 
-proc cancelFineTuneModel(api: OpenAIAPI, modelId: string) =
+proc cancelFineTuneModel*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
   # cancel the fine tune model
-proc deleteFineTuneModel(api: OpenAIAPI, modelId: string) =
+proc deleteFineTuneModel*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
   # delete the fine tune model
