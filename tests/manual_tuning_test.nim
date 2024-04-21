@@ -21,10 +21,10 @@ suite "OpenAI finetuning":
   suite "finetune":
     var dataset: OpenAIFile
 
-    test "upload dataset":
-      dataset = openai.createFineTuneDataset("tests/test-dataset.jsonl")
-      assert dataset.id != ""
-      assert dataset.purpose == "fine-tune"
+    # test "upload dataset":
+    #   dataset = openai.createFineTuneDataset("tests/test-dataset.jsonl")
+    #   assert dataset.id != ""
+    #   assert dataset.purpose == "fine-tune"
     # test "list datasets":
     #   let datasets = openai.listFiles()
     #   # echo toJson(datasets)
@@ -40,10 +40,10 @@ suite "OpenAI finetuning":
     #   echo toJson(job)
 
     test "list jobs":
-      openai.listFineTuneJobs()
-      # echo "JOBS"
-      # echo toJson(jobs)
-      # assert jobs.data.len > 0
+      let jobs = openai.listFineTuneJobs()
+      echo "JOBS"
+      echo toJson(jobs)
+      assert jobs.data.len > 0
 
     # test "cleanup":
     #   let datasets = openai.listFiles()

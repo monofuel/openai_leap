@@ -5,6 +5,7 @@ const
   TestEmbedding = "text-embedding-3-small"
   BaseUrl = "https://api.openai.com/v1"
   #BaseUrl = "http://localhost:11434/v1"
+  TunedModel = "ft:gpt-3.5-turbo-0125:personal::9GZiiBWl"
 
 # https://github.com/ollama/ollama/blob/main/docs/openai.md
 
@@ -41,4 +42,9 @@ suite "openai_leap":
       let system = "Please talk like a pirate. you are Longbeard the Llama."
       let prompt = "How are you today?"
       let resp = openai.createChatCompletion(TestModel, system, prompt)
+      echo resp
+    test "fine tuned model":
+      let system = "You are a helpful assistant"
+      let prompt = "How are you today?"
+      let resp = openai.createChatCompletion(TunedModel, system, prompt)
       echo resp

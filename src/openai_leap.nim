@@ -122,8 +122,9 @@ type
     data*: seq[OpenAIFile]
     objectStr*: string
   OpenAIHyperParameters* = ref object
+    # TODO needs to handle "auto" or int / float
     batchSize*: Option[int]
-    learning_rate_multiplier*: Option[float32]
+    learning_rate_multiplier*: Option[float]
     n_epochs*: Option[int]
   OpenAIFinetuneRequest* = ref object
     model*: string
@@ -133,6 +134,10 @@ type
     validation_file*: Option[string] # file ID
     # integrations
     seed*: Option[int] # Job seed
+  FineTuneError* = ref object
+    code*: string
+    param*: string
+    message*: string
   OpenAIFinetuneJob* = ref object
     objectStr*: string
     id*: string
@@ -144,13 +149,23 @@ type
     training_file*: string
     validation_file*: string
     result_files*: seq[string]
-
+    #hyperparameters*: Option[OpenAIHyperParameters]
+    #
+    # trained_tokens
+    error*: Option[FineTuneError]
+    user_provided_suffix*: Option[string]
+    seed*: int
+    # integrations
+  OpenAIFinetuneList* = ref object
+    objectStr*: string
+    data*: seq[OpenAIFinetuneJob]
+    has_more*: bool
 
 
 type HookedTypes = OpenAIModel | ListModelResponse | DeleteModelResponse |
   CreateEmbeddingRespObj | CreateEmbeddingResp | ToolCall | ToolCallResp |
   ResponseFormatObj | ToolChoice | OpenAIFile | OpenAIListFiles |
-  OpenAIFinetuneJob
+  OpenAIFinetuneJob | OpenAIFinetuneList
 
 proc renameHook*(v: var HookedTypes, fieldName: var string) =
   ## `object` is a special keyword in nim, so we need to rename it during serialization
@@ -365,11 +380,10 @@ proc getFineTuneModel*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
   # get the status of the model
 
-proc listFineTuneJobs*(api: OpenAIAPI) =
+proc listFineTuneJobs*(api: OpenAIAPI): OpenAIFinetuneList =
   let resp = api.get("/fine_tuning/jobs")
-  echo "LIST FINE TUNE JOBS"
   echo resp.body
-
+  result = fromJson(resp.body, OpenAIFinetuneList)
 
 proc listFineTuneModelEvents*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
