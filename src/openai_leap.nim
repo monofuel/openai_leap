@@ -2,6 +2,9 @@ import curly, jsony, std/[os, osproc, json, options, strformat, tables]
 ## OpenAI Api Library
 ## https://platform.openai.com/docs/api-reference/introduction
 
+# Important: the OpenAI API uses camel_case. you must match this or the fields will be ignored
+# this does not matter for responses but is critical for requests
+# however objectStr and typeStr are special and have a json dump hook to rewrite them
 type
   OpenAIAPI* = ref object
     curlPool: CurlPool
@@ -13,10 +16,10 @@ type
     id*: string
     created*: int
     objectStr*: string
-    ownedBy*: string
+    owned_by*: string
   Usage* = ref object
-    promptTokens*: int
-    totalTokens*: int
+    prompt_tokens*: int
+    total_tokens*: int
   ListModelResponse* = ref object
     data*: seq[OpenAIModel]
     objectStr*: string
@@ -27,7 +30,7 @@ type
   CreateEmbeddingReq* = ref object
     input*: string           # | seq[string] | seq[int] | seq[seq[int]]
     model*: string
-    encodingFormat*: Option[string] # can be "float" or "base64", defaults to float
+    encoding_format*: Option[string] # can be "float" or "base64", defaults to float
     dimensions*: Option[int] # only supported on text-embedding-3 and later
     user*: Option[string]
   CreateEmbeddingRespObj* = ref object
@@ -50,8 +53,8 @@ type
     content*: Option[string]    # requied for role = system | user
     role*: string               # system | user | assisant | tool
     name*: Option[string]
-    toolCalls*: Option[seq[ToolCallResp]]
-    toolCallid*: Option[string] # required for role = tool
+    tool_calls*: Option[seq[ToolCallResp]]
+    tool_callid*: Option[string] # required for role = tool
   ResponseFormatObj* = ref object
     typeStr*: string # must be text or json_object
   ToolFunction* = ref object
@@ -69,35 +72,35 @@ type
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
     model*: string
-    frequencyPenalty*: Option[float32] # between -2.0 and 2.0
-    logitBias*: Option[Table[string, float32]]
+    frequency_penalty*: Option[float32] # between -2.0 and 2.0
+    logit_bias*: Option[Table[string, float32]]
     logprobs*: Option[bool]
-    topLogprobs*: Option[int]          # 0 - 20
-    maxTokens*: Option[int]
+    top_logprobs*: Option[int]          # 0 - 20
+    max_tokens*: Option[int]
     n*: Option[int]                    # count of completion choices to generate
-    presencePenalty*: Option[float32]  # between -2.0 and 2.0
-    responseFormat*: Option[ResponseFormatObj]
+    presence_penalty*: Option[float32]  # between -2.0 and 2.0
+    response_format*: Option[ResponseFormatObj]
     seed*: Option[int]
     stop*: Option[string]              # up to 4 stop sequences
                             #stop*: Option[string | seq[string]] # up to 4 stop sequences
     stream*: Option[bool]              # always use false for this library
-    topP*: Option[float32]             # between 0.0 and 1.0
+    top_p*: Option[float32]             # between 0.0 and 1.0
     tools*: Option[seq[ToolCall]]
     # toolChoice*: Option[string | ToolChoice] # "auto" | function to use
     user*: Option[string]
     # function_call
     # functions
   CreateChatMessage* = ref object
-    finishReason*: string
+    finish_reason*: string
     index*: int
     message: Message
-    logProbs*: Option[JsonNode]
+    log_probs*: Option[JsonNode]
   CreateChatCompletionResp* = ref object
     id*: string
     choices*: seq[CreateChatMessage]
     created*: int
     model*: string
-    systemFingerprint*: string
+    system_fingerprint*: string
     objectStr*: string
     usage*: Usage
 
@@ -112,16 +115,42 @@ type
     id*: string
     objectStr*: string
     bytes*: int
-    createdAt*: int
+    created_at*: int
     filename*: string
     purpose*: string
   OpenAIListFiles* = ref object
     data*: seq[OpenAIFile]
     objectStr*: string
+  OpenAIHyperParameters* = ref object
+    batchSize*: Option[int]
+    learning_rate_multiplier*: Option[float32]
+    n_epochs*: Option[int]
+  OpenAIFinetuneRequest* = ref object
+    model*: string
+    training_file*: string # file ID
+    hyperparameters*: Option[OpenAIHyperParameters]
+    suffix*: Option[string] # up to 18 character finetune suffix
+    validation_file*: Option[string] # file ID
+    # integrations
+    seed*: Option[int] # Job seed
+  OpenAIFinetuneJob* = ref object
+    objectStr*: string
+    id*: string
+    model*: string
+    created_at*: int
+    fine_tuned_model*: Option[string]
+    organization_id*: string
+    status*: string
+    training_file*: string
+    validation_file*: string
+    result_files*: seq[string]
+
+
 
 type HookedTypes = OpenAIModel | ListModelResponse | DeleteModelResponse |
   CreateEmbeddingRespObj | CreateEmbeddingResp | ToolCall | ToolCallResp |
-  ResponseFormatObj | ToolChoice | OpenAIFile | OpenAIListFiles
+  ResponseFormatObj | ToolChoice | OpenAIFile | OpenAIListFiles |
+  OpenAIFinetuneJob
 
 proc renameHook*(v: var HookedTypes, fieldName: var string) =
   ## `object` is a special keyword in nim, so we need to rename it during serialization
@@ -326,15 +355,21 @@ proc deleteFile*(api: OpenAIAPI, fileId: string) =
 
 # TODO retrieve file content
 
-proc createFineTuneModel*(api: OpenAIAPI, model: string, dataset: string, name: string, description: string) =
-  echo "TODO"
-  # model will take time to train
+proc createFineTuneJob*(api: OpenAIAPI, req: OpenAIFinetuneRequest): OpenAIFinetuneJob =
+  let reqStr = toJson(req)
+  echo reqStr
+  let resp = api.post("/fine_tuning/jobs", reqStr)
+  result = fromJson(resp.body, OpenAIFinetuneJob)
 
 proc getFineTuneModel*(api: OpenAIAPI, modelId: string) =
   echo "TODO"
   # get the status of the model
-proc listFineTuneModels*(api: OpenAIAPI) =
-  echo "TODO"
+
+proc listFineTuneJobs*(api: OpenAIAPI) =
+  let resp = api.get("/fine_tuning/jobs")
+  echo "LIST FINE TUNE JOBS"
+  echo resp.body
+
 
 proc listFineTuneModelEvents*(api: OpenAIAPI, modelId: string) =
   echo "TODO"

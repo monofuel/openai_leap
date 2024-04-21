@@ -25,12 +25,28 @@ suite "OpenAI finetuning":
       dataset = openai.createFineTuneDataset("tests/test-dataset.jsonl")
       assert dataset.id != ""
       assert dataset.purpose == "fine-tune"
-    test "list datasets":
-      let datasets = openai.listFiles()
-      # echo toJson(datasets)
-      assert datasets.data.len > 0
-    test "cleanup":
-      let datasets = openai.listFiles()
-      for dataset in datasets.data:
-        if dataset.filename == "test-dataset.jsonl":
-          openai.deleteFile(dataset.id)
+    # test "list datasets":
+    #   let datasets = openai.listFiles()
+    #   # echo toJson(datasets)
+    #   assert datasets.data.len > 0
+
+    # test "create job":
+    #   let req = OpenAIFinetuneRequest(
+    #     trainingFile: dataset.id,
+    #     model: TestModel,
+    #   )
+    #   let job = openai.createFineTuneJob(req)
+    #   echo "JOB CREATED"
+    #   echo toJson(job)
+
+    test "list jobs":
+      openai.listFineTuneJobs()
+      # echo "JOBS"
+      # echo toJson(jobs)
+      # assert jobs.data.len > 0
+
+    # test "cleanup":
+    #   let datasets = openai.listFiles()
+    #   for dataset in datasets.data:
+    #     if dataset.filename == "test-dataset.jsonl":
+    #       openai.deleteFile(dataset.id)
