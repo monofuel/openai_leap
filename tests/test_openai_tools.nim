@@ -47,7 +47,10 @@ suite "openai tools":
       var messages = @[
         Message(
           role: "user",
-          content: option("What is the flight time from New York (NYC) to Los Angeles (LAX)?")
+          content: 
+            option(@[MessageContentPart(`type`: "text", text: option(
+             "What is the flight time from New York (NYC) to Los Angeles (LAX)?"
+            ))])
         )
       ]
 
@@ -84,7 +87,15 @@ suite "openai tools":
 
       let toolMsg = toolResp.choices[0].message
 
-      messages.add(toolMsg)
+      messages.add(Message(
+        role: toolMsg.role,
+        content: option(
+          @[MessageContentPart(`type`: "text", text: option(
+            toolMsg.content
+          ))]
+        ),
+        tool_calls: toolMsg.tool_calls
+      ))
 
       assert toolMsg.role == "assistant"
       assert toolMsg.tool_calls.isSome
@@ -98,7 +109,11 @@ suite "openai tools":
       let toolResult = getFlightTimes(toolFuncArgs["departure"].getStr, toolFuncArgs["arrival"].getStr)
       messages.add(Message(
         role: "tool",
-        content: option(toolResult),
+        content: option(
+          @[MessageContentPart(`type`: "text", text: option(
+            toolResult
+          ))]
+          ),
         tool_call_id: option(toolMsg.tool_calls.get[0].id)
       ))
       echo toJson(messages)

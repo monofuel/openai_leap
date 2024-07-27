@@ -48,12 +48,21 @@ type
     id*: string
     `type`*: string
     function*: ToolFunctionResp
+  MessageContentPart* = ref object
+    `type`*: string # must be text or image_url
+    text*: options.Option[string]
+    image_url*: options.Option[string]
   Message* = ref object
-    content*: Option[string]    # requied for role = system | user
+    content*: Option[seq[MessageContentPart]]    # requied for role = system | user
     role*: string               # system | user | assisant | tool
     name*: Option[string]
     tool_calls*: Option[seq[ToolCallResp]]
     tool_call_id*: Option[string] # required for role = tool
+  RespMessage* = ref object
+    content*: string            # response always has content
+    role*: string               # system | user | assisant | tool
+    name*: Option[string]
+    tool_calls*: Option[seq[ToolCallResp]]
   ResponseFormatObj* = ref object
     `type`*: string # must be text or json_object
   ToolFunction* = ref object
@@ -91,7 +100,7 @@ type
   CreateChatMessage* = ref object
     finish_reason*: string
     index*: int
-    message*: Message
+    message*: RespMessage
     log_probs*: Option[JsonNode]
   CreateChatCompletionResp* = ref object
     id*: string
@@ -296,11 +305,11 @@ proc createChatCompletion*(
   let req = CreateChatCompletionReq()
   req.model = model
   req.messages = @[
-    Message(role: "system", content: option(systemPrompt)),
-    Message(role: "user", content: option(input))
+    Message(role: "system", content: option(@[MessageContentPart(`type`: "text", text: option(systemPrompt))])),
+    Message(role: "user", content: option(@[MessageContentPart(`type`: "text", text: option(input))]))
     ]
   let resp = api.createChatCompletion(req)
-  result = resp.choices[0].message.content.get
+  result = resp.choices[0].message.content
 
 
 # openai fine tuning format is a jsonl file
