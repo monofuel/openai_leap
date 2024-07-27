@@ -29,8 +29,8 @@ suite "openai_leap":
     test "get":
       let model = openAI.getModel(TestModel)
       echo toJson(model)
-    test "delete":
-      echo "TEST NOT IMPLEMENTED"
+    # test "delete":
+    #   echo "TEST NOT IMPLEMENTED"
 
   suite "embeddings":
     test "create":

@@ -4,7 +4,6 @@ import curly, jsony, std/[os, osproc, json, options, strformat, tables]
 
 # Important: the OpenAI API uses camel_case. you must match this or the fields will be ignored
 # this does not matter for responses but is critical for requests
-# however objectStr and typeStr are special and have a json dump hook to rewrite them
 type
   OpenAIAPI* = ref object
     curlPool: CurlPool
@@ -15,17 +14,17 @@ type
   OpenAIModel* = ref object
     id*: string
     created*: int
-    objectStr*: string
+    `object`*: string
     owned_by*: string
   Usage* = ref object
     prompt_tokens*: int
     total_tokens*: int
   ListModelResponse* = ref object
     data*: seq[OpenAIModel]
-    objectStr*: string
+    `object`*: string
   DeleteModelResponse* = ref object
     id*: string
-    objectStr*: string
+    `object`*: string
     deleted*: bool
   CreateEmbeddingReq* = ref object
     input*: string           # | seq[string] | seq[int] | seq[seq[int]]
@@ -36,38 +35,38 @@ type
   CreateEmbeddingRespObj* = ref object
     index*: int              # index into the input sequence in the request
     embedding*: seq[float32] # https://platform.openai.com/docs/guides/embeddings
-    objectStr*: string
+    `object`*: string
   CreateEmbeddingResp* = ref object
     data*: seq[CreateEmbeddingRespObj]
-    objectStr*: string
+    `object`*: string
     model*: string
     usage*: Usage
   ToolFunctionResp* = ref object
     name*: string
-    arguments*: string
+    arguments*: string # string of a JSON object
   ToolCallResp* = ref object
     id*: string
-    typeStr*: string
+    `type`*: string
     function*: ToolFunctionResp
   Message* = ref object
     content*: Option[string]    # requied for role = system | user
     role*: string               # system | user | assisant | tool
     name*: Option[string]
     tool_calls*: Option[seq[ToolCallResp]]
-    tool_callid*: Option[string] # required for role = tool
+    tool_call_id*: Option[string] # required for role = tool
   ResponseFormatObj* = ref object
-    typeStr*: string # must be text or json_object
+    `type`*: string # must be text or json_object
   ToolFunction* = ref object
     description*: Option[string]
     name*: string
     parameters*: Option[JsonNode] # JSON Schema Object
   ToolCall* = ref object
-    typeStr*: string
+    `type`*: string
     function*: ToolFunction
   ToolChoiceFuncion* = ref object
     name*: string
   ToolChoice* = ref object
-    typeStr*: string
+    `type`*: string
     function*: ToolChoiceFuncion
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
@@ -86,14 +85,13 @@ type
     stream*: Option[bool]              # always use false for this library
     top_p*: Option[float32]             # between 0.0 and 1.0
     tools*: Option[seq[ToolCall]]
-    # toolChoice*: Option[string | ToolChoice] # "auto" | function to use
+    #toolChoice*: Option[string | ToolChoice] # "auto" | function to use
+    tool_choice*: Option[JsonNode]  # "auto" | function to use
     user*: Option[string]
-    # function_call
-    # functions
   CreateChatMessage* = ref object
     finish_reason*: string
     index*: int
-    message: Message
+    message*: Message
     log_probs*: Option[JsonNode]
   CreateChatCompletionResp* = ref object
     id*: string
@@ -101,7 +99,7 @@ type
     created*: int
     model*: string
     system_fingerprint*: string
-    objectStr*: string
+    `object`*: string
     usage*: Usage
 
 # Finetuning types
@@ -113,14 +111,14 @@ type
     messages*: seq[OpenAIFineTuneMessage]
   OpenAIFile* = ref object
     id*: string
-    objectStr*: string
+    `object`*: string
     bytes*: int
     created_at*: int
     filename*: string
     purpose*: string
   OpenAIListFiles* = ref object
     data*: seq[OpenAIFile]
-    objectStr*: string
+    `object`*: string
   OpenAIHyperParameters* = ref object
     # TODO needs to handle "auto" or int / float
     batchSize*: Option[int]
@@ -139,7 +137,7 @@ type
     param*: string
     message*: string
   OpenAIFinetuneJob* = ref object
-    objectStr*: string
+    `object`*: string
     id*: string
     model*: string
     created_at*: int
@@ -157,29 +155,9 @@ type
     seed*: int
     # integrations
   OpenAIFinetuneList* = ref object
-    objectStr*: string
+    `object`*: string
     data*: seq[OpenAIFinetuneJob]
     has_more*: bool
-
-
-type HookedTypes = OpenAIModel | ListModelResponse | DeleteModelResponse |
-  CreateEmbeddingRespObj | CreateEmbeddingResp | ToolCall | ToolCallResp |
-  ResponseFormatObj | ToolChoice | OpenAIFile | OpenAIListFiles |
-  OpenAIFinetuneJob | OpenAIFinetuneList
-
-proc renameHook*(v: var HookedTypes, fieldName: var string) =
-  ## `object` is a special keyword in nim, so we need to rename it during serialization
-  if fieldName == "object":
-    fieldName = "objectStr"
-  ## `type` is a special keyword in nim, so we need to rename it during serialization
-  if fieldName == "type":
-    fieldName = "typeStr"
-
-proc dumpHook*(v: var HookedTypes, fieldName: var string) =
-  if fieldName == "objectStr":
-    fieldName = "object"
-  if fieldName == "typeStr":
-    fieldName = "type"
 
 proc dumpHook(s: var string, v: object) =
   ## jsony skip optional fields that are nil
