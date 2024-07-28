@@ -48,10 +48,13 @@ type
     id*: string
     `type`*: string
     function*: ToolFunctionResp
+  ImageUrlPart* = ref object
+    url*: string
+    detail*: Option[string] # detail level of image, refer to Vision Guide in the docs
   MessageContentPart* = ref object
     `type`*: string # must be text or image_url
     text*: options.Option[string]
-    image_url*: options.Option[string]
+    image_url*: options.Option[ImageUrlPart]
   Message* = ref object
     content*: Option[seq[MessageContentPart]]    # requied for role = system | user
     role*: string               # system | user | assisant | tool
@@ -88,6 +91,7 @@ type
     n*: Option[int]                    # count of completion choices to generate
     presence_penalty*: Option[float32]  # between -2.0 and 2.0
     response_format*: Option[ResponseFormatObj]
+    temperature*: Option[float32]       # between 0.0 and 2.0
     seed*: Option[int]
     stop*: Option[string]              # up to 4 stop sequences
                             #stop*: Option[string | seq[string]] # up to 4 stop sequences
