@@ -37,6 +37,7 @@ openai.close()
     - "https://api.openai.com/v1" is the default.
     - "http://localhost:11434/v1" may be used for a locally running Ollama instance.
   - `apiKey` may be set to directly pass the API key as a parameter, rather than using the `OPENAI_API_KEY` environment variable.
+    - If you wish to use Ollama, you can put in a bogus value for the API key.
   - `organization` optinally lets you set the organization header in API requests
   - `curlPoolSize` controls the size of the curly pool to manage http connections. the default is 4
   - `curlTimeout` is a float32 of milliseconds to control the timeout for http requests. the default is 60000 (60 seconds)
