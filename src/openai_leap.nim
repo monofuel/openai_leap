@@ -5,14 +5,14 @@ import curly, jsony, std/[os, osproc, json, options, strformat, tables]
 # Important: the OpenAI API uses camel_case. you must match this or the fields will be ignored
 # this does not matter for responses but is critical for requests
 type
-  OpenAIAPI* = ref object
+  OpenAiApi* = ref object
     curlPool: CurlPool
     baseUrl: string
     curlTimeout: float32
     apiKey: string
     organization: string
 
-  OpenAIModel* = ref object
+  OpenAiModel* = ref object
     id*: string
     created*: int
     `object`*: string
@@ -23,7 +23,7 @@ type
     total_tokens*: int
 
   ListModelResponse* = ref object
-    data*: seq[OpenAIModel]
+    data*: seq[OpenAiModel]
     `object`*: string
 
   DeleteModelResponse* = ref object
@@ -226,13 +226,13 @@ proc dumpHook(s: var string, v: object) =
       inc i
   s.add '}'
 
-proc newOpenAIAPI*(
+proc newOpenAiApi*(
     baseUrl: string = "https://api.openai.com/v1",
     apiKey: string = "",
     organization: string = "",
     curlPoolSize: int = 4,
     curlTimeout: float32 = 60000
-): OpenAIAPI =
+): OpenAiApi =
   ## Initialize a new OpenAI API client.
   ## Will use the provided apiKey,
   ## or look for the OPENAI_API_KEY environment variable.
@@ -242,18 +242,18 @@ proc newOpenAIAPI*(
   if apiKeyVar == "":
     raise newException(CatchableError, "OPENAI_API_KEY must be set for OpenAI API authorization")
 
-  result = OpenAIAPI()
+  result = OpenAiApi()
   result.curlPool = newCurlPool(curlPoolSize)
   result.baseUrl = baseUrl
   result.curlTimeout = curlTimeout
   result.apiKey = apiKeyVar
   result.organization = organization
 
-proc close*(api: OpenAIAPI) =
+proc close*(api: OpenAiApi) =
   ## Clean up the OpenAPI API client.
   api.curlPool.close()
 
-proc get(api: OpenAIAPI, path: string): Response =
+proc get(api: OpenAiApi, path: string): Response =
   ## Make a GET request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
@@ -265,7 +265,7 @@ proc get(api: OpenAIAPI, path: string): Response =
     raise newException(CatchableError, &"openai call {path} failed: {resp.code} {resp.body}")
   result = resp
 
-proc post(api: OpenAIAPI, path: string, body: string): Response =
+proc post(api: OpenAiApi, path: string, body: string): Response =
   ## Make a POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
@@ -278,7 +278,7 @@ proc post(api: OpenAIAPI, path: string, body: string): Response =
     raise newException(CatchableError, &"openai call {path} failed: {resp.code} {resp.body}")
   result = resp
 
-proc delete(api: OpenAIAPI, path: string): Response =
+proc delete(api: OpenAiApi, path: string): Response =
   ## Make a DELETE request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
@@ -290,24 +290,24 @@ proc delete(api: OpenAIAPI, path: string): Response =
     raise newException(CatchableError, &"openai call {path} failed: {resp.code} {resp.body}")
   result = resp
 
-proc listModels*(api: OpenAIAPI): seq[OpenAIModel] =
+proc listModels*(api: OpenAiApi): seq[OpenAiModel] =
   ## List available models.
   let resp = api.get("/models")
   let data = fromJson(resp.body, ListModelResponse)
   return data.data
 
-proc getModel*(api: OpenAIAPI, modelId: string): OpenAIModel =
+proc getModel*(api: OpenAiApi, modelId: string): OpenAiModel =
   ## Get a specific model.
   let resp = api.get("/models/" & modelId)
-  result = fromJson(resp.body, OpenAIModel)
+  result = fromJson(resp.body, OpenAiModel)
 
-proc deleteModel*(api: OpenAIAPI, modelId: string): DeleteModelResponse =
+proc deleteModel*(api: OpenAiApi, modelId: string): DeleteModelResponse =
   ## Delete a specific model.
   let resp = api.delete("/models/" & modelId)
   result = fromJson(resp.body, DeleteModelResponse)
 
 proc generateEmbeddings*(
-  api: OpenAIAPI,
+  api: OpenAiApi,
   model: string,
   input: string,
   dimensions: Option[int] = none(int),
@@ -325,7 +325,7 @@ proc generateEmbeddings*(
   result = fromJson(resp.body, CreateEmbeddingResp)
 
 proc createChatCompletion*(
-  api: OpenAIAPI,
+  api: OpenAiApi,
   req: CreateChatCompletionReq
 ): CreateChatCompletionResp =
   ## Create a chat completion.
@@ -334,7 +334,7 @@ proc createChatCompletion*(
   result = fromJson(resp.body, CreateChatCompletionResp)
 
 proc createChatCompletion*(
-  api: OpenAIAPI,
+  api: OpenAiApi,
   model: string,
   systemPrompt: string,
   input: string
@@ -349,7 +349,7 @@ proc createChatCompletion*(
   let resp = api.createChatCompletion(req)
   result = resp.choices[0].message.content
 
-proc createFineTuneDataset*(api: OpenAIAPI, filepath: string): OpenAIFile =
+proc createFineTuneDataset*(api: OpenAiApi, filepath: string): OpenAIFile =
   ## OpenAI fine tuning format is a jsonl file.
   ## At least 10 examples are required. 50 to 100 recommended.
   ## For a training file with 100,000 tokens trained over 3 epochs,
@@ -381,52 +381,52 @@ curl -s https://api.openai.com/v1/files \
     raise newException(CatchableError, "Failed to upload file, curl returned " & $res)
   result = fromJson(output, OpenAIFile)
 
-proc listFiles*(api: OpenAIAPI): OpenAIListFiles =
+proc listFiles*(api: OpenAiApi): OpenAIListFiles =
   ## List all the files.
   let resp = api.get("/files")
   result = fromJson(resp.body, OpenAIListFiles)
 
-proc getFileDetails*(api: OpenAIAPI, fileId: string): OpenAIFile =
+proc getFileDetails*(api: OpenAiApi, fileId: string): OpenAIFile =
   ## Get the details of a file.
   let resp = api.get("/files/" & fileId)
   result = fromJson(resp.body, OpenAIFile)
 
-proc deleteFile*(api: OpenAIAPI, fileId: string) =
+proc deleteFile*(api: OpenAiApi, fileId: string) =
   ## Delete a file.
   discard api.delete("/files/" & fileId)
 
 # TODO retrieve file content
 
-proc createFineTuneJob*(api: OpenAIAPI, req: OpenAIFinetuneRequest): OpenAIFinetuneJob =
+proc createFineTuneJob*(api: OpenAiApi, req: OpenAIFinetuneRequest): OpenAIFinetuneJob =
   ## Create a fine tune job.
   let reqStr = toJson(req)
   echo reqStr
   let resp = api.post("/fine_tuning/jobs", reqStr)
   result = fromJson(resp.body, OpenAIFinetuneJob)
 
-proc getFineTuneModel*(api: OpenAIAPI, modelId: string) =
+proc getFineTuneModel*(api: OpenAiApi, modelId: string) =
   ## Get the status of the model.
   raiseAssert("Unimplemented proc")
 
-proc listFineTuneJobs*(api: OpenAIAPI): OpenAIFinetuneList =
+proc listFineTuneJobs*(api: OpenAiApi): OpenAIFinetuneList =
   ## List all the fine tune jobs.
   let resp = api.get("/fine_tuning/jobs")
   echo resp.body
   result = fromJson(resp.body, OpenAIFinetuneList)
 
-proc listFineTuneModelEvents*(api: OpenAIAPI, modelId: string) =
+proc listFineTuneModelEvents*(api: OpenAiApi, modelId: string) =
   # List all the events for the fine tune model.
   raiseAssert("Unimplemented proc")
 
-proc listFineTuneCheckpoints*(api: OpenAIAPI, modelId: string) =
+proc listFineTuneCheckpoints*(api: OpenAiApi, modelId: string) =
   # List all the checkpoints for the fine tune model.
   # See: https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints
   raiseAssert("Unimplemented proc")
 
-proc cancelFineTuneModel*(api: OpenAIAPI, modelId: string) =
+proc cancelFineTuneModel*(api: OpenAiApi, modelId: string) =
   # Cancel the fine tune model.
   raiseAssert("Unimplemented proc")
 
-proc deleteFineTuneModel*(api: OpenAIAPI, modelId: string) =
+proc deleteFineTuneModel*(api: OpenAiApi, modelId: string) =
   # Delete the fine tune model.
   raiseAssert("Unimplemented proc")

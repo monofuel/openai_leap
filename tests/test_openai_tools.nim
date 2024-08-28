@@ -27,10 +27,10 @@ proc getFlightTimes(departure: string, arrival: string): string =
     raise newException(ValueError, "No flight found for " & key)
 
 suite "openai tools":
-  var openai: OpenAIAPI
+  var openai: OpenAiApi
 
   setup:
-    openai = newOpenAIAPI(BaseUrl)
+    openai = newOpenAiApi(BaseUrl)
   teardown:
     openai.close()
 
@@ -47,7 +47,7 @@ suite "openai tools":
       var messages = @[
         Message(
           role: "user",
-          content: 
+          content:
             option(@[MessageContentPart(`type`: "text", text: option(
              "What is the flight time from New York (NYC) to Los Angeles (LAX)?"
             ))])

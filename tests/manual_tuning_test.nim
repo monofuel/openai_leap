@@ -11,10 +11,10 @@ const
 
 
 suite "OpenAI finetuning":
-  var openai: OpenAIAPI
+  var openai: OpenAiApi
 
   setup:
-    openai = newOpenAIAPI()
+    openai = newOpenAiApi()
   teardown:
     openai.close()
 

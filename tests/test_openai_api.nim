@@ -10,12 +10,12 @@ const
 # https://github.com/ollama/ollama/blob/main/docs/openai.md
 
 suite "openai_leap":
-  var openai: OpenAIAPI
+  var openai: OpenAiApi
 
   setup:
     if BaseUrl == "http://localhost:11434/v1":
       putEnv("OPENAI_API_KEY", "ollama")
-    openai = newOpenAIAPI(BaseUrl)
+    openai = newOpenAiApi(BaseUrl)
   teardown:
     openai.close()
 
@@ -43,4 +43,3 @@ suite "openai_leap":
       let prompt = "How are you today?"
       let resp = openai.createChatCompletion(TestModel, system, prompt)
       echo resp
-

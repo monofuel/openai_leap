@@ -18,7 +18,7 @@ export OPENAI_API_KEY="your-key-goes-here"
 ```nim
 import openai_leap
 
-let openai = newOpenAIAPI()
+let openai = newOpenAiApi()
 
 let models = openai.listModels()
 echo "OpenAI Models:"
@@ -32,8 +32,8 @@ echo resp
 openai.close()
 ```
 
-- `newOpenAIAPI` has optional named parameters
-  - `baseUrl` can change the openAI endpoint. 
+- `newOpenAiApi` has optional named parameters
+  - `baseUrl` can change the openAI endpoint.
     - "https://api.openai.com/v1" is the default.
     - "http://localhost:11434/v1" may be used for a locally running Ollama instance.
   - `apiKey` may be set to directly pass the API key as a parameter, rather than using the `OPENAI_API_KEY` environment variable.

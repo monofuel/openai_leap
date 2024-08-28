@@ -1,6 +1,6 @@
 import openai_leap
 
-let openai = newOpenAIAPI()
+let openai = newOpenAiApi()
 
 let models = openai.listModels()
 echo "OpenAI Models:"
