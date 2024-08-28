@@ -43,8 +43,4 @@ suite "openai_leap":
       let prompt = "How are you today?"
       let resp = openai.createChatCompletion(TestModel, system, prompt)
       echo resp
-    test "fine tuned model":
-      let system = "You are a helpful assistant"
-      let prompt = "How are you today?"
-      let resp = openai.createChatCompletion(TunedModel, system, prompt)
-      echo resp
+

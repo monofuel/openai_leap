@@ -45,6 +45,13 @@ suite "OpenAI finetuning":
       echo toJson(jobs)
       assert jobs.data.len > 0
 
+    # TODO should poll for job completion and the model to be ready
+    # test "fine tuned model":
+    #   let system = "You are a helpful assistant"
+    #   let prompt = "How are you today?"
+    #   let resp = openai.createChatCompletion(TunedModel, system, prompt)
+    #   echo resp
+
     test "cleanup":
       let datasets = openai.listFiles()
       for dataset in datasets.data:
