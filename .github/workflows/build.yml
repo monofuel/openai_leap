@@ -1,5 +1,13 @@
-name: Github Actions
-on: [push, pull_request]
+name: OpenAI Tests
+
+# Only run these tests for master because they require an openai api key
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
   build:
     strategy:
@@ -14,5 +22,6 @@ jobs:
     - uses: jiro4989/setup-nim-action@v1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - run: export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
     - run: nimble test -y
     - run: nimble test --gc:orc -y
