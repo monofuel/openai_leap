@@ -27,11 +27,21 @@ suite "serialization":
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant."
+      "content": [
+        {
+          "type": "text",
+          "text": "You are a helpful assistant."
+        }
+      ]
     },
     {
       "role": "user",
-      "content": "Hello!"
+      "content": [
+        {
+          "type": "text",
+          "text": "Hello!"
+        }
+      ]
     }
   ]
 }

@@ -56,6 +56,8 @@ type
     text*: options.Option[string]
     image_url*: options.Option[ImageUrlPart]
   Message* = ref object
+    ## ChatGPT Message object for chat completions and responses
+    ## NB. `content` can be a string or a sequence of MessageContentPart objects, however this cannot be expressed in Nim easily, so we require a sequence of MessageContentPart objects
     content*: Option[seq[MessageContentPart]]    # requied for role = system | user
     role*: string               # system | user | assisant | tool
     name*: Option[string]
