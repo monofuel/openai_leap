@@ -11,50 +11,62 @@ type
     curlTimeout: float32
     apiKey: string
     organization: string
+
   OpenAIModel* = ref object
     id*: string
     created*: int
     `object`*: string
     owned_by*: string
+
   Usage* = ref object
     prompt_tokens*: int
     total_tokens*: int
+
   ListModelResponse* = ref object
     data*: seq[OpenAIModel]
     `object`*: string
+
   DeleteModelResponse* = ref object
     id*: string
     `object`*: string
     deleted*: bool
+
   CreateEmbeddingReq* = ref object
     input*: string           # | seq[string] | seq[int] | seq[seq[int]]
     model*: string
     encoding_format*: Option[string] # can be "float" or "base64", defaults to float
     dimensions*: Option[int] # only supported on text-embedding-3 and later
     user*: Option[string]
+
   CreateEmbeddingRespObj* = ref object
     index*: int              # index into the input sequence in the request
     embedding*: seq[float64] # https://platform.openai.com/docs/guides/embeddings
     `object`*: string
+
   CreateEmbeddingResp* = ref object
     data*: seq[CreateEmbeddingRespObj]
     `object`*: string
     model*: string
     usage*: Usage
+
   ToolFunctionResp* = ref object
     name*: string
     arguments*: string # string of a JSON object
+
   ToolCallResp* = ref object
     id*: string
     `type`*: string
     function*: ToolFunctionResp
+
   ImageUrlPart* = ref object
     url*: string
     detail*: Option[string] # detail level of image, refer to Vision Guide in the docs
+
   MessageContentPart* = ref object
     `type`*: string # must be text or image_url
     text*: options.Option[string]
     image_url*: options.Option[ImageUrlPart]
+
   Message* = ref object
     ## ChatGPT Message object for chat completions and responses
     ## NB. `content` can be a string or a sequence of MessageContentPart objects, however this cannot be expressed in Nim easily, so we require a sequence of MessageContentPart objects
@@ -63,25 +75,32 @@ type
     name*: Option[string]
     tool_calls*: Option[seq[ToolCallResp]]
     tool_call_id*: Option[string] # required for role = tool
+
   RespMessage* = ref object
     content*: string            # response always has content
     role*: string               # system | user | assisant | tool
     name*: Option[string]
     tool_calls*: Option[seq[ToolCallResp]]
+
   ResponseFormatObj* = ref object
     `type`*: string # must be text or json_object
+
   ToolFunction* = ref object
     description*: Option[string]
     name*: string
     parameters*: Option[JsonNode] # JSON Schema Object
+
   ToolCall* = ref object
     `type`*: string
     function*: ToolFunction
+
   ToolChoiceFuncion* = ref object
     name*: string
+
   ToolChoice* = ref object
     `type`*: string
     function*: ToolChoiceFuncion
+
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
     model*: string
@@ -103,11 +122,13 @@ type
     #toolChoice*: Option[string | ToolChoice] # "auto" | function to use
     tool_choice*: Option[JsonNode]  # "auto" | function to use
     user*: Option[string]
+
   CreateChatMessage* = ref object
     finish_reason*: string
     index*: int
     message*: RespMessage
     log_probs*: Option[JsonNode]
+
   CreateChatCompletionResp* = ref object
     id*: string
     choices*: seq[CreateChatMessage]
@@ -122,8 +143,10 @@ type
   OpenAIFineTuneMessage* = ref object
     role*: string # system, user, or assistant
     content*: string
+
   OpenAIFineTuneChat* = ref object
     messages*: seq[OpenAIFineTuneMessage]
+
   OpenAIFile* = ref object
     id*: string
     `object`*: string
@@ -131,14 +154,17 @@ type
     created_at*: int
     filename*: string
     purpose*: string
+
   OpenAIListFiles* = ref object
     data*: seq[OpenAIFile]
     `object`*: string
+
   OpenAIHyperParameters* = ref object
     # TODO needs to handle "auto" or int / float
     batchSize*: Option[int]
     learning_rate_multiplier*: Option[float]
     n_epochs*: Option[int]
+
   OpenAIFinetuneRequest* = ref object
     model*: string
     training_file*: string # file ID
@@ -147,10 +173,12 @@ type
     validation_file*: Option[string] # file ID
     # integrations
     seed*: Option[int] # Job seed
+
   FineTuneError* = ref object
     code*: string
     param*: string
     message*: string
+
   OpenAIFinetuneJob* = ref object
     `object`*: string
     id*: string
@@ -169,13 +197,14 @@ type
     user_provided_suffix*: Option[string]
     seed*: int
     # integrations
+
   OpenAIFinetuneList* = ref object
     `object`*: string
     data*: seq[OpenAIFinetuneJob]
     has_more*: bool
 
 proc dumpHook(s: var string, v: object) =
-  ## jsony skip optional fields that are nil
+  ## Jsony skip optional fields that are nil.
   s.add '{'
   var i = 0
   # Normal objects.
@@ -204,8 +233,9 @@ proc newOpenAIAPI*(
     curlPoolSize: int = 4,
     curlTimeout: float32 = 60000
 ): OpenAIAPI =
-  ## Initialize a new OpenAI API client
-  ## Will use the provided apiKey, or look for the OPENAI_API_KEY environment variable
+  ## Initialize a new OpenAI API client.
+  ## Will use the provided apiKey,
+  ## or look for the OPENAI_API_KEY environment variable.
   var apiKeyVar = apiKey
   if apiKeyVar == "":
     apiKeyVar = getEnv("OPENAI_API_KEY", "")
@@ -220,12 +250,11 @@ proc newOpenAIAPI*(
   result.organization = organization
 
 proc close*(api: OpenAIAPI) =
-  ## clean up the OpenAPI API client
+  ## Clean up the OpenAPI API client.
   api.curlPool.close()
 
-
 proc get(api: OpenAIAPI, path: string): Response =
-  ## Make a GET request to the OpenAI API
+  ## Make a GET request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
   headers["Authorization"] = "Bearer " & api.apiKey
@@ -237,7 +266,7 @@ proc get(api: OpenAIAPI, path: string): Response =
   result = resp
 
 proc post(api: OpenAIAPI, path: string, body: string): Response =
-  ## Make a POST request to the OpenAI API
+  ## Make a POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
   headers["Authorization"] = "Bearer " & api.apiKey
@@ -250,7 +279,7 @@ proc post(api: OpenAIAPI, path: string, body: string): Response =
   result = resp
 
 proc delete(api: OpenAIAPI, path: string): Response =
-  ## Make a DELETE request to the OpenAI API
+  ## Make a DELETE request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
   headers["Authorization"] = "Bearer " & api.apiKey
@@ -262,15 +291,18 @@ proc delete(api: OpenAIAPI, path: string): Response =
   result = resp
 
 proc listModels*(api: OpenAIAPI): seq[OpenAIModel] =
+  ## List available models.
   let resp = api.get("/models")
   let data = fromJson(resp.body, ListModelResponse)
   return data.data
 
 proc getModel*(api: OpenAIAPI, modelId: string): OpenAIModel =
+  ## Get a specific model.
   let resp = api.get("/models/" & modelId)
   result = fromJson(resp.body, OpenAIModel)
 
 proc deleteModel*(api: OpenAIAPI, modelId: string): DeleteModelResponse =
+  ## Delete a specific model.
   let resp = api.delete("/models/" & modelId)
   result = fromJson(resp.body, DeleteModelResponse)
 
@@ -281,7 +313,7 @@ proc generateEmbeddings*(
   dimensions: Option[int] = none(int),
   user: string = ""
 ): CreateEmbeddingResp =
-  ## Generate embeddings for a list of documents
+  ## Generate embeddings for a list of documents.
   let req = CreateEmbeddingReq()
   req.input = input
   req.model = model
@@ -296,7 +328,7 @@ proc createChatCompletion*(
   api: OpenAIAPI,
   req: CreateChatCompletionReq
 ): CreateChatCompletionResp =
-  ## Create a chat completion
+  ## Create a chat completion.
   let reqBody = toJson(req)
   let resp = post(api, "/chat/completions", reqBody)
   result = fromJson(resp.body, CreateChatCompletionResp)
@@ -307,7 +339,7 @@ proc createChatCompletion*(
   systemPrompt: string,
   input: string
 ): string =
-  ## Create a chat completion
+  ## Create a chat completion.
   let req = CreateChatCompletionReq()
   req.model = model
   req.messages = @[
@@ -317,16 +349,15 @@ proc createChatCompletion*(
   let resp = api.createChatCompletion(req)
   result = resp.choices[0].message.content
 
-
-# openai fine tuning format is a jsonl file
-# at least 10 examples are required. 50 to 100 recommended.
-# For a training file with 100,000 tokens trained over 3 epochs, the expected cost would be ~$2.40 USD.
-
 proc createFineTuneDataset*(api: OpenAIAPI, filepath: string): OpenAIFile =
-  # file will take time to process while uploading
-  # maximum file size is 512MB, but not recommended that big.
-  # 100gb limit across an organization
-  #https://platform.openai.com/docs/api-reference/files/create
+  ## OpenAI fine tuning format is a jsonl file.
+  ## At least 10 examples are required. 50 to 100 recommended.
+  ## For a training file with 100,000 tokens trained over 3 epochs,
+  ## the expected cost would be ~$2.40 USD.
+  ## File will take time to process while uploading.
+  ## Maximum file size is 512MB, but not files that big are not recommended.
+  ## There is a 100gb limit across an organization.
+  ## See: https://platform.openai.com/docs/api-reference/files/create
 
   # This API call is special and uses a form for file upload
   # HACK using execCmd to call curl directly instead of use curly
@@ -349,46 +380,53 @@ curl -s https://api.openai.com/v1/files \
   if res != 0:
     raise newException(CatchableError, "Failed to upload file, curl returned " & $res)
   result = fromJson(output, OpenAIFile)
-  
+
 proc listFiles*(api: OpenAIAPI): OpenAIListFiles =
+  ## List all the files.
   let resp = api.get("/files")
   result = fromJson(resp.body, OpenAIListFiles)
 
 proc getFileDetails*(api: OpenAIAPI, fileId: string): OpenAIFile =
+  ## Get the details of a file.
   let resp = api.get("/files/" & fileId)
   result = fromJson(resp.body, OpenAIFile)
 
 proc deleteFile*(api: OpenAIAPI, fileId: string) =
+  ## Delete a file.
   discard api.delete("/files/" & fileId)
 
 # TODO retrieve file content
 
 proc createFineTuneJob*(api: OpenAIAPI, req: OpenAIFinetuneRequest): OpenAIFinetuneJob =
+  ## Create a fine tune job.
   let reqStr = toJson(req)
   echo reqStr
   let resp = api.post("/fine_tuning/jobs", reqStr)
   result = fromJson(resp.body, OpenAIFinetuneJob)
 
 proc getFineTuneModel*(api: OpenAIAPI, modelId: string) =
-  echo "TODO"
-  # get the status of the model
+  ## Get the status of the model.
+  raiseAssert("Unimplemented proc")
 
 proc listFineTuneJobs*(api: OpenAIAPI): OpenAIFinetuneList =
+  ## List all the fine tune jobs.
   let resp = api.get("/fine_tuning/jobs")
   echo resp.body
   result = fromJson(resp.body, OpenAIFinetuneList)
 
 proc listFineTuneModelEvents*(api: OpenAIAPI, modelId: string) =
-  echo "TODO"
-  # list all the events for the fine tune model
+  # List all the events for the fine tune model.
+  raiseAssert("Unimplemented proc")
+
 proc listFineTuneCheckpoints*(api: OpenAIAPI, modelId: string) =
-  echo "TODO"
-  # https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints
-  # list all the checkpoints for the fine tune model
+  # List all the checkpoints for the fine tune model.
+  # See: https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints
+  raiseAssert("Unimplemented proc")
 
 proc cancelFineTuneModel*(api: OpenAIAPI, modelId: string) =
-  echo "TODO"
-  # cancel the fine tune model
+  # Cancel the fine tune model.
+  raiseAssert("Unimplemented proc")
+
 proc deleteFineTuneModel*(api: OpenAIAPI, modelId: string) =
-  echo "TODO"
-  # delete the fine tune model
+  # Delete the fine tune model.
+  raiseAssert("Unimplemented proc")
