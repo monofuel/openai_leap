@@ -30,7 +30,7 @@ nim	OpenAIFinetuneRequest	openai_leap.html#OpenAIFinetuneRequest	type OpenAIFine
 nim	FineTuneError	openai_leap.html#FineTuneError	type FineTuneError		150
 nim	OpenAIFinetuneJob	openai_leap.html#OpenAIFinetuneJob	type OpenAIFinetuneJob		154
 nim	OpenAIFinetuneList	openai_leap.html#OpenAIFinetuneList	type OpenAIFinetuneList		172
-nim	newOpenAIAPI	openai_leap.html#newOpenAIAPI,string,string,string,int,float32	proc newOpenAIAPI(baseUrl: string = "https://api.openai.com/v1";\n             apiKeyParam: string = ""; organization: string = "";\n             curlPoolSize: int = 4; curlTimeout: float32 = 10000.0): OpenAIAPI		200
+nim	newOpenAIAPI	openai_leap.html#newOpenAIAPI,string,string,string,int,float32	proc newOpenAIAPI(baseUrl: string = "https://api.openai.com/v1";\n             apiKeyParam: string = ""; organization: string = "";\n             curlPoolSize: int = 4; curlTimeout: float32 = 60000.0): OpenAIAPI		200
 nim	close	openai_leap.html#close,OpenAIAPI	proc close(api: OpenAIAPI)		222
 nim	listModels	openai_leap.html#listModels,OpenAIAPI	proc listModels(api: OpenAIAPI): seq[OpenAIModel]		264
 nim	getModel	openai_leap.html#getModel,OpenAIAPI,string	proc getModel(api: OpenAIAPI; modelId: string): OpenAIModel		269
