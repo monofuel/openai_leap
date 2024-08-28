@@ -22,7 +22,7 @@ jobs:
     - uses: jiro4989/setup-nim-action@v2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-    - run: |
-        export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-        nimble test -y \
+    - run: >
+        export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+        nimble test -y
         nimble test --gc:orc -y 
