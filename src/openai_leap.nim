@@ -199,24 +199,24 @@ proc dumpHook(s: var string, v: object) =
 
 proc newOpenAIAPI*(
     baseUrl: string = "https://api.openai.com/v1",
-    apiKeyParam: string = "",
+    apiKey: string = "",
     organization: string = "",
     curlPoolSize: int = 4,
     curlTimeout: float32 = 60000
 ): OpenAIAPI =
   ## Initialize a new OpenAI API client
   ## Will use the provided apiKey, or look for the OPENAI_API_KEY environment variable
-  var apiKey = apiKeyParam
-  if apiKey == "":
-    apiKey = getEnv("OPENAI_API_KEY", "")
-  if apiKey == "":
-    raise newException(CatchableError, "OpenAI API key is required")
+  var apiKeyVar = apiKey
+  if apiKeyVar == "":
+    apiKeyVar = getEnv("OPENAI_API_KEY", "")
+  if apiKeyVar == "":
+    raise newException(CatchableError, "OPENAI_API_KEY must be set for OpenAI API authorization")
 
   result = OpenAIAPI()
   result.curlPool = newCurlPool(curlPoolSize)
   result.baseUrl = baseUrl
   result.curlTimeout = curlTimeout
-  result.apiKey = apiKey
+  result.apiKey = apiKeyVar
   result.organization = organization
 
 proc close*(api: OpenAIAPI) =

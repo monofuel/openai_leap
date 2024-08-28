@@ -11,6 +11,10 @@ OpenAI API requests require the use of snake_case and have some optional fields 
 
 - The library assumes that `OPENAI_API_KEY` will be set in the environment, and uses the default chatGPT api endpoint.
 
+```bash
+export OPENAI_API_KEY="your-key-goes-here"
+```
+
 ```nim
 import openai_leap
 
@@ -32,7 +36,7 @@ openai.close()
   - `baseUrl` can change the openAI endpoint. 
     - "https://api.openai.com/v1" is the default.
     - "http://localhost:11434/v1" may be used for a locally running Ollama instance.
-  - `apiKeyParam` may be set to directly pass the API key as a parameter, rather than using the `OPENAI_API_KEY` environment variable.
+  - `apiKey` may be set to directly pass the API key as a parameter, rather than using the `OPENAI_API_KEY` environment variable.
   - `organization` optinally lets you set the organization header in API requests
   - `curlPoolSize` controls the size of the curly pool to manage http connections. the default is 4
   - `curlTimeout` is a float32 of milliseconds to control the timeout for http requests. the default is 60000 (60 seconds)
