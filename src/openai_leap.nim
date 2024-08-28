@@ -1,4 +1,4 @@
-import curly, jsony, std/[os, osproc, json, options, strformat, tables]
+import curly, jsony, webby, std/[os, osproc, json, options, strformat, tables]
 ## OpenAI Api Library
 ## https://platform.openai.com/docs/api-reference/introduction
 
@@ -11,6 +11,8 @@ type
     curlTimeout: float32
     apiKey: string
     organization: string
+
+  OpenAiError* = object of CatchableError ## Raised if an operation fails.
 
   OpenAiModel* = ref object
     id*: string
@@ -138,6 +140,9 @@ type
     `object`*: string
     usage*: Usage
 
+  AudioTranscription* = object
+    text*: string
+
 # Finetuning types
 type
   OpenAIFineTuneMessage* = ref object
@@ -240,7 +245,10 @@ proc newOpenAiApi*(
   if apiKeyVar == "":
     apiKeyVar = getEnv("OPENAI_API_KEY", "")
   if apiKeyVar == "":
-    raise newException(CatchableError, "OPENAI_API_KEY must be set for OpenAI API authorization")
+    raise newException(
+      OpenAiError,
+      "OPENAI_API_KEY must be set for OpenAI API authorization"
+    )
 
   result = OpenAiApi()
   result.curlPool = newCurlPool(curlPoolSize)
@@ -262,7 +270,10 @@ proc get(api: OpenAiApi, path: string): Response =
     headers["Organization"] = api.organization
   let resp = api.curlPool.get(api.baseUrl & path, headers, api.curlTimeout)
   if resp.code != 200:
-    raise newException(CatchableError, &"openai call {path} failed: {resp.code} {resp.body}")
+    raise newException(
+      OpenAiError,
+      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+    )
   result = resp
 
 proc post(api: OpenAiApi, path: string, body: string): Response =
@@ -272,10 +283,42 @@ proc post(api: OpenAiApi, path: string, body: string): Response =
   headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
-  let resp = api.curlPool.post(api.baseUrl & path, headers, body,
-      api.curlTimeout)
+  let resp = api.curlPool.post(
+    api.baseUrl & path,
+    headers,
+    body,
+    api.curlTimeout
+  )
   if resp.code != 200:
-    raise newException(CatchableError, &"openai call {path} failed: {resp.code} {resp.body}")
+    raise newException(
+      OpenAiError,
+      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+    )
+  result = resp
+
+proc post(
+  api: OpenAiApi,
+  path: string,
+  entries: seq[MultipartEntry]
+): Response =
+  ## Make a POST request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  headers["Authorization"] = "Bearer " & api.apiKey
+  if api.organization != "":
+    headers["Organization"] = api.organization
+  let (contentType, body) = encodeMultipart(entries)
+  headers["Content-Type"] = contentType
+  let resp = api.curlPool.post(
+    api.baseUrl & path,
+    headers,
+    body,
+    api.curlTimeout
+  )
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+    )
   result = resp
 
 proc delete(api: OpenAiApi, path: string): Response =
@@ -287,7 +330,10 @@ proc delete(api: OpenAiApi, path: string): Response =
     headers["Organization"] = api.organization
   let resp = api.curlPool.delete(api.baseUrl & path, headers, api.curlTimeout)
   if resp.code != 200:
-    raise newException(CatchableError, &"openai call {path} failed: {resp.code} {resp.body}")
+    raise newException(
+      OpenAiError,
+      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+    )
   result = resp
 
 proc listModels*(api: OpenAiApi): seq[OpenAiModel] =
@@ -343,9 +389,19 @@ proc createChatCompletion*(
   let req = CreateChatCompletionReq()
   req.model = model
   req.messages = @[
-    Message(role: "system", content: option(@[MessageContentPart(`type`: "text", text: option(systemPrompt))])),
-    Message(role: "user", content: option(@[MessageContentPart(`type`: "text", text: option(input))]))
-    ]
+    Message(
+      role: "system",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option(systemPrompt))
+      ])
+    ),
+    Message(
+      role: "user",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option(input))
+      ])
+    )
+  ]
   let resp = api.createChatCompletion(req)
   result = resp.choices[0].message.content
 
@@ -363,7 +419,7 @@ proc createFineTuneDataset*(api: OpenAiApi, filepath: string): OpenAIFile =
   # HACK using execCmd to call curl directly instead of use curly
 
   if not fileExists(filepath):
-    raise newException(CatchableError, "File does not exist: " & filepath)
+    raise newException(OpenAiError, "File does not exist: " & filepath)
 
   let auth = "Bearer " & api.apiKey
   var orgLine = ""
@@ -378,7 +434,10 @@ curl -s https://api.openai.com/v1/files \
 """
   let (output, res) = execCmdEx(curlUploadCmd)
   if res != 0:
-    raise newException(CatchableError, "Failed to upload file, curl returned " & $res)
+    raise newException(
+      OpenAiError,
+      "Failed to upload file, curl returned " & $res
+    )
   result = fromJson(output, OpenAIFile)
 
 proc listFiles*(api: OpenAiApi): OpenAIListFiles =
@@ -397,7 +456,9 @@ proc deleteFile*(api: OpenAiApi, fileId: string) =
 
 # TODO retrieve file content
 
-proc createFineTuneJob*(api: OpenAiApi, req: OpenAIFinetuneRequest): OpenAIFinetuneJob =
+proc createFineTuneJob*(
+  api: OpenAiApi, req: OpenAIFinetuneRequest
+): OpenAIFinetuneJob =
   ## Create a fine tune job.
   let reqStr = toJson(req)
   echo reqStr
@@ -415,18 +476,42 @@ proc listFineTuneJobs*(api: OpenAiApi): OpenAIFinetuneList =
   result = fromJson(resp.body, OpenAIFinetuneList)
 
 proc listFineTuneModelEvents*(api: OpenAiApi, modelId: string) =
-  # List all the events for the fine tune model.
+  ## List all the events for the fine tune model.
   raiseAssert("Unimplemented proc")
 
 proc listFineTuneCheckpoints*(api: OpenAiApi, modelId: string) =
-  # List all the checkpoints for the fine tune model.
-  # See: https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints
+  ## List all the checkpoints for the fine tune model.
+  ## See: https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints
   raiseAssert("Unimplemented proc")
 
 proc cancelFineTuneModel*(api: OpenAiApi, modelId: string) =
-  # Cancel the fine tune model.
+  ## Cancel the fine tune model.
   raiseAssert("Unimplemented proc")
 
 proc deleteFineTuneModel*(api: OpenAiApi, modelId: string) =
-  # Delete the fine tune model.
+  ## Delete the fine tune model.
   raiseAssert("Unimplemented proc")
+
+proc audioTranscriptions*(
+  api: OpenAiApi,
+  model: string,
+  audioData: string
+): AudioTranscription =
+  ## Transcribe audio data.
+  let entries = @[
+    MultipartEntry(
+      name: "file",
+      fileName: "input.wav",
+      contentType: "audio/wav",
+      payload: audioData
+    ),
+    MultipartEntry(
+      name: "model",
+      payload: model
+    )
+  ]
+  let response = api.post(
+    "/audio/transcriptions",
+    entries
+  )
+  return response.body.fromJson(AudioTranscription)
