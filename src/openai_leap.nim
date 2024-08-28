@@ -202,7 +202,7 @@ proc newOpenAIAPI*(
     apiKeyParam: string = "",
     organization: string = "",
     curlPoolSize: int = 4,
-    curlTimeout: float32 = 10000
+    curlTimeout: float32 = 60000
 ): OpenAIAPI =
   ## Initialize a new OpenAI API client
   ## Will use the provided apiKey, or look for the OPENAI_API_KEY environment variable
