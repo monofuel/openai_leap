@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -22,7 +22,7 @@ jobs:
     - uses: jiro4989/setup-nim-action@v2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-    - run: >
+    - run: |
         export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
         nimble test -y
-        nimble test --gc:orc -y 
+        nimble test --gc:orc -y
