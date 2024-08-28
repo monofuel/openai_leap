@@ -37,6 +37,7 @@ openai.close()
   - `curlPoolSize` controls the size of the curly pool to manage http connections. the default is 4
   - `curlTimeout` is a float32 of milliseconds to control the timeout for http requests. the default is 60000 (60 seconds)
     - I'm not sure what the server-side timeout is. The request time is highly variable depending on the size of the prompt, the model being used, and size of the response. You may want a lower time for faster failures and retries If you know your requests are small, or a higher time for larger requests.
+    - Higher timeouts are safer but it can be a frusterating user experience if simple requests hang when you know they likely failed.
 
 
 ## Testing
