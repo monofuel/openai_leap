@@ -166,7 +166,7 @@ type
 
   OpenAIHyperParameters* = ref object
     # TODO needs to handle "auto" or int / float
-    batchSize*: Option[int]
+    batch_size*: Option[int]
     learning_rate_multiplier*: Option[float]
     n_epochs*: Option[int]
 
