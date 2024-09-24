@@ -1,9 +1,9 @@
-import curly, jsony, webby, std/[os, osproc, json, options, strformat, tables]
+import curly, jsony, webby, std/[os, osproc, json, options, strutils, strformat, tables]
 ## OpenAI Api Library
 ## https://platform.openai.com/docs/api-reference/introduction
 
-# Important: the OpenAI API uses camel_case. you must match this or the fields will be ignored
-# this does not matter for responses but is critical for requests
+# Important: the OpenAI API uses snake_case. request objects must be snake_case this or the fields will be ignored by the API.
+# jsony is flexible in parsing the responses in either camelCase or snake_case but better to use snake_case for consistency.
 type
   OpenAiApi* = ref object
     curlPool: CurlPool
@@ -83,6 +83,7 @@ type
     role*: string               # system | user | assisant | tool
     name*: Option[string]
     tool_calls*: Option[seq[ToolCallResp]]
+    refusal*: Option[string]
 
   ResponseFormatObj* = ref object
     `type`*: string # must be text or json_object
@@ -118,17 +119,17 @@ type
     seed*: Option[int]
     stop*: Option[string]              # up to 4 stop sequences
                             #stop*: Option[string | seq[string]] # up to 4 stop sequences
-    stream*: Option[bool]              # always use false for this library
+    stream*: Option[bool]              # do not set this, either call createChatCompletion or streamChatCompletion
     top_p*: Option[float32]             # between 0.0 and 1.0
     tools*: Option[seq[ToolCall]]
-    #toolChoice*: Option[string | ToolChoice] # "auto" | function to use
-    tool_choice*: Option[JsonNode]  # "auto" | function to use
+    tool_choice*: Option[JsonNode]  # "auto" | function to use. using a JsonNode to allow either a string or a ToolChoice object
     user*: Option[string]
 
   CreateChatMessage* = ref object
     finish_reason*: string
     index*: int
-    message*: RespMessage
+    message*: Option[RespMessage]           # full response message when streaming = false
+    delta*: Option[RespMessage]             # message delta when streaming = true
     log_probs*: Option[JsonNode]
 
   CreateChatCompletionResp* = ref object
@@ -142,6 +143,14 @@ type
 
   AudioTranscription* = object
     text*: string
+
+  ChatCompletionChunk* = object # chat completion streaming response
+    id*: string
+    `object`*: string           # always "chat.completion.chunk"
+    created*: int               # unix timestamp
+    model*: string              # model id
+    system_fingerprint*: string
+    choices*: seq[CreateChatMessage]
 
 # Finetuning types
 type
@@ -374,10 +383,31 @@ proc createChatCompletion*(
   api: OpenAiApi,
   req: CreateChatCompletionReq
 ): CreateChatCompletionResp =
-  ## Create a chat completion.
+  ## Create a chat completion. without streaming.
+  req.stream = option(false)
   let reqBody = toJson(req)
   let resp = post(api, "/chat/completions", reqBody)
   result = fromJson(resp.body, CreateChatCompletionResp)
+
+proc streamChatCompletion*(
+  api: OpenAiApi,
+  req: CreateChatCompletionReq,
+  cb: proc(resp: ChatCompletionChunk)
+) =
+  ## Stream a chat completion response
+  req.stream = option(true)
+  let reqBody = toJson(req)
+  # TODO streaming callback writer
+  let resp = post(api, "/chat/completions", reqBody)
+  let respLines = resp.body.splitLines()
+  for line in respLines:
+    var lineJson = line.strip()
+    lineJson.removePrefix("data: ")
+    if lineJson == "" or lineJson == "[DONE]":
+      continue
+    let chunk = fromJson(lineJson, ChatCompletionChunk)
+    cb(chunk)
+    sleep(100)
 
 proc createChatCompletion*(
   api: OpenAiApi,
@@ -403,7 +433,33 @@ proc createChatCompletion*(
     )
   ]
   let resp = api.createChatCompletion(req)
-  result = resp.choices[0].message.content
+  result = resp.choices[0].message.get.content
+
+proc streamChatCompletion*(
+  api: OpenAiApi,
+  model: string,
+  systemPrompt: string,
+  input: string,
+  cb: proc(resp: ChatCompletionChunk)
+) =
+  ## Create a chat completion.
+  let req = CreateChatCompletionReq()
+  req.model = model
+  req.messages = @[
+    Message(
+      role: "system",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option(systemPrompt))
+      ])
+    ),
+    Message(
+      role: "user",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option(input))
+      ])
+    )
+  ]
+  api.streamChatCompletion(req, cb)
 
 proc createFineTuneDataset*(api: OpenAiApi, filepath: string): OpenAIFile =
   ## OpenAI fine tuning format is a jsonl file.
