@@ -1,6 +1,6 @@
-import curly, jsony, webby, std/[os, osproc, json, options, strutils, strformat, tables]
-
-import libcurl except Option
+import
+  std/[os, osproc, json, options, strutils, strformat, tables],
+  curly, jsony, webby
 
 ## OpenAI Api Library
 ## https://platform.openai.com/docs/api-reference/introduction

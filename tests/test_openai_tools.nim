@@ -85,7 +85,7 @@ suite "openai tools":
 
       let toolResp = openai.createChatCompletion(firstRequest)
 
-      let toolMsg = toolResp.choices[0].message
+      let toolMsg = toolResp.choices[0].message.get
 
       messages.add(Message(
         role: toolMsg.role,
@@ -124,4 +124,4 @@ suite "openai tools":
           messages: messages,
         )
       )
-      echo finalResponse.choices[0].message.content
+      echo finalResponse.choices[0].message.get.content
