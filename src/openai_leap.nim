@@ -424,14 +424,17 @@ proc streamChatCompletion*(
   req.stream = option(true)
   let reqBody = toJson(req)
   proc callback(chunk: string) =
-    for line in chunk.splitLines:
-      var lineJson = line.strip()
-      if not lineJson.startsWith("data: "):
-        continue
-      lineJson.removePrefix("data: ")
-      if lineJson == "[DONE]":
-        break
-      cb(fromJson(lineJson, ChatCompletionChunk))
+    try:
+      for line in chunk.splitLines:
+        var lineJson = line.strip()
+        if not lineJson.startsWith("data: "):
+          continue
+        lineJson.removePrefix("data: ")
+        if lineJson == "[DONE]":
+          break
+        cb(fromJson(lineJson, ChatCompletionChunk))
+    except CatchableError as e:
+      echo "Error in callback: " & e.msg
   discard postStream(api, "/chat/completions", reqBody, callback)
 
 proc createChatCompletion*(
