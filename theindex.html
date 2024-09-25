@@ -34,6 +34,10 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap.html#cancelFineTuneModel%2COpenAiApi%2Cstring">openai_leap: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
           </ul></dd>
+<dt><a name="ChatCompletionChunk" href="#ChatCompletionChunk"><span>ChatCompletionChunk:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: object ChatCompletionChunk" href="openai_leap.html#ChatCompletionChunk">openai_leap: object ChatCompletionChunk</a></li>
+          </ul></dd>
 <dt><a name="close" href="#close"><span>close:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc close(api: OpenAiApi)" href="openai_leap.html#close%2COpenAiApi">openai_leap: proc close(api: OpenAiApi)</a></li>
@@ -212,6 +216,16 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type ResponseFormatObj" href="openai_leap.html#ResponseFormatObj">openai_leap: type ResponseFormatObj</a></li>
           </ul></dd>
+<dt><a name="streamChatCompletion" href="#streamChatCompletion"><span>streamChatCompletion:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq;
+                     cb: proc (chunk: ChatCompletionChunk))" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq%2Cproc%28ChatCompletionChunk%29">openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq;
+                     cb: proc (chunk: ChatCompletionChunk))</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
+                     input: string; cb: proc (chunk: ChatCompletionChunk))" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring%2Cproc%28ChatCompletionChunk%29">openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
+                     input: string; cb: proc (chunk: ChatCompletionChunk))</a></li>
+          </ul></dd>
 <dt><a name="ToolCall" href="#ToolCall"><span>ToolCall:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type ToolCall" href="openai_leap.html#ToolCall">openai_leap: type ToolCall</a></li>
@@ -244,7 +258,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-09-03 02:02:03 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-09-25 18:02:32 UTC</small>
       </div>
     </div>
   </div>
