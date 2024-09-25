@@ -424,6 +424,7 @@ proc streamChatCompletion*(
   req.stream = option(true)
   let reqBody = toJson(req)
   proc callback(chunk: string) =
+    echo "chunk: '''" & chunk & "'''"
     try:
       for line in chunk.splitLines:
         var lineJson = line.strip()
@@ -436,7 +437,6 @@ proc streamChatCompletion*(
         cb(fromJson(lineJson, ChatCompletionChunk))
     except CatchableError as e:
       echo "Error in callback: " & e.msg
-      echo "chunk with err: '''" & chunk & "'''"
   discard postStream(api, "/chat/completions", reqBody, callback)
 
 proc createChatCompletion*(
