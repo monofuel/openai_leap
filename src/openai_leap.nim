@@ -5,6 +5,8 @@ import
 ## OpenAI Api Library
 ## https://platform.openai.com/docs/api-reference/introduction
 
+## Readme https://github.com/monofuel/openai_leap/blob/master/README.md
+
 # Important: the OpenAI API uses snake_case. request objects must be snake_case this or the fields will be ignored by the API.
 # jsony is flexible in parsing the responses in either camelCase or snake_case but better to use snake_case for consistency.
 type
