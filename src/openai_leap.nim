@@ -1,4 +1,7 @@
 import curly, jsony, webby, std/[os, osproc, json, options, strutils, strformat, tables]
+
+import libcurl except Option
+
 ## OpenAI Api Library
 ## https://platform.openai.com/docs/api-reference/introduction
 
@@ -305,6 +308,29 @@ proc post(api: OpenAiApi, path: string, body: string): Response =
     )
   result = resp
 
+proc postStream(api: OpenAiApi, path: string, body: string, cb: proc(chunk: string)): Response =
+  ## Make a streaming POST request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = "Bearer " & api.apiKey
+  if api.organization != "":
+    headers["Organization"] = api.organization
+
+  api.curlPool.withHandle curl:
+    let resp = curl.makeRequest("POST",
+      api.baseUrl & path,
+      headers,
+      body,
+      api.curlTimeout,
+      cb
+    )
+    if resp.code != 200:
+      raise newException(
+        OpenAiError,
+        &"OpenAi call {path} failed: {resp.code} {resp.body}"
+      )
+    result = resp
+
 proc post(
   api: OpenAiApi,
   path: string,
@@ -392,22 +418,21 @@ proc createChatCompletion*(
 proc streamChatCompletion*(
   api: OpenAiApi,
   req: CreateChatCompletionReq,
-  cb: proc(resp: ChatCompletionChunk)
+  cb: proc(chunk: ChatCompletionChunk)
 ) =
   ## Stream a chat completion response
   req.stream = option(true)
   let reqBody = toJson(req)
-  # TODO streaming callback writer
-  let resp = post(api, "/chat/completions", reqBody)
-  let respLines = resp.body.splitLines()
-  for line in respLines:
-    var lineJson = line.strip()
-    lineJson.removePrefix("data: ")
-    if lineJson == "" or lineJson == "[DONE]":
-      continue
-    let chunk = fromJson(lineJson, ChatCompletionChunk)
-    cb(chunk)
-    sleep(100)
+  proc callback(chunk: string) =
+    for line in chunk.splitLines:
+      var lineJson = line.strip()
+      if not lineJson.startsWith("data: "):
+        continue
+      lineJson.removePrefix("data: ")
+      if lineJson == "[DONE]":
+        break
+      cb(fromJson(lineJson, ChatCompletionChunk))
+  discard postStream(api, "/chat/completions", reqBody, callback)
 
 proc createChatCompletion*(
   api: OpenAiApi,
@@ -440,7 +465,7 @@ proc streamChatCompletion*(
   model: string,
   systemPrompt: string,
   input: string,
-  cb: proc(resp: ChatCompletionChunk)
+  cb: proc(chunk: ChatCompletionChunk)
 ) =
   ## Create a chat completion.
   let req = CreateChatCompletionReq()
