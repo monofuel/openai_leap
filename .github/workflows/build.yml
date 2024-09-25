@@ -21,7 +21,7 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
     - run: |
         export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-        nim c -r examples/example.nim
-        nim c -r examples/streaming.nim
         nimble test -y
         nimble test --gc:orc -y
+        nim c -r examples/example.nim
+        nim c -r examples/streaming.nim
