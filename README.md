@@ -4,7 +4,6 @@ Nim OpenAI API library
 
 A very basic OpenAI API client to use from Nim.
 openai_leap uses a [Curly](https://github.com/guzba/curly) pool to manage connections.
-OpenAI API requests require the use of snake_case and have some optional fields that need to be omitted correctly. This library handles that for you. [Jsony](https://github.com/treeform/jsony) is used for serialization and includes a `dumpHook()` to ensure that `nil` Optional fields are omitted from the generated JSON.
 
 ## Example
 
@@ -75,6 +74,12 @@ openai.close()
   - This requires uploading some sample test data and creating a new fine-tune; remember to clean up afterward.
 
 ## Notes
+
+### JSON Usage
+
+OpenAI API requests require the use of snake_case and have some optional fields that need to be omitted correctly. This library handles that for you. [Jsony](https://github.com/treeform/jsony) is used for serialization and includes a `dumpHook()` to ensure that `nil` Optional fields are omitted from the generated JSON.
+
+### Message Content Parts
 
 The chat completion endpoint for OpenAI has a `content` field that accepts either a string or a sequence of content parts of type 'text' or 'image_url'. Nim does not have a good way to express this type union, so we currently only support a sequence of content parts.
 
