@@ -14,6 +14,7 @@ OpenAI API requests require the use of snake_case and have some optional fields 
 export OPENAI_API_KEY="your-key-goes-here"
 ```
 
+Simple example with a fully buffered response:
 ```nim
 import openai_leap
 
@@ -27,6 +28,25 @@ let system = "Please talk like a pirate. You are Longbeard the Llama."
 let prompt = "How are you today?"
 let resp = openai.createChatCompletion("gpt-4o", system, prompt)
 echo resp
+
+openai.close()
+```
+
+Simple example with a streamed response using a callback:
+```nim
+import std/[options], openai_leap
+
+let openai = newOpenAiApi()
+
+let system = "Please talk like a pirate. you are Longbeard the Llama."
+let prompt = "Please give me a two sentence story about your adventures as a pirate."
+proc callback(response: ChatCompletionChunk) =
+  write(stdout, response.choices[0].delta.get.content)
+  flushFile(stdout) # flush stdout so we can see the response while it is being streamed, not only on newlines
+
+echo ""
+openai.streamChatCompletion("gpt-4o", system, prompt, callback)
+echo ""
 
 openai.close()
 ```
