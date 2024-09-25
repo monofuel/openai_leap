@@ -423,20 +423,25 @@ proc streamChatCompletion*(
   ## Stream a chat completion response
   req.stream = option(true)
   let reqBody = toJson(req)
+  var buffer = ""
+
   proc callback(chunk: string) =
-    echo "chunk: '''" & chunk & "'''"
-    try:
-      for line in chunk.splitLines:
-        var lineJson = line.strip()
-        if not lineJson.startsWith("data: "):
-          continue
-        lineJson.removePrefix("data: ")
-        echo "linejson: '''" & lineJson & "'''"
-        if lineJson == "[DONE]":
-          break
-        cb(fromJson(lineJson, ChatCompletionChunk))
-    except CatchableError as e:
-      echo "Error in callback: " & e.msg
+    buffer &= chunk
+    var lines = buffer.splitLines()
+    if not buffer.endsWith('\n'):
+      # The last line may be incomplete; keep it in buffer
+      buffer = lines.pop()
+    else:
+      buffer = ""
+    for line in lines:
+      var lineJson = line.strip()
+      if lineJson == "" or not lineJson.startsWith("data: "):
+        continue
+      lineJson.removePrefix("data: ")
+      if lineJson == "[DONE]":
+        break
+      cb(fromJson(lineJson, ChatCompletionChunk))
+
   discard postStream(api, "/chat/completions", reqBody, callback)
 
 proc createChatCompletion*(
