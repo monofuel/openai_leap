@@ -432,6 +432,7 @@ proc streamChatCompletion*(
         lineJson.removePrefix("data: ")
         if lineJson == "[DONE]":
           break
+        echo "linejson: '''" & lineJson & "'''"
         cb(fromJson(lineJson, ChatCompletionChunk))
     except CatchableError as e:
       echo "Error in callback: " & e.msg
