@@ -90,7 +90,8 @@ type
     refusal*: Option[string]
 
   ResponseFormatObj* = ref object
-    `type`*: string # must be text or json_object
+    `type`*: string # must be text, json_object, or json_schema
+    json_schema*: Option[JsonNode] # must be set if type is json_schema
 
   ToolFunction* = ref object
     description*: Option[string]
