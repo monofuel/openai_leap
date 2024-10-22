@@ -10,13 +10,17 @@ import
 # jsony is flexible in parsing the responses in either camelCase or snake_case but better to use snake_case for consistency.
 type
   OpenAiApi* = ref object
-    curlPool: CurlPool
+    curly: Curly
     baseUrl: string
-    curlTimeout: float32
+    curlTimeout: int
     apiKey: string
     organization: string
 
   OpenAiError* = object of CatchableError ## Raised if an operation fails.
+
+  OpenAIStream* = ref object
+    stream: ResponseStream
+    buffer: string
 
   OpenAiModel* = ref object
     id*: string
@@ -249,8 +253,8 @@ proc newOpenAiApi*(
     baseUrl: string = "https://api.openai.com/v1",
     apiKey: string = "",
     organization: string = "",
-    curlPoolSize: int = 4,
-    curlTimeout: float32 = 60000
+    maxInFlight: int = 16,
+    curlTimeout: int = 60
 ): OpenAiApi =
   ## Initialize a new OpenAI API client.
   ## Will use the provided apiKey,
@@ -265,7 +269,7 @@ proc newOpenAiApi*(
     )
 
   result = OpenAiApi()
-  result.curlPool = newCurlPool(curlPoolSize)
+  result.curly = newCurly(maxInFlight)
   result.baseUrl = baseUrl
   result.curlTimeout = curlTimeout
   result.apiKey = apiKeyVar
@@ -273,7 +277,7 @@ proc newOpenAiApi*(
 
 proc close*(api: OpenAiApi) =
   ## Clean up the OpenAPI API client.
-  api.curlPool.close()
+  api.curly.close()
 
 proc get(api: OpenAiApi, path: string): Response =
   ## Make a GET request to the OpenAI API.
@@ -282,7 +286,7 @@ proc get(api: OpenAiApi, path: string): Response =
   headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
-  let resp = api.curlPool.get(api.baseUrl & path, headers, api.curlTimeout)
+  let resp = api.curly.get(api.baseUrl & path, headers, api.curlTimeout)
   if resp.code != 200:
     raise newException(
       OpenAiError,
@@ -297,7 +301,7 @@ proc post(api: OpenAiApi, path: string, body: string): Response =
   headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
-  let resp = api.curlPool.post(
+  let resp = api.curly.post(
     api.baseUrl & path,
     headers,
     body,
@@ -310,7 +314,7 @@ proc post(api: OpenAiApi, path: string, body: string): Response =
     )
   result = resp
 
-proc postStream(api: OpenAiApi, path: string, body: string, cb: proc(chunk: string)): Response =
+proc postStream(api: OpenAiApi, path: string, body: string): ResponseStream =
   ## Make a streaming POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
@@ -318,20 +322,18 @@ proc postStream(api: OpenAiApi, path: string, body: string, cb: proc(chunk: stri
   if api.organization != "":
     headers["Organization"] = api.organization
 
-  api.curlPool.withHandle curl:
-    let resp = curl.makeRequest("POST",
-      api.baseUrl & path,
-      headers,
-      body,
-      api.curlTimeout,
-      cb
+  let resp = api.curly.request("POST",
+    api.baseUrl & path,
+    headers,
+    body,
+    api.curlTimeout
+  )
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"OpenAi call {path} failed: {resp.code}"
     )
-    if resp.code != 200:
-      raise newException(
-        OpenAiError,
-        &"OpenAi call {path} failed: {resp.code} {resp.body}"
-      )
-    result = resp
+  result = resp
 
 proc post(
   api: OpenAiApi,
@@ -345,7 +347,7 @@ proc post(
     headers["Organization"] = api.organization
   let (contentType, body) = encodeMultipart(entries)
   headers["Content-Type"] = contentType
-  let resp = api.curlPool.post(
+  let resp = api.curly.post(
     api.baseUrl & path,
     headers,
     body,
@@ -365,7 +367,7 @@ proc delete(api: OpenAiApi, path: string): Response =
   headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
-  let resp = api.curlPool.delete(api.baseUrl & path, headers, api.curlTimeout)
+  let resp = api.curly.delete(api.baseUrl & path, headers, api.curlTimeout)
   if resp.code != 200:
     raise newException(
       OpenAiError,
@@ -419,32 +421,12 @@ proc createChatCompletion*(
 
 proc streamChatCompletion*(
   api: OpenAiApi,
-  req: CreateChatCompletionReq,
-  cb: proc(chunk: ChatCompletionChunk)
-) =
+  req: CreateChatCompletionReq
+): ResponseStream =
   ## Stream a chat completion response
   req.stream = option(true)
   let reqBody = toJson(req)
-  var buffer = ""
-
-  proc callback(chunk: string) =
-    buffer &= chunk
-    var lines = buffer.splitLines()
-    if not buffer.endsWith('\n'):
-      # The last line may be incomplete; keep it in buffer
-      buffer = lines.pop()
-    else:
-      buffer = ""
-    for line in lines:
-      var lineJson = line.strip()
-      if lineJson == "" or not lineJson.startsWith("data: "):
-        continue
-      lineJson.removePrefix("data: ")
-      if lineJson == "[DONE]":
-        break
-      cb(fromJson(lineJson, ChatCompletionChunk))
-
-  discard postStream(api, "/chat/completions", reqBody, callback)
+  return postStream(api, "/chat/completions", reqBody)
 
 proc createChatCompletion*(
   api: OpenAiApi,
@@ -476,9 +458,8 @@ proc streamChatCompletion*(
   api: OpenAiApi,
   model: string,
   systemPrompt: string,
-  input: string,
-  cb: proc(chunk: ChatCompletionChunk)
-) =
+  input: string
+): OpenAIStream =
   ## Create a chat completion.
   let req = CreateChatCompletionReq()
   req.model = model
@@ -496,7 +477,36 @@ proc streamChatCompletion*(
       ])
     )
   ]
-  api.streamChatCompletion(req, cb)
+  return OpenAIStream(stream: api.streamChatCompletion(req))
+
+proc next*(s: OpenAIStream): seq[ChatCompletionChunk] =
+  ## next iterates over the response stream.
+  ## multiple chunks might be read at once, and returned in a seq.
+  ## an empty seq is returned when the stream has been closed.
+  ## nb. streams must be iterated to completion to avoid leaking streams
+  try:
+    var chunk: string
+    let bytesRead = s.stream.read(chunk)
+    if bytesRead == 0:
+      s.stream.close()
+      return @[]
+    s.buffer &= chunk
+    var lines = s.buffer.splitLines()
+    if not s.buffer.endsWith('\n'):
+      # The last line may be incomplete; keep it in buffer
+      s.buffer = lines.pop()
+    else:
+      s.buffer = ""
+    for line in lines:
+      var lineJson = line.strip()
+      if lineJson == "" or not lineJson.startsWith("data: "):
+        continue
+      lineJson.removePrefix("data: ")
+      if lineJson == "[DONE]":
+        break
+      result.add(fromJson(lineJson, ChatCompletionChunk))
+  except:
+    s.stream.close()
 
 proc createFineTuneDataset*(api: OpenAiApi, filepath: string): OpenAIFile =
   ## OpenAI fine tuning format is a jsonl file.
