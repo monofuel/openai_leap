@@ -17,11 +17,18 @@ suite "chatgpt streaming":
     test "create":
       let system = "Please talk like a pirate. you are Longbeard the Llama."
       let prompt = "Please give me a two sentence story about your adventures as a pirate."
-      proc callback(response: ChatCompletionChunk) =
-        write(stdout, response.choices[0].delta.get.content)
-        flushFile(stdout) # flush stdout so we can see the response while it is being streamed, not only on newlines
+
+      let stream = openai.streamChatCompletion(TestModel, system, prompt)
 
       echo ""
-      openai.streamChatCompletion(TestModel, system, prompt, callback)
+      while true:
+        let chunk = stream.next()
+        if chunk.isNone:
+          break
+
+        
+        write(stdout, chunk.get.choices[0].delta.get.content)
+        flushFile(stdout) # Ensure output is immediately visible
+
       echo ""
     
