@@ -22,13 +22,13 @@ suite "chatgpt streaming":
 
       echo ""
       while true:
-        let chunks = stream.next()
-        if chunks.len == 0:
+        let chunk = stream.next()
+        if chunk.isNone:
           break
 
-        for chunk in chunks:
-          write(stdout, chunk.choices[0].delta.get.content)
-          flushFile(stdout) # Ensure output is immediately visible
+        
+        write(stdout, chunk.get.choices[0].delta.get.content)
+        flushFile(stdout) # Ensure output is immediately visible
 
       echo ""
     

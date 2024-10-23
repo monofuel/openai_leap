@@ -479,34 +479,72 @@ proc streamChatCompletion*(
   ]
   return OpenAIStream(stream: api.streamChatCompletion(req))
 
-proc next*(s: OpenAIStream): seq[ChatCompletionChunk] =
+# proc next*(s: OpenAIStream): seq[ChatCompletionChunk] =
+#   ## next iterates over the response stream.
+#   ## multiple chunks might be read at once, and returned in a seq.
+#   ## an empty seq is returned when the stream has been closed.
+#   ## nb. streams must be iterated to completion to avoid leaking streams
+#   try:
+#     var chunk: string
+#     let bytesRead = s.stream.read(chunk)
+#     if bytesRead == 0:
+#       s.stream.close()
+#       return @[]
+#     s.buffer &= chunk
+#     var lines = s.buffer.splitLines()
+#     if not s.buffer.endsWith('\n'):
+#       # The last line may be incomplete; keep it in buffer
+#       s.buffer = lines.pop()
+#     else:
+#       s.buffer = ""
+#     for line in lines:
+#       var lineJson = line.strip()
+#       if lineJson == "" or not lineJson.startsWith("data: "):
+#         continue
+#       lineJson.removePrefix("data: ")
+#       if lineJson == "[DONE]":
+#         break
+#       result.add(fromJson(lineJson, ChatCompletionChunk))
+#   except:
+#     s.stream.close()
+
+proc next*(s: OpenAIStream): Option[ChatCompletionChunk] =
   ## next iterates over the response stream.
-  ## multiple chunks might be read at once, and returned in a seq.
+  ## returns the next chunk
   ## an empty seq is returned when the stream has been closed.
   ## nb. streams must be iterated to completion to avoid leaking streams
-  try:
-    var chunk: string
-    let bytesRead = s.stream.read(chunk)
-    if bytesRead == 0:
+
+  template returnIfChunk() =
+    var newLineIndex = s.buffer.find("\n") 
+    if newLineIndex != -1:
+      var line = s.buffer[0..newLineIndex]
+      s.buffer = s.buffer[newLineIndex+1 .. ^1]
+
+      if line.startsWith("data: "):
+        line.removePrefix("data: ")
+        if line.strip() != "[DONE]":
+          return option(fromJson(line, ChatCompletionChunk))
+        
+  # return any existing objects in the buffer
+  returnIfChunk()
+
+  # read in from the socket until s.buffer has a newline
+  while not s.buffer.contains("\n"):
+    try:
+      var chunk: string
+      let bytesRead = s.stream.read(chunk)
+      s.buffer &= chunk
+      if bytesRead == 0:
+        s.stream.close()
+        return none(ChatCompletionChunk)
+    except:
       s.stream.close()
-      return @[]
-    s.buffer &= chunk
-    var lines = s.buffer.splitLines()
-    if not s.buffer.endsWith('\n'):
-      # The last line may be incomplete; keep it in buffer
-      s.buffer = lines.pop()
-    else:
-      s.buffer = ""
-    for line in lines:
-      var lineJson = line.strip()
-      if lineJson == "" or not lineJson.startsWith("data: "):
-        continue
-      lineJson.removePrefix("data: ")
-      if lineJson == "[DONE]":
-        break
-      result.add(fromJson(lineJson, ChatCompletionChunk))
-  except:
-    s.stream.close()
+  
+  # handle the fresh read in line
+  returnIfChunk()
+  
+   
+  
 
 proc createFineTuneDataset*(api: OpenAiApi, filepath: string): OpenAIFile =
   ## OpenAI fine tuning format is a jsonl file.
