@@ -163,10 +163,14 @@
 <dt><a name="newOpenAiApi" href="#newOpenAiApi"><span>newOpenAiApi:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
-             organization: string = &quot;&quot;; curlPoolSize: int = 4;
-             curlTimeout: float32 = 60000.0): OpenAiApi" href="openai_leap.html#newOpenAiApi%2Cstring%2Cstring%2Cstring%2Cint%2Cfloat32">openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
-             organization: string = &quot;&quot;; curlPoolSize: int = 4;
-             curlTimeout: float32 = 60000.0): OpenAiApi</a></li>
+             organization: string = &quot;&quot;; maxInFlight: int = 16;
+             curlTimeout: int = 60): OpenAiApi" href="openai_leap.html#newOpenAiApi%2Cstring%2Cstring%2Cstring%2Cint%2Cint">openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
+             organization: string = &quot;&quot;; maxInFlight: int = 16;
+             curlTimeout: int = 60): OpenAiApi</a></li>
+          </ul></dd>
+<dt><a name="next" href="#next"><span>next:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc next(s: OpenAIStream): Option[ChatCompletionChunk]" href="openai_leap.html#next%2COpenAIStream">openai_leap: proc next(s: OpenAIStream): Option[ChatCompletionChunk]</a></li>
           </ul></dd>
 <dt><a name="OpenAiApi" href="#OpenAiApi"><span>OpenAiApi:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -212,6 +216,10 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type OpenAiModel" href="openai_leap.html#OpenAiModel">openai_leap: type OpenAiModel</a></li>
           </ul></dd>
+<dt><a name="OpenAIStream" href="#OpenAIStream"><span>OpenAIStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: type OpenAIStream" href="openai_leap.html#OpenAIStream">openai_leap: type OpenAIStream</a></li>
+          </ul></dd>
 <dt><a name="RespMessage" href="#RespMessage"><span>RespMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type RespMessage" href="openai_leap.html#RespMessage">openai_leap: type RespMessage</a></li>
@@ -222,13 +230,11 @@
           </ul></dd>
 <dt><a name="streamChatCompletion" href="#streamChatCompletion"><span>streamChatCompletion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq;
-                     cb: proc (chunk: ChatCompletionChunk))" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq%2Cproc%28ChatCompletionChunk%29">openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq;
-                     cb: proc (chunk: ChatCompletionChunk))</a></li>
+          data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): ResponseStream" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): ResponseStream</a></li>
           <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
-                     input: string; cb: proc (chunk: ChatCompletionChunk))" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring%2Cproc%28ChatCompletionChunk%29">openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
-                     input: string; cb: proc (chunk: ChatCompletionChunk))</a></li>
+                     input: string): OpenAIStream" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring">openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
+                     input: string): OpenAIStream</a></li>
           </ul></dd>
 <dt><a name="ToolCall" href="#ToolCall"><span>ToolCall:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -262,7 +268,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-10-04 17:26:31 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-10-23 21:28:02 UTC</small>
       </div>
     </div>
   </div>
