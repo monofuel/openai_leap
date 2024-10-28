@@ -9,7 +9,7 @@ import
 # Important: the OpenAI API uses snake_case. request objects must be snake_case this or the fields will be ignored by the API.
 # jsony is flexible in parsing the responses in either camelCase or snake_case but better to use snake_case for consistency.
 type
-  OpenAiApi* = ref object
+  OpenAiApi* = object
     curly: Curly
     baseUrl: string
     curlTimeout: int
@@ -422,11 +422,11 @@ proc createChatCompletion*(
 proc streamChatCompletion*(
   api: OpenAiApi,
   req: CreateChatCompletionReq
-): ResponseStream =
+): OpenAIStream =
   ## Stream a chat completion response
   req.stream = option(true)
   let reqBody = toJson(req)
-  return postStream(api, "/chat/completions", reqBody)
+  return OpenAIStream(stream: postStream(api, "/chat/completions", reqBody))
 
 proc createChatCompletion*(
   api: OpenAiApi,
@@ -477,7 +477,7 @@ proc streamChatCompletion*(
       ])
     )
   ]
-  return OpenAIStream(stream: api.streamChatCompletion(req))
+  return api.streamChatCompletion(req)
 
 # proc next*(s: OpenAIStream): seq[ChatCompletionChunk] =
 #   ## next iterates over the response stream.
