@@ -9,12 +9,13 @@ import
 # Important: the OpenAI API uses snake_case. request objects must be snake_case this or the fields will be ignored by the API.
 # jsony is flexible in parsing the responses in either camelCase or snake_case but better to use snake_case for consistency.
 type
-  OpenAiApi* = object
+  OpenAiApiObj* = object
     curly: Curly
     baseUrl: string
     curlTimeout: int
     apiKey: string
     organization: string
+  OpenAiApi* = ptr OpenAiApiObj
 
   OpenAiError* = object of CatchableError ## Raised if an operation fails.
 
@@ -268,7 +269,7 @@ proc newOpenAiApi*(
       "OPENAI_API_KEY must be set for OpenAI API authorization"
     )
 
-  result = OpenAiApi()
+  result = cast[OpenAiApi](allocShared0(sizeof(OpenAiApiObj)))
   result.curly = newCurly(maxInFlight)
   result.baseUrl = baseUrl
   result.curlTimeout = curlTimeout
@@ -278,6 +279,7 @@ proc newOpenAiApi*(
 proc close*(api: OpenAiApi) =
   ## Clean up the OpenAPI API client.
   api.curly.close()
+  deallocShared(api)
 
 proc get(api: OpenAiApi, path: string): Response =
   ## Make a GET request to the OpenAI API.
@@ -478,35 +480,6 @@ proc streamChatCompletion*(
     )
   ]
   return api.streamChatCompletion(req)
-
-# proc next*(s: OpenAIStream): seq[ChatCompletionChunk] =
-#   ## next iterates over the response stream.
-#   ## multiple chunks might be read at once, and returned in a seq.
-#   ## an empty seq is returned when the stream has been closed.
-#   ## nb. streams must be iterated to completion to avoid leaking streams
-#   try:
-#     var chunk: string
-#     let bytesRead = s.stream.read(chunk)
-#     if bytesRead == 0:
-#       s.stream.close()
-#       return @[]
-#     s.buffer &= chunk
-#     var lines = s.buffer.splitLines()
-#     if not s.buffer.endsWith('\n'):
-#       # The last line may be incomplete; keep it in buffer
-#       s.buffer = lines.pop()
-#     else:
-#       s.buffer = ""
-#     for line in lines:
-#       var lineJson = line.strip()
-#       if lineJson == "" or not lineJson.startsWith("data: "):
-#         continue
-#       lineJson.removePrefix("data: ")
-#       if lineJson == "[DONE]":
-#         break
-#       result.add(fromJson(lineJson, ChatCompletionChunk))
-#   except:
-#     s.stream.close()
 
 proc next*(s: OpenAIStream): Option[ChatCompletionChunk] =
   ## next iterates over the response stream.
