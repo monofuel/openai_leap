@@ -1,5 +1,5 @@
 nimTitle	openai_leap	openai_leap.html	module src/openai_leap		0
-nim	OpenAiApi	openai_leap.html#OpenAiApi	type OpenAiApi		12
+nim	OpenAiApi	openai_leap.html#OpenAiApi	object OpenAiApi		12
 nim	OpenAiError	openai_leap.html#OpenAiError	object OpenAiError		19
 nim	OpenAIStream	openai_leap.html#OpenAIStream	type OpenAIStream		21
 nim	OpenAiModel	openai_leap.html#OpenAiModel	type OpenAiModel		25
@@ -41,7 +41,7 @@ nim	getModel	openai_leap.html#getModel,OpenAiApi,string	proc getModel(api: OpenA
 nim	deleteModel	openai_leap.html#deleteModel,OpenAiApi,string	proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse		389
 nim	generateEmbeddings	openai_leap.html#generateEmbeddings,OpenAiApi,string,string,Option[int],string	proc generateEmbeddings(api: OpenAiApi; model: string; input: string;\n                   dimensions: Option[int] = none(int); user: string = ""): CreateEmbeddingResp		394
 nim	createChatCompletion	openai_leap.html#createChatCompletion,OpenAiApi,CreateChatCompletionReq	proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp		412
-nim	streamChatCompletion	openai_leap.html#streamChatCompletion,OpenAiApi,CreateChatCompletionReq	proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): ResponseStream		422
+nim	streamChatCompletion	openai_leap.html#streamChatCompletion,OpenAiApi,CreateChatCompletionReq	proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream		422
 nim	createChatCompletion	openai_leap.html#createChatCompletion,OpenAiApi,string,string,string	proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string): string		431
 nim	streamChatCompletion	openai_leap.html#streamChatCompletion,OpenAiApi,string,string,string	proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string): OpenAIStream		457
 nim	next	openai_leap.html#next,OpenAIStream	proc next(s: OpenAIStream): Option[ChatCompletionChunk]		511

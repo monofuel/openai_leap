@@ -129,7 +129,7 @@
 <li><a class="reference" href="#MessageContentPart" title="MessageContentPart = ref object
   text*: Option[string]
   image_url*: Option[ImageUrlPart]">MessageContentPart</a></li>
-<li><a class="reference" href="#OpenAiApi" title="OpenAiApi = ref object">OpenAiApi</a></li>
+<li><a class="reference" href="#OpenAiApi" title="OpenAiApi = object">OpenAiApi</a></li>
 <li><a class="reference" href="#OpenAiError" title="OpenAiError = object of CatchableError">OpenAiError</a></li>
 <li><a class="reference" href="#OpenAIFile" title="OpenAIFile = ref object
   id*: string
@@ -304,7 +304,7 @@
   <li><a class="reference" href="#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring" title="streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream">streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream</a></li>
-<li><a class="reference" href="#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq" title="streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): ResponseStream">streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): ResponseStream</a></li>
+<li><a class="reference" href="#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq" title="streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream">streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream</a></li>
 
 </ul>
 
@@ -528,7 +528,7 @@
   </dd>
 </div>
 <div id="OpenAiApi">
-  <dt><pre><a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span></pre></dt>
+  <dt><pre><a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
   <dd>
     
     
@@ -1117,7 +1117,7 @@
   </dd>
 </div>
 <div id="streamChatCompletion,OpenAiApi,CreateChatCompletionReq">
-  <dt><pre><span class="Keyword">proc</span> <a href="#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq"><span class="Identifier">streamChatCompletion</span></a><span class="Other">(</span><span class="Identifier">api</span><span class="Other">:</span> <a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <a href="openai_leap.html#CreateChatCompletionReq"><span class="Identifier">CreateChatCompletionReq</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">ResponseStream</span> {.
+  <dt><pre><span class="Keyword">proc</span> <a href="#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq"><span class="Identifier">streamChatCompletion</span></a><span class="Other">(</span><span class="Identifier">api</span><span class="Other">:</span> <a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <a href="openai_leap.html#CreateChatCompletionReq"><span class="Identifier">CreateChatCompletionReq</span></a><span class="Other">)</span><span class="Other">:</span> <a href="openai_leap.html#OpenAIStream"><span class="Identifier">OpenAIStream</span></a> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CatchableError</span><span class="Other">,</span> <span class="Identifier">OpenAiError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -1139,7 +1139,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-10-23 21:28:02 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-10-28 17:57:38 UTC</small>
       </div>
     </div>
   </div>
