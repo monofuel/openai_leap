@@ -553,14 +553,15 @@ proc createFineTuneDataset*(api: OpenAiApi, filepath: string): OpenAIFile =
 
   if not fileExists(filepath):
     raise newException(OpenAiError, "File does not exist: " & filepath)
+  var authToken: string
   api.lock.sync:
-    let auth = "Bearer " & api.apiKey
+    authToken = "Bearer " & api.apiKey
   var orgLine = ""
   if api.organization != "":
     orgLine = "-H \"Organization: " & api.organization & "\""
   let curlUploadCmd = &"""
 curl -s https://api.openai.com/v1/files \
-  -H "Authorization: {auth}" \
+  -H "Authorization: {authToken}" \
   {orgLine} \
   -F purpose="fine-tune" \
   -F file="@{filepath}"
