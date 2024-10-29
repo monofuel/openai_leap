@@ -36,7 +36,6 @@ nim	FineTuneError	openai_leap.html#FineTuneError	type FineTuneError		202
 nim	OpenAIFinetuneJob	openai_leap.html#OpenAIFinetuneJob	type OpenAIFinetuneJob		207
 nim	OpenAIFinetuneList	openai_leap.html#OpenAIFinetuneList	type OpenAIFinetuneList		226
 nim	newOpenAiApi	openai_leap.html#newOpenAiApi,string,string,string,int,int	proc newOpenAiApi(baseUrl: string = "https://api.openai.com/v1"; apiKey: string = "";\n             organization: string = ""; maxInFlight: int = 16;\n             curlTimeout: int = 60): OpenAiApi		254
-nim	sync	openai_leap.html#sync.t,SysLockObj,untyped	template sync(a: Lock; body: untyped)		281
 nim	updateApiKey	openai_leap.html#updateApiKey,OpenAiApi,string	proc updateApiKey(api: OpenAiApi; apiKey: string)		288
 nim	close	openai_leap.html#close,OpenAiApi	proc close(api: OpenAiApi)		293
 nim	listModels	openai_leap.html#listModels,OpenAiApi	proc listModels(api: OpenAiApi): seq[OpenAiModel]		399
