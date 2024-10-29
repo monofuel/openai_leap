@@ -1,5 +1,5 @@
 import
-  std/[os, osproc, json, options, strutils, strformat, tables],
+  std/[os, locks, osproc, json, options, strutils, strformat, tables],
   curly, jsony, webby
 
 ## OpenAI Api Reference: https://platform.openai.com/docs/api-reference/introduction
@@ -11,6 +11,7 @@ import
 type
   OpenAiApiObj* = object
     curly: Curly
+    lock: Lock # lock for modifying the openai api object
     baseUrl: string
     curlTimeout: int
     apiKey: string
@@ -271,10 +272,23 @@ proc newOpenAiApi*(
 
   result = cast[OpenAiApi](allocShared0(sizeof(OpenAiApiObj)))
   result.curly = newCurly(maxInFlight)
+  initLock(result.lock)
   result.baseUrl = baseUrl
   result.curlTimeout = curlTimeout
   result.apiKey = apiKeyVar
   result.organization = organization
+
+template sync*(a: Lock, body: untyped) =
+  acquire(a)
+  try:
+      body
+  finally:
+    release(a)
+
+proc updateApiKey*(api: OpenAiApi, apiKey: string) =
+  ## Update the API key for the OpenAI API client.
+  api.lock.sync:
+    api.apiKey = apiKey
 
 proc close*(api: OpenAiApi) =
   ## Clean up the OpenAPI API client.
@@ -285,14 +299,15 @@ proc get(api: OpenAiApi, path: string): Response =
   ## Make a GET request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = "Bearer " & api.apiKey
+  api.lock.sync:
+    headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
   let resp = api.curly.get(api.baseUrl & path, headers, api.curlTimeout)
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+      &"API call {path} failed: {resp.code} {resp.body}"
     )
   result = resp
 
@@ -300,7 +315,8 @@ proc post(api: OpenAiApi, path: string, body: string): Response =
   ## Make a POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = "Bearer " & api.apiKey
+  api.lock.sync:
+    headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
   let resp = api.curly.post(
@@ -312,7 +328,7 @@ proc post(api: OpenAiApi, path: string, body: string): Response =
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+      &"API call {path} failed: {resp.code} {resp.body}"
     )
   result = resp
 
@@ -320,7 +336,8 @@ proc postStream(api: OpenAiApi, path: string, body: string): ResponseStream =
   ## Make a streaming POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = "Bearer " & api.apiKey
+  api.lock.sync:
+    headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
 
@@ -333,7 +350,7 @@ proc postStream(api: OpenAiApi, path: string, body: string): ResponseStream =
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"OpenAi call {path} failed: {resp.code}"
+      &"API call {path} failed: {resp.code}"
     )
   result = resp
 
@@ -344,7 +361,8 @@ proc post(
 ): Response =
   ## Make a POST request to the OpenAI API.
   var headers: curly.HttpHeaders
-  headers["Authorization"] = "Bearer " & api.apiKey
+  api.lock.sync:
+    headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
   let (contentType, body) = encodeMultipart(entries)
@@ -358,7 +376,7 @@ proc post(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+      &"API call {path} failed: {resp.code} {resp.body}"
     )
   result = resp
 
@@ -366,14 +384,15 @@ proc delete(api: OpenAiApi, path: string): Response =
   ## Make a DELETE request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = "Bearer " & api.apiKey
+  api.lock.sync:
+    headers["Authorization"] = "Bearer " & api.apiKey
   if api.organization != "":
     headers["Organization"] = api.organization
   let resp = api.curly.delete(api.baseUrl & path, headers, api.curlTimeout)
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"OpenAi call {path} failed: {resp.code} {resp.body}"
+      &"API call {path} failed: {resp.code} {resp.body}"
     )
   result = resp
 
@@ -534,14 +553,15 @@ proc createFineTuneDataset*(api: OpenAiApi, filepath: string): OpenAIFile =
 
   if not fileExists(filepath):
     raise newException(OpenAiError, "File does not exist: " & filepath)
-
-  let auth = "Bearer " & api.apiKey
+  var authToken: string
+  api.lock.sync:
+    authToken = "Bearer " & api.apiKey
   var orgLine = ""
   if api.organization != "":
     orgLine = "-H \"Organization: " & api.organization & "\""
   let curlUploadCmd = &"""
 curl -s https://api.openai.com/v1/files \
-  -H "Authorization: {auth}" \
+  -H "Authorization: {authToken}" \
   {orgLine} \
   -F purpose="fine-tune" \
   -F file="@{filepath}"
