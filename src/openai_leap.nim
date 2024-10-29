@@ -278,7 +278,7 @@ proc newOpenAiApi*(
   result.apiKey = apiKeyVar
   result.organization = organization
 
-template sync*(a: Lock, body: untyped) =
+template sync(a: Lock, body: untyped) =
   acquire(a)
   try:
       body
