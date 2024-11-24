@@ -261,14 +261,10 @@ proc newOpenAiApi*(
   ## Initialize a new OpenAI API client.
   ## Will use the provided apiKey,
   ## or look for the OPENAI_API_KEY environment variable.
+  ## apiKey may also be provided on a per-request basis.
   var apiKeyVar = apiKey
   if apiKeyVar == "":
     apiKeyVar = getEnv("OPENAI_API_KEY", "")
-  if apiKeyVar == "":
-    raise newException(
-      OpenAiError,
-      "OPENAI_API_KEY must be set for OpenAI API authorization"
-    )
 
   result = cast[OpenAiApi](allocShared0(sizeof(OpenAiApiObj)))
   result.curly = newCurly(maxInFlight)
@@ -295,15 +291,31 @@ proc close*(api: OpenAiApi) =
   api.curly.close()
   deallocShared(api)
 
-proc get(api: OpenAiApi, path: string): Response =
+proc get*(
+  api: OpenAiApi,
+  path: string,
+  bearerToken: string = "",
+  organization: string = "",
+  curlTimeout: int = 0
+  ): Response =
   ## Make a GET request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  api.lock.sync:
-    headers["Authorization"] = "Bearer " & api.apiKey
-  if api.organization != "":
-    headers["Organization"] = api.organization
-  let resp = api.curly.get(api.baseUrl & path, headers, api.curlTimeout)
+  if bearerToken != "":
+    headers["Authorization"] = "Bearer " & bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if organization != "":
+    headers["Organization"] = organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+
+  var timeout = api.curlTimeout
+  if curlTimeout != 0:
+    timeout = curlTimeout
+
+  let resp = api.curly.get(api.baseUrl & path, headers, timeout)
   if resp.code != 200:
     raise newException(
       OpenAiError,
@@ -311,7 +323,7 @@ proc get(api: OpenAiApi, path: string): Response =
     )
   result = resp
 
-proc post(api: OpenAiApi, path: string, body: string): Response =
+proc post*(api: OpenAiApi, path: string, body: string): Response =
   ## Make a POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
