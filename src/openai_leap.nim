@@ -20,6 +20,11 @@ type
 
   OpenAiError* = object of CatchableError ## Raised if an operation fails.
 
+  Opts* = object # Per-request options
+    bearerToken*: string = ""
+    organization*: string = ""
+    curlTimeout*: int = 0
+
   OpenAIStream* = ref object
     stream: ResponseStream
     buffer: string
@@ -65,7 +70,7 @@ type
     name*: string
     arguments*: string # string of a JSON object
 
-  ToolCallResp* = ref object
+  ToolResp* = ref object
     id*: string
     `type`*: string
     function*: ToolFunctionResp
@@ -85,14 +90,14 @@ type
     content*: Option[seq[MessageContentPart]]    # requied for role = system | user
     role*: string               # system | user | assisant | tool
     name*: Option[string]
-    tool_calls*: Option[seq[ToolCallResp]]
+    tool_calls*: Option[seq[ToolResp]]
     tool_call_id*: Option[string] # required for role = tool
 
   RespMessage* = ref object
     content*: string            # response always has content
     role*: string               # system | user | assisant | tool
     name*: Option[string]
-    tool_calls*: Option[seq[ToolCallResp]]
+    tool_calls*: Option[seq[ToolResp]]
     refusal*: Option[string]
 
   ResponseFormatObj* = ref object
@@ -104,7 +109,7 @@ type
     name*: string
     parameters*: Option[JsonNode] # JSON Schema Object
 
-  ToolCall* = ref object
+  Tool* = ref object
     `type`*: string
     function*: ToolFunction
 
@@ -132,7 +137,7 @@ type
                             #stop*: Option[string | seq[string]] # up to 4 stop sequences
     stream*: Option[bool]              # do not set this, either call createChatCompletion or streamChatCompletion
     top_p*: Option[float32]             # between 0.0 and 1.0
-    tools*: Option[seq[ToolCall]]
+    tools*: Option[seq[Tool]]
     tool_choice*: Option[JsonNode]  # "auto" | function to use. using a JsonNode to allow either a string or a ToolChoice object
     user*: Option[string]
 
@@ -294,26 +299,24 @@ proc close*(api: OpenAiApi) =
 proc get*(
   api: OpenAiApi,
   path: string,
-  bearerToken: string = "",
-  organization: string = "",
-  curlTimeout: int = 0
+  opts: Opts = Opts(),
   ): Response =
   ## Make a GET request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  if bearerToken != "":
-    headers["Authorization"] = "Bearer " & bearerToken
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
   else:
     api.lock.sync:
       headers["Authorization"] = "Bearer " & api.apiKey
-  if organization != "":
-    headers["Organization"] = organization
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
   elif api.organization != "":
       headers["Organization"] = api.organization
 
   var timeout = api.curlTimeout
-  if curlTimeout != 0:
-    timeout = curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
 
   let resp = api.curly.get(api.baseUrl & path, headers, timeout)
   if resp.code != 200:
@@ -323,19 +326,32 @@ proc get*(
     )
   result = resp
 
-proc post*(api: OpenAiApi, path: string, body: string): Response =
+proc post*(
+  api: OpenAiApi,
+  path: string,
+  body: string,
+  opts: Opts = Opts(),
+): Response =
   ## Make a POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  api.lock.sync:
-    headers["Authorization"] = "Bearer " & api.apiKey
-  if api.organization != "":
-    headers["Organization"] = api.organization
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+  var timeout = api.curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
   let resp = api.curly.post(
     api.baseUrl & path,
     headers,
     body,
-    api.curlTimeout
+    timeout
   )
   if resp.code != 200:
     raise newException(
@@ -344,20 +360,33 @@ proc post*(api: OpenAiApi, path: string, body: string): Response =
     )
   result = resp
 
-proc postStream(api: OpenAiApi, path: string, body: string): ResponseStream =
+proc postStream(
+  api: OpenAiApi,
+  path: string,
+  body: string,
+  opts: Opts = Opts()
+): ResponseStream =
   ## Make a streaming POST request to the OpenAI API.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  api.lock.sync:
-    headers["Authorization"] = "Bearer " & api.apiKey
-  if api.organization != "":
-    headers["Organization"] = api.organization
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+  var timeout = api.curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
 
   let resp = api.curly.request("POST",
     api.baseUrl & path,
     headers,
     body,
-    api.curlTimeout
+    timeout
   )
   if resp.code != 200:
     raise newException(

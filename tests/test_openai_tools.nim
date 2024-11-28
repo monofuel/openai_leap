@@ -58,7 +58,7 @@ suite "openai tools":
         model: TestModel,
         messages: messages,
         tools: option(@[
-          ToolCall(
+          Tool(
             `type`: "function",
             function: ToolFunction(
               name: "get_flight_times",
