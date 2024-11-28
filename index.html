@@ -79,7 +79,7 @@
   stop*: Option[string]
   stream*: Option[bool]
   top_p*: Option[float32]
-  tools*: Option[seq[ToolCall]]
+  tools*: Option[seq[Tool]]
   tool_choice*: Option[JsonNode]
   user*: Option[string]">CreateChatCompletionReq</a></li>
 <li><a class="reference" href="#CreateChatCompletionResp" title="CreateChatCompletionResp = ref object
@@ -124,7 +124,7 @@
   content*: Option[seq[MessageContentPart]]
   role*: string
   name*: Option[string]
-  tool_calls*: Option[seq[ToolCallResp]]
+  tool_calls*: Option[seq[ToolResp]]
   tool_call_id*: Option[string]">Message</a></li>
 <li><a class="reference" href="#MessageContentPart" title="MessageContentPart = ref object
   text*: Option[string]
@@ -177,19 +177,20 @@
   created*: int
   owned_by*: string">OpenAiModel</a></li>
 <li><a class="reference" href="#OpenAIStream" title="OpenAIStream = ref object">OpenAIStream</a></li>
+<li><a class="reference" href="#Opts" title="Opts = object
+  bearerToken*: string = &quot;&quot;
+  organization*: string = &quot;&quot;
+  curlTimeout*: int = 0">Opts</a></li>
 <li><a class="reference" href="#RespMessage" title="RespMessage = ref object
   content*: string
   role*: string
   name*: Option[string]
-  tool_calls*: Option[seq[ToolCallResp]]
+  tool_calls*: Option[seq[ToolResp]]
   refusal*: Option[string]">RespMessage</a></li>
 <li><a class="reference" href="#ResponseFormatObj" title="ResponseFormatObj = ref object
   json_schema*: Option[JsonNode]">ResponseFormatObj</a></li>
-<li><a class="reference" href="#ToolCall" title="ToolCall = ref object
-  function*: ToolFunction">ToolCall</a></li>
-<li><a class="reference" href="#ToolCallResp" title="ToolCallResp = ref object
-  id*: string
-  function*: ToolFunctionResp">ToolCallResp</a></li>
+<li><a class="reference" href="#Tool" title="Tool = ref object
+  function*: ToolFunction">Tool</a></li>
 <li><a class="reference" href="#ToolChoice" title="ToolChoice = ref object
   function*: ToolChoiceFuncion">ToolChoice</a></li>
 <li><a class="reference" href="#ToolChoiceFuncion" title="ToolChoiceFuncion = ref object
@@ -201,6 +202,9 @@
 <li><a class="reference" href="#ToolFunctionResp" title="ToolFunctionResp = ref object
   name*: string
   arguments*: string">ToolFunctionResp</a></li>
+<li><a class="reference" href="#ToolResp" title="ToolResp = ref object
+  id*: string
+  function*: ToolFunctionResp">ToolResp</a></li>
 <li><a class="reference" href="#Usage" title="Usage = ref object
   prompt_tokens*: int
   total_tokens*: int">Usage</a></li>
@@ -257,6 +261,10 @@
                    dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">get
+  <li><a class="reference" href="#get%2COpenAiApi%2Cstring%2COpts" title="get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response">get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">getFileDetails
   <li><a class="reference" href="#getFileDetails%2COpenAiApi%2Cstring" title="getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile">getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile</a></li>
 
@@ -301,6 +309,10 @@
   <li><a class="reference" href="#next%2COpenAIStream" title="next(s: OpenAIStream): Option[ChatCompletionChunk]">next(s: OpenAIStream): Option[ChatCompletionChunk]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">post
+  <li><a class="reference" href="#post%2COpenAiApi%2Cstring%2Cstring%2COpts" title="post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response">post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">streamChatCompletion
   <li><a class="reference" href="#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring" title="streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream">streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
@@ -338,8 +350,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L155" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L155" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L160" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L160" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -353,8 +365,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L158" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L158" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L163" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L163" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -375,14 +387,14 @@
   <span class="Identifier">stop</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span>
   <span class="Identifier">stream</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">bool</span><span class="Other">]</span>
   <span class="Identifier">top_p</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">float32</span><span class="Other">]</span>
-  <span class="Identifier">tools</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><a href="openai_leap.html#ToolCall"><span class="Identifier">ToolCall</span></a><span class="Other">]</span><span class="Other">]</span>
+  <span class="Identifier">tools</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><a href="openai_leap.html#Tool"><span class="Identifier">Tool</span></a><span class="Other">]</span><span class="Other">]</span>
   <span class="Identifier">tool_choice</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">JsonNode</span><span class="Other">]</span>
   <span class="Identifier">user</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L118" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L118" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L123" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L123" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -397,8 +409,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L146" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L146" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L151" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L151" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -412,8 +424,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L139" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L139" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L144" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L144" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -427,8 +439,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L51" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L51" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -440,8 +452,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L63" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L63" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -452,8 +464,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L53" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L53" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -464,8 +476,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L41" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L41" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -477,8 +489,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L202" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L202" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L207" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L207" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -489,8 +501,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L73" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L73" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L78" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L78" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -500,8 +512,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L37" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L37" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L42" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L42" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -510,13 +522,13 @@
   <span class="Identifier">content</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><a href="openai_leap.html#MessageContentPart"><span class="Identifier">MessageContentPart</span></a><span class="Other">]</span><span class="Other">]</span>
   <span class="Identifier">role</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
   <span class="Identifier">name</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span>
-  <span class="Identifier">tool_calls</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><a href="openai_leap.html#ToolCallResp"><span class="Identifier">ToolCallResp</span></a><span class="Other">]</span><span class="Other">]</span>
+  <span class="Identifier">tool_calls</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><a href="openai_leap.html#ToolResp"><span class="Identifier">ToolResp</span></a><span class="Other">]</span><span class="Other">]</span>
   <span class="Identifier">tool_call_id</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span></pre></dt>
   <dd>
     
     ChatGPT Message object for chat completions and responses NB. <tt class="docutils literal"><span class="pre"><span class="Identifier">content</span></span></tt> can be a string or a sequence of MessageContentPart objects, however this cannot be expressed in Nim easily, so we require a sequence of MessageContentPart objects
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L82" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L82" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L87" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L87" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -527,8 +539,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L77" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L77" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L82" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L82" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -572,8 +584,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L175" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L175" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L180" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L180" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -583,8 +595,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L172" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L172" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L177" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L177" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -605,8 +617,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L207" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L207" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L212" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L212" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -617,8 +629,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L226" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L226" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L231" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L231" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -629,8 +641,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L168" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L168" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L173" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L173" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -645,8 +657,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L193" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L193" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L198" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L198" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -658,8 +670,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L187" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L187" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L192" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L192" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -669,8 +681,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L183" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L183" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L188" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L188" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -682,13 +694,26 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L27" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L27" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L32" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L32" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 <div id="OpenAIStream">
   <dt><pre><a href="openai_leap.html#OpenAIStream"><span class="Identifier">OpenAIStream</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L28" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L28" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="Opts">
+  <dt><pre><a href="openai_leap.html#Opts"><span class="Identifier">Opts</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
+  <span class="Identifier">bearerToken</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span>
+  <span class="Identifier">organization</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span>
+  <span class="Identifier">curlTimeout</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">0</span></pre></dt>
   <dd>
     
     
@@ -702,13 +727,13 @@
   <span class="Identifier">content</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
   <span class="Identifier">role</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
   <span class="Identifier">name</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span>
-  <span class="Identifier">tool_calls</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><a href="openai_leap.html#ToolCallResp"><span class="Identifier">ToolCallResp</span></a><span class="Other">]</span><span class="Other">]</span>
+  <span class="Identifier">tool_calls</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><a href="openai_leap.html#ToolResp"><span class="Identifier">ToolResp</span></a><span class="Other">]</span><span class="Other">]</span>
   <span class="Identifier">refusal</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L91" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L91" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L96" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L96" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -718,31 +743,19 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L98" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L98" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L103" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L103" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
-<div id="ToolCall">
-  <dt><pre><a href="openai_leap.html#ToolCall"><span class="Identifier">ToolCall</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
+<div id="Tool">
+  <dt><pre><a href="openai_leap.html#Tool"><span class="Identifier">Tool</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
   <span class="Identifier">function</span><span class="Operator">*</span><span class="Other">:</span> <a href="openai_leap.html#ToolFunction"><span class="Identifier">ToolFunction</span></a></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L107" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L107" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-<div id="ToolCallResp">
-  <dt><pre><a href="openai_leap.html#ToolCallResp"><span class="Identifier">ToolCallResp</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
-  <span class="Identifier">id</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
-  <span class="Identifier">function</span><span class="Operator">*</span><span class="Other">:</span> <a href="openai_leap.html#ToolFunctionResp"><span class="Identifier">ToolFunctionResp</span></a></pre></dt>
-  <dd>
-    
-    
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L68" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L68" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L112" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L112" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -752,8 +765,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L114" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L114" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L119" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L119" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -763,8 +776,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L111" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L111" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L116" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L116" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -776,8 +789,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L102" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L102" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L107" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L107" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -788,8 +801,20 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L64" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L64" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L69" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L69" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="ToolResp">
+  <dt><pre><a href="openai_leap.html#ToolResp"><span class="Identifier">ToolResp</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
+  <span class="Identifier">id</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+  <span class="Identifier">function</span><span class="Operator">*</span><span class="Other">:</span> <a href="openai_leap.html#ToolFunctionResp"><span class="Identifier">ToolFunctionResp</span></a></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L73" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L73" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -800,8 +825,8 @@
   <dd>
     
     
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L33" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L33" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L38" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L38" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -819,8 +844,8 @@
   <dd>
     
     Transcribe audio data.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L629" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L629" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L670" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L670" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -833,8 +858,8 @@
   <dd>
     
     Cancel the fine tune model.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L621" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L621" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L662" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L662" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -846,8 +871,8 @@
   <dd>
     
     Clean up the OpenAPI API client.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L293" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L293" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L294" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L294" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -862,8 +887,8 @@
   <dd>
     
     Create a chat completion.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L452" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L452" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L493" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L493" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -874,8 +899,8 @@
   <dd>
     
     Create a chat completion. without streaming.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L433" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L433" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L474" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L474" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -889,8 +914,8 @@
   <dd>
     
     OpenAI fine tuning format is a jsonl file. At least 10 examples are required. 50 to 100 recommended. For a training file with 100,000 tokens trained over 3 epochs, the expected cost would be ~$2.40 USD. File will take time to process while uploading. Maximum file size is 512MB, but not files that big are not recommended. There is a 100gb limit across an organization. See: <a class="reference external" href="https://platform.openai.com/docs/api-reference/files/create">https://platform.openai.com/docs/api-reference/files/create</a>
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L541" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L541" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L582" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L582" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -904,8 +929,8 @@
   <dd>
     
     Create a fine tune job.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L593" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L593" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L634" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L634" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -918,8 +943,8 @@
   <dd>
     
     Delete a file.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L587" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L587" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L628" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L628" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -932,8 +957,8 @@
   <dd>
     
     Delete the fine tune model.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L625" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L625" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L666" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L666" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -947,8 +972,8 @@
   <dd>
     
     Delete a specific model.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L410" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L410" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L451" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L451" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -963,8 +988,22 @@
   <dd>
     
     Generate embeddings for a list of documents.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L415" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L415" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L456" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L456" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="get-procs-all">
+  <div id="get,OpenAiApi,string,Opts">
+  <dt><pre><span class="Keyword">proc</span> <a href="#get%2COpenAiApi%2Cstring%2COpts"><span class="Identifier">get</span></a><span class="Other">(</span><span class="Identifier">api</span><span class="Other">:</span> <a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a><span class="Other">;</span> <span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">opts</span><span class="Other">:</span> <a href="openai_leap.html#Opts"><span class="Identifier">Opts</span></a> <span class="Other">=</span> <a href="openai_leap.html#Opts"><span class="Identifier">Opts</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Response</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ZippyError</span><span class="Other">,</span> <span class="Identifier">CatchableError</span><span class="Other">,</span> <span class="Identifier">OpenAiError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Make a GET request to the OpenAI API.
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L299" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L299" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -978,8 +1017,8 @@
   <dd>
     
     Get the details of a file.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L582" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L582" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L623" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L623" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -992,8 +1031,8 @@
   <dd>
     
     Get the status of the model.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L602" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L602" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L643" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L643" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1007,8 +1046,8 @@
   <dd>
     
     Get a specific model.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L405" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L405" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L446" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L446" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1022,8 +1061,8 @@
   <dd>
     
     List all the files.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L577" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L577" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L618" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L618" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1036,8 +1075,8 @@
   <dd>
     
     List all the checkpoints for the fine tune model. See: <a class="reference external" href="https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints">https://platform.openai.com/docs/api-reference/fine-tuning/list-checkpoints</a>
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L616" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L616" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L657" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L657" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1051,8 +1090,8 @@
   <dd>
     
     List all the fine tune jobs.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L606" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L606" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L647" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L647" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1065,8 +1104,8 @@
   <dd>
     
     List all the events for the fine tune model.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L612" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L612" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L653" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L653" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1080,8 +1119,8 @@
   <dd>
     
     List available models.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L399" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L399" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L440" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L440" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1092,13 +1131,12 @@
   <dt><pre><span class="Keyword">proc</span> <a href="#newOpenAiApi%2Cstring%2Cstring%2Cstring%2Cint%2Cint"><span class="Identifier">newOpenAiApi</span></a><span class="Other">(</span><span class="Identifier">baseUrl</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;https://api.openai.com/v1&quot;</span><span class="Other">;</span>
                   <span class="Identifier">apiKey</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">;</span> <span class="Identifier">organization</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">;</span>
                   <span class="Identifier">maxInFlight</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">16</span><span class="Other">;</span> <span class="Identifier">curlTimeout</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">60</span><span class="Other">)</span><span class="Other">:</span> <a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OpenAiError</span><span class="Other">,</span> <span class="Identifier">ResourceExhaustedError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadEnvEffect</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ResourceExhaustedError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadEnvEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Initialize a new OpenAI API client. Will use the provided apiKey, or look for the OPENAI_API_KEY environment variable.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L254" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L254" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    Initialize a new OpenAI API client. Will use the provided apiKey, or look for the OPENAI_API_KEY environment variable. apiKey may also be provided on a per-request basis.
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L259" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L259" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1111,8 +1149,22 @@
   <dd>
     
     next iterates over the response stream. returns the next chunk an empty seq is returned when the stream has been closed. nb. streams must be iterated to completion to avoid leaking streams
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L503" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L503" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L544" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L544" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="post-procs-all">
+  <div id="post,OpenAiApi,string,string,Opts">
+  <dt><pre><span class="Keyword">proc</span> <a href="#post%2COpenAiApi%2Cstring%2Cstring%2COpts"><span class="Identifier">post</span></a><span class="Other">(</span><span class="Identifier">api</span><span class="Other">:</span> <a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a><span class="Other">;</span> <span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">body</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">opts</span><span class="Other">:</span> <a href="openai_leap.html#Opts"><span class="Identifier">Opts</span></a> <span class="Other">=</span> <a href="openai_leap.html#Opts"><span class="Identifier">Opts</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Response</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ZippyError</span><span class="Other">,</span> <span class="Identifier">CatchableError</span><span class="Other">,</span> <span class="Identifier">OpenAiError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Make a POST request to the OpenAI API.
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L329" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L329" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1126,8 +1178,8 @@
   <dd>
     
     Create a chat completion.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L478" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L478" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L519" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L519" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1137,8 +1189,8 @@
   <dd>
     
     Stream a chat completion response
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L443" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L443" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L484" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L484" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1151,8 +1203,8 @@
   <dd>
     
     Update the API key for the OpenAI API client.
-    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L288" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L288" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L289" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L289" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -1168,7 +1220,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-10-29 20:35:54 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-11-28 18:59:27 UTC</small>
       </div>
     </div>
   </div>

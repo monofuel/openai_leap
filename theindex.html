@@ -112,6 +112,10 @@
                    dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp" href="openai_leap.html#generateEmbeddings%2COpenAiApi%2Cstring%2Cstring%2COption%5Bint%5D%2Cstring">openai_leap: proc generateEmbeddings(api: OpenAiApi; model: string; input: string;
                    dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp</a></li>
           </ul></dd>
+<dt><a name="get" href="#get"><span>get:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response" href="openai_leap.html#get%2COpenAiApi%2Cstring%2COpts">openai_leap: proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response</a></li>
+          </ul></dd>
 <dt><a name="getFileDetails" href="#getFileDetails"><span>getFileDetails:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile" href="openai_leap.html#getFileDetails%2COpenAiApi%2Cstring">openai_leap: proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile</a></li>
@@ -224,6 +228,14 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type OpenAIStream" href="openai_leap.html#OpenAIStream">openai_leap: type OpenAIStream</a></li>
           </ul></dd>
+<dt><a name="Opts" href="#Opts"><span>Opts:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: object Opts" href="openai_leap.html#Opts">openai_leap: object Opts</a></li>
+          </ul></dd>
+<dt><a name="post" href="#post"><span>post:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response" href="openai_leap.html#post%2COpenAiApi%2Cstring%2Cstring%2COpts">openai_leap: proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response</a></li>
+          </ul></dd>
 <dt><a name="RespMessage" href="#RespMessage"><span>RespMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type RespMessage" href="openai_leap.html#RespMessage">openai_leap: type RespMessage</a></li>
@@ -240,13 +252,9 @@
                      input: string): OpenAIStream" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring">openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream</a></li>
           </ul></dd>
-<dt><a name="ToolCall" href="#ToolCall"><span>ToolCall:</span></a></dt><dd><ul class="simple">
+<dt><a name="Tool" href="#Tool"><span>Tool:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolCall" href="openai_leap.html#ToolCall">openai_leap: type ToolCall</a></li>
-          </ul></dd>
-<dt><a name="ToolCallResp" href="#ToolCallResp"><span>ToolCallResp:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolCallResp" href="openai_leap.html#ToolCallResp">openai_leap: type ToolCallResp</a></li>
+          data-doc-search-tag="openai_leap: type Tool" href="openai_leap.html#Tool">openai_leap: type Tool</a></li>
           </ul></dd>
 <dt><a name="ToolChoice" href="#ToolChoice"><span>ToolChoice:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -264,6 +272,10 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type ToolFunctionResp" href="openai_leap.html#ToolFunctionResp">openai_leap: type ToolFunctionResp</a></li>
           </ul></dd>
+<dt><a name="ToolResp" href="#ToolResp"><span>ToolResp:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: type ToolResp" href="openai_leap.html#ToolResp">openai_leap: type ToolResp</a></li>
+          </ul></dd>
 <dt><a name="updateApiKey" href="#updateApiKey"><span>updateApiKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc updateApiKey(api: OpenAiApi; apiKey: string)" href="openai_leap.html#updateApiKey%2COpenAiApi%2Cstring">openai_leap: proc updateApiKey(api: OpenAiApi; apiKey: string)</a></li>
@@ -276,7 +288,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-10-29 20:35:54 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-11-28 18:59:27 UTC</small>
       </div>
     </div>
   </div>
