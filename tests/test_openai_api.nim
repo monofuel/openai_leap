@@ -3,8 +3,8 @@ import openai_leap, jsony, std/[unittest, os]
 const
   TestModel = "gpt-3.5-turbo"
   TestEmbedding = "text-embedding-3-small"
-  #BaseUrl = "https://api.openai.com/v1"
-  BaseUrl = "http://localhost:8085/v1"
+  BaseUrl = "https://api.openai.com/v1"
+  #BaseUrl = "http://localhost:8085/v1"
   #BaseUrl = "http://localhost:11434/v1"
   TunedModel = "ft:gpt-3.5-turbo-0125:personal::9GZiiBWl"
 
