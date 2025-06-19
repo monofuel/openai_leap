@@ -494,11 +494,19 @@ proc createChatCompletion*(
   api: OpenAiApi,
   model: string,
   systemPrompt: string,
-  input: string
+  input: string,
+  responseFormat: Option[JsonNode] = none(JsonNode)
 ): string =
   ## Create a chat completion.
   let req = CreateChatCompletionReq()
   req.model = model
+
+  if responseFormat.isSome:
+    let respObj = ResponseFormatObj()
+    respObj.`type` = "json_schema"
+    respObj.json_schema = responseFormat
+    req.response_format = option(respObj)
+
   req.messages = @[
     Message(
       role: "system",

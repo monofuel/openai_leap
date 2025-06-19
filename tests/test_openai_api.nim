@@ -1,7 +1,7 @@
-import openai_leap, jsony, std/[unittest, os]
+import openai_leap, jsony, std/[unittest, json, options, os]
 
 const
-  TestModel = "gpt-3.5-turbo"
+  TestModel = "gpt-4o-mini"
   TestEmbedding = "text-embedding-3-small"
   BaseUrl = "https://api.openai.com/v1"
   #BaseUrl = "http://localhost:8085/v1"
@@ -43,4 +43,25 @@ suite "openai_leap":
       let system = "Please talk like a pirate. you are Longbeard the Llama."
       let prompt = "How are you today?"
       let resp = openai.createChatCompletion(TestModel, system, prompt)
+      echo resp
+    test "structured output":
+      let system = "You are a helpful weather parsing assistant. you return a structured json object we will provide to an API."
+      let prompt = "What is the weather in Iceland?"
+      let responseFormat = %*{
+        "name": "weather_api",
+        "description": "A weather API request object",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string",
+              "description": "The country to get the weather for"
+            }
+          },
+          "additionalProperties": false,
+          "required": ["country"]
+          }
+      }
+      let resp = openai.createChatCompletion(TestModel, system, prompt, option(responseFormat))
       echo resp
