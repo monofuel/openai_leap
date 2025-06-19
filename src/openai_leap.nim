@@ -698,3 +698,21 @@ proc audioTranscriptions*(
     entries
   )
   return response.body.fromJson(AudioTranscription)
+
+
+proc pullModel*(api: OpenAiApi, model: string) =
+  ## Ask Ollama to pull a model.
+  ## Only for ollama! not for other providers!
+
+  var baseUrl = api.baseUrl
+  baseUrl.removeSuffix("/v1")
+  let url = baseUrl & "/api/pull"
+  let req = %*{
+    "model": model,
+    "stream": false
+  }
+  var headers: curly.HttpHeaders
+  headers["Content-Type"] = "application/json"
+  let resp = api.curly.post(url, headers, toJson(req), api.curlTimeout)
+  if resp.code != 200:
+    raise newException(OpenAiError, "Failed to pull model: " & resp.body)
