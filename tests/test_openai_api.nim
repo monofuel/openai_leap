@@ -1,4 +1,4 @@
-import openai_leap, jsony, std/[unittest, json, options, os]
+import openai_leap, jsony, std/[unittest, json, os]
 
 const
   TestModel = "gpt-4o-mini"
@@ -63,5 +63,5 @@ suite "openai_leap":
           "required": ["country"]
           }
       }
-      let resp = openai.createChatCompletion(TestModel, system, prompt, option(responseFormat))
+      let resp = openai.createChatCompletion(TestModel, system, prompt, responseFormat)
       echo resp

@@ -495,16 +495,16 @@ proc createChatCompletion*(
   model: string,
   systemPrompt: string,
   input: string,
-  responseFormat: Option[JsonNode] = none(JsonNode)
+  responseFormat: JsonNode = nil
 ): string =
   ## Create a chat completion.
   let req = CreateChatCompletionReq()
   req.model = model
 
-  if responseFormat.isSome:
+  if responseFormat != nil:
     let respObj = ResponseFormatObj()
     respObj.`type` = "json_schema"
-    respObj.json_schema = responseFormat
+    respObj.json_schema = option(responseFormat)
     req.response_format = option(respObj)
 
   req.messages = @[
