@@ -313,6 +313,10 @@
   <li><a class="reference" href="#post%2COpenAiApi%2Cstring%2Cstring%2COpts" title="post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response">post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">pullModel
+  <li><a class="reference" href="#pullModel%2COpenAiApi%2Cstring" title="pullModel(api: OpenAiApi; model: string)">pullModel(api: OpenAiApi; model: string)</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">streamChatCompletion
   <li><a class="reference" href="#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring" title="streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream">streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
@@ -1170,6 +1174,21 @@
 </div>
 
 </div>
+<div id="pullModel-procs-all">
+  <div id="pullModel,OpenAiApi,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#pullModel%2COpenAiApi%2Cstring"><span class="Identifier">pullModel</span></a><span class="Other">(</span><span class="Identifier">api</span><span class="Other">:</span> <a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a><span class="Other">;</span> <span class="Identifier">model</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ZippyError</span><span class="Other">,</span> <span class="Identifier">CatchableError</span><span class="Other">,</span> <span class="Identifier">OpenAiError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Ask Ollama to pull a model. Only for ollama! not for other providers!
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap.nim#L703" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap.nim#L703" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
 <div id="streamChatCompletion-procs-all">
   <div id="streamChatCompletion,OpenAiApi,string,string,string">
   <dt><pre><span class="Keyword">proc</span> <a href="#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring"><span class="Identifier">streamChatCompletion</span></a><span class="Other">(</span><span class="Identifier">api</span><span class="Other">:</span> <a href="openai_leap.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a><span class="Other">;</span> <span class="Identifier">model</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">systemPrompt</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
@@ -1220,7 +1239,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-06-19 18:30:11 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-06-19 19:26:35 UTC</small>
       </div>
     </div>
   </div>
