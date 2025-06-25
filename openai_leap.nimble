@@ -1,4 +1,4 @@
-version     = "3.1.1"
+version     = "4.0.0"
 author      = "Andrew Brower"
 description = "OpenAI API for Nim"
 license     = "MIT"

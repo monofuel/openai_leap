@@ -485,10 +485,11 @@ proc generateEmbeddings*(
 
 proc createChatCompletion*(
   api: OpenAiApi,
-  req: CreateChatCompletionReq,
+  req: var CreateChatCompletionReq,
   tools: Option[ToolsTable] = none(ToolsTable)
 ): CreateChatCompletionResp =
   ## Create a chat completion. without streaming.
+  ## If tools are provided, the req.messages will be mutated to include all tool calls and responses.
   req.stream = option(false)
 
   # Add the tools to the request if provided
@@ -510,15 +511,13 @@ proc createChatCompletion*(
 
   # Handle tool calls by iterating until no more tool calls are needed
   if tools.isSome and tools.get.len > 0:
-    var messages = req.messages
-    
     while result.choices[0].message.get.tool_calls.isSome and 
           result.choices[0].message.get.tool_calls.get.len > 0:
       
       let toolMsg = result.choices[0].message.get
       
       # Add the assistant's message with tool calls to the conversation
-      messages.add(Message(
+      req.messages.add(Message(
         role: "assistant",
         content: option(@[
           MessageContentPart(
@@ -530,6 +529,7 @@ proc createChatCompletion*(
       ))
       
       # Execute each tool call and add results as tool messages
+      # TODO parallel tool handling
       for toolCallReq in toolMsg.tool_calls.get:
         let toolFunc = toolCallReq.function
         let toolsTable = tools.get
@@ -542,7 +542,7 @@ proc createChatCompletion*(
         let toolResult = toolImpl(toolFuncArgs)
         
         # Add tool result message
-        messages.add(Message(
+        req.messages.add(Message(
           role: "tool",
           content: option(@[
             MessageContentPart(
@@ -552,32 +552,11 @@ proc createChatCompletion*(
           ]),
           tool_call_id: option(toolCallReq.id)
         ))
-          
       
-      # Create new request with updated messages
-      let newReq = CreateChatCompletionReq(
-        model: req.model,
-        messages: messages,
-        tools: req.tools,
-        tool_choice: req.tool_choice,
-        temperature: req.temperature,
-        max_tokens: req.max_tokens,
-        top_p: req.top_p,
-        frequency_penalty: req.frequency_penalty,
-        presence_penalty: req.presence_penalty,
-        response_format: req.response_format,
-        seed: req.seed,
-        stop: req.stop,
-        n: req.n,
-        logprobs: req.logprobs,
-        top_logprobs: req.top_logprobs,
-        logit_bias: req.logit_bias,
-        user: req.user
-      )
-      
-      let newReqBody = toJson(newReq)
-      let newResp = post(api, "/chat/completions", newReqBody)
-      result = fromJson(newResp.body, CreateChatCompletionResp)
+      # Make follow-up request with updated messages
+      let followUpReqBody = toJson(req)
+      let followUpResp = post(api, "/chat/completions", followUpReqBody)
+      result = fromJson(followUpResp.body, CreateChatCompletionResp)
 
   return result
 
@@ -621,7 +600,8 @@ proc createChatCompletion*(
       ])
     )
   ]
-  let resp = api.createChatCompletion(req)
+  var mutableReq = req
+  let resp = api.createChatCompletion(mutableReq)
   result = resp.choices[0].message.get.content
 
 proc streamChatCompletion*(

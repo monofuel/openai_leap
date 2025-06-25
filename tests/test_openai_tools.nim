@@ -13,8 +13,8 @@ const
 proc getFlightTimes(departure: string, arrival: string): string =
   var flights = initTable[string, JsonNode]()
 
-  flights["NYC-LAX"] = %* {"departure": "08:00 AM", "arrival": "11:30 AM", "duration": "5h 30m"}
-  flights["LAX-NYC"] = %* {"departure": "02:00 PM", "arrival": "10:30 PM", "duration": "5h 30m"}
+  flights["JFK-LAX"] = %* {"departure": "08:00 AM", "arrival": "11:30 AM", "duration": "5h 30m"}
+  flights["LAX-JFK"] = %* {"departure": "02:00 PM", "arrival": "10:30 PM", "duration": "5h 30m"}
   flights["LHR-JFK"] = %* {"departure": "10:00 AM", "arrival": "01:00 PM", "duration": "8h 00m"}
   flights["JFK-LHR"] = %* {"departure": "09:00 PM", "arrival": "09:00 AM", "duration": "7h 00m"}
   flights["CDG-DXB"] = %* {"departure": "11:00 AM", "arrival": "08:00 PM", "duration": "6h 00m"}
@@ -41,7 +41,7 @@ suite "openai tools":
 
   suite "flight times":
     test "getFlightTimes":
-      echo getFlightTimes("NYC", "LAX")
+      echo getFlightTimes("JFK", "LAX")
 
     test "tool call queries":
       var messages = @[
@@ -49,12 +49,12 @@ suite "openai tools":
           role: "user",
           content:
             option(@[MessageContentPart(`type`: "text", text: option(
-             "What is the flight time from New York (NYC) to Los Angeles (LAX)?"
+             "What is the flight time from New York (JFK) to Los Angeles (LAX)?"
             ))])
         )
       ]
 
-      let firstRequest = CreateChatCompletionReq(
+      var firstRequest = CreateChatCompletionReq(
         model: TestModel,
         messages: messages,
         tools: option(@[
@@ -103,7 +103,7 @@ suite "openai tools":
       let toolFunc = toolMsg.tool_calls.get[0].function
       assert toolFunc.name == "get_flight_times"
       let toolFuncArgs = fromJson(toolFunc.arguments)
-      assert toolFuncArgs["departure"].getStr == "NYC"
+      assert toolFuncArgs["departure"].getStr == "JFK"
       assert toolFuncArgs["arrival"].getStr == "LAX"
 
       let toolResult = getFlightTimes(toolFuncArgs["departure"].getStr, toolFuncArgs["arrival"].getStr)
@@ -118,28 +118,27 @@ suite "openai tools":
       ))
       echo toJson(messages)
 
-      let finalResponse = openai.createChatCompletion(
-        CreateChatCompletionReq(
+      var req = CreateChatCompletionReq(
           model: TestModel,
           messages: messages,
         )
-      )
+      let finalResponse = openai.createChatCompletion(req)
       echo finalResponse.choices[0].message.get.content
 
     test "automated tool calls with ToolsTable":
+      # Tool implementations
       proc addNumbers(args: JsonNode): string =
         let a = args["a"].getInt()
         let b = args["b"].getInt()
-        let sum = a + b
-        return $sum
+        return $(a + b)
 
       proc getFlightTimesTool(args: JsonNode): string =
         let departure = args["departure"].getStr()
         let arrival = args["arrival"].getStr()
         return getFlightTimes(departure, arrival)
 
+      # Setup tools
       var tools = newToolsTable()
-      
       tools.register("add_numbers",
         ToolFunction(
           name: "add_numbers",
@@ -158,12 +157,12 @@ suite "openai tools":
       tools.register("get_flight_times",
         ToolFunction(
           name: "get_flight_times",
-          description: option("Get the flight times between two cities"),
+          description: option("Get flight times between two cities"),
           parameters: option(%*{
             "type": "object",
             "properties": {
-              "departure": {"type": "string", "description": "The departure city (airport code)"},
-              "arrival": {"type": "string", "description": "The arrival city (airport code)"}
+              "departure": {"type": "string", "description": "Departure city code"},
+              "arrival": {"type": "string", "description": "Arrival city code"}
             },
             "required": ["departure", "arrival"]
           })
@@ -171,31 +170,62 @@ suite "openai tools":
         getFlightTimesTool
       )
       
-      # Create request that requires multiple tool calls
-      let req = CreateChatCompletionReq(
+      # Create request asking for both math and flight info
+      var req = CreateChatCompletionReq(
         model: TestModel,
         messages: @[
           Message(
             role: "user",
             content: option(@[
               MessageContentPart(`type`: "text", text: option(
-                "What's 15 + 27, and what's the flight time from NYC to LAX?"
+                "What's 15 + 27, and what's the flight time from JFK to LAX?"
               ))
             ])
           )
         ]
       )
       
-      # Make request with automated tool handling
+      # Execute with automated tool handling
       let resp = openai.createChatCompletion(req, option(tools))
       
-      # TODO assert that tool calls were made
-
-      echo "Automated tool response: ", resp.choices[0].message.get.content
+      # Verify conversation was extended with tool calls
+      echo "Conversation expanded from 1 to ", req.messages.len, " messages"
+      check req.messages.len > 1
       
-      # Verify we got a meaningful response that includes both answers
-      let content = resp.choices[0].message.get.content
-      check content.len > 0
-      # The response should mention both the sum (42) and flight information
-      check "42" in content  # 15 + 27 = 42
-      check ("flight" in content.toLowerAscii() or "duration" in content.toLowerAscii())
+      # Verify expected tools were called with correct arguments
+      var addNumbersCalled = false
+      var flightTimesCalled = false
+      var toolResponseCount = 0
+      
+      for msg in req.messages:
+        case msg.role:
+        of "assistant":
+          if msg.tool_calls.isSome:
+            for call in msg.tool_calls.get:
+              case call.function.name:
+              of "add_numbers":
+                addNumbersCalled = true
+                let args = parseJson(call.function.arguments)
+                check args["a"].getInt == 15
+                check args["b"].getInt == 27
+              of "get_flight_times":
+                flightTimesCalled = true
+                let args = parseJson(call.function.arguments)
+                check args["departure"].getStr == "JFK"
+                check args["arrival"].getStr == "LAX"
+        of "tool":
+          inc toolResponseCount
+        else:
+          discard
+      
+      # Assert all expected tools were used
+      check addNumbersCalled
+      check flightTimesCalled  
+      check toolResponseCount >= 2
+      
+      # Verify final response content
+      let finalContent = resp.choices[0].message.get.content
+      check finalContent.len > 0
+      check "42" in finalContent  # 15 + 27 = 42
+      
+      echo "Final response: ", finalContent
