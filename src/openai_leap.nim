@@ -120,6 +120,9 @@ type
     `type`*: string
     function*: ToolChoiceFuncion
 
+  ToolImpl* = proc (args: JsonNode): string
+  ToolsTable* = Table[string, (ToolFunction, ToolImpl)] 
+
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
     model*: string
@@ -141,6 +144,7 @@ type
     tool_choice*: Option[JsonNode]  # "auto" | function to use. using a JsonNode to allow either a string or a ToolChoice object
     user*: Option[string]
 
+  # TODO should probably rename `ChatMessage` since it's used in both req and resp
   CreateChatMessage* = ref object
     finish_reason*: string
     index*: int
@@ -261,7 +265,7 @@ proc newOpenAiApi*(
     apiKey: string = "",
     organization: string = "",
     maxInFlight: int = 16,
-    curlTimeout: int = 60
+    curlTimeout: int = 60 * 5 # 5 minutes
 ): OpenAiApi =
   ## Initialize a new OpenAI API client.
   ## Will use the provided apiKey,
@@ -285,6 +289,14 @@ template sync(a: Lock, body: untyped) =
       body
   finally:
     release(a)
+
+proc newToolsTable*(): ToolsTable =
+  ## Create a new empty tools table
+  result = initTable[string, (ToolFunction, ToolImpl)]()
+
+proc register*(table: var ToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
+  ## Add a tool to the tools table
+  table[name] = (toolFunc, impl)
 
 proc updateApiKey*(api: OpenAiApi, apiKey: string) =
   ## Update the API key for the OpenAI API client.
@@ -473,13 +485,101 @@ proc generateEmbeddings*(
 
 proc createChatCompletion*(
   api: OpenAiApi,
-  req: CreateChatCompletionReq
+  req: CreateChatCompletionReq,
+  tools: Option[ToolsTable] = none(ToolsTable)
 ): CreateChatCompletionResp =
   ## Create a chat completion. without streaming.
   req.stream = option(false)
+
+  # Add the tools to the request if provided
+  if tools.isSome and tools.get.len > 0:
+    var toolSeq: seq[Tool] = @[]
+    for toolName, (toolFunc, toolImpl) in tools.get.pairs:
+      let tool = Tool(
+        `type`: "function",
+        function: toolFunc
+      )
+      toolSeq.add(tool)
+    req.tools = option(toolSeq)
+    # Set tool_choice to "auto" when tools are provided
+    req.tool_choice = option(% "auto")
+
   let reqBody = toJson(req)
   let resp = post(api, "/chat/completions", reqBody)
   result = fromJson(resp.body, CreateChatCompletionResp)
+
+  # Handle tool calls by iterating until no more tool calls are needed
+  if tools.isSome and tools.get.len > 0:
+    var messages = req.messages
+    
+    while result.choices[0].message.get.tool_calls.isSome and 
+          result.choices[0].message.get.tool_calls.get.len > 0:
+      
+      let toolMsg = result.choices[0].message.get
+      
+      # Add the assistant's message with tool calls to the conversation
+      messages.add(Message(
+        role: "assistant",
+        content: option(@[
+          MessageContentPart(
+            `type`: "text", 
+            text: option(toolMsg.content)
+          )
+        ]),
+        tool_calls: toolMsg.tool_calls
+      ))
+      
+      # Execute each tool call and add results as tool messages
+      for toolCallReq in toolMsg.tool_calls.get:
+        let toolFunc = toolCallReq.function
+        let toolsTable = tools.get
+        
+        if not toolsTable.hasKey(toolFunc.name):
+          raise newException(Exception, "LLM tried to call a tool that doesn't exist: " & toolFunc.name)
+
+        let (_, toolImpl) = toolsTable[toolFunc.name]
+        let toolFuncArgs = parseJson(toolFunc.arguments)
+        let toolResult = toolImpl(toolFuncArgs)
+        
+        # Add tool result message
+        messages.add(Message(
+          role: "tool",
+          content: option(@[
+            MessageContentPart(
+              `type`: "text", 
+              text: option(toolResult)
+            )
+          ]),
+          tool_call_id: option(toolCallReq.id)
+        ))
+          
+      
+      # Create new request with updated messages
+      let newReq = CreateChatCompletionReq(
+        model: req.model,
+        messages: messages,
+        tools: req.tools,
+        tool_choice: req.tool_choice,
+        temperature: req.temperature,
+        max_tokens: req.max_tokens,
+        top_p: req.top_p,
+        frequency_penalty: req.frequency_penalty,
+        presence_penalty: req.presence_penalty,
+        response_format: req.response_format,
+        seed: req.seed,
+        stop: req.stop,
+        n: req.n,
+        logprobs: req.logprobs,
+        top_logprobs: req.top_logprobs,
+        logit_bias: req.logit_bias,
+        user: req.user
+      )
+      
+      let newReqBody = toJson(newReq)
+      let newResp = post(api, "/chat/completions", newReqBody)
+      result = fromJson(newResp.body, CreateChatCompletionResp)
+
+  return result
 
 proc streamChatCompletion*(
   api: OpenAiApi,
@@ -700,9 +800,12 @@ proc audioTranscriptions*(
   return response.body.fromJson(AudioTranscription)
 
 
-proc pullModel*(api: OpenAiApi, model: string) =
+proc pullModel*(api: OpenAiApi, model: string, timeout: int = 0) =
   ## Ask Ollama to pull a model.
   ## Only for ollama! not for other providers!
+  var pullTimeout = timeout
+  if pullTimeout == 0:
+    pullTimeout = api.curlTimeout
 
   var baseUrl = api.baseUrl
   baseUrl.removeSuffix("/v1")
@@ -713,6 +816,7 @@ proc pullModel*(api: OpenAiApi, model: string) =
   }
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
-  let resp = api.curly.post(url, headers, toJson(req), api.curlTimeout)
+  let resp = api.curly.post(url, headers, toJson(req), pullTimeout)
   if resp.code != 200:
     raise newException(OpenAiError, "Failed to pull model: " & resp.body)
+

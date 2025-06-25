@@ -125,3 +125,77 @@ suite "openai tools":
         )
       )
       echo finalResponse.choices[0].message.get.content
+
+    test "automated tool calls with ToolsTable":
+      proc addNumbers(args: JsonNode): string =
+        let a = args["a"].getInt()
+        let b = args["b"].getInt()
+        let sum = a + b
+        return $sum
+
+      proc getFlightTimesTool(args: JsonNode): string =
+        let departure = args["departure"].getStr()
+        let arrival = args["arrival"].getStr()
+        return getFlightTimes(departure, arrival)
+
+      var tools = newToolsTable()
+      
+      tools.register("add_numbers",
+        ToolFunction(
+          name: "add_numbers",
+          description: option("Add two numbers together"),
+          parameters: option(%*{
+            "type": "object",
+            "properties": {
+              "a": {"type": "integer", "description": "First number"},
+              "b": {"type": "integer", "description": "Second number"}
+            },
+            "required": ["a", "b"]
+          })
+        ),
+        addNumbers
+      )
+      tools.register("get_flight_times",
+        ToolFunction(
+          name: "get_flight_times",
+          description: option("Get the flight times between two cities"),
+          parameters: option(%*{
+            "type": "object",
+            "properties": {
+              "departure": {"type": "string", "description": "The departure city (airport code)"},
+              "arrival": {"type": "string", "description": "The arrival city (airport code)"}
+            },
+            "required": ["departure", "arrival"]
+          })
+        ),
+        getFlightTimesTool
+      )
+      
+      # Create request that requires multiple tool calls
+      let req = CreateChatCompletionReq(
+        model: TestModel,
+        messages: @[
+          Message(
+            role: "user",
+            content: option(@[
+              MessageContentPart(`type`: "text", text: option(
+                "What's 15 + 27, and what's the flight time from NYC to LAX?"
+              ))
+            ])
+          )
+        ]
+      )
+      
+      # Make request with automated tool handling
+      let resp = openai.createChatCompletion(req, option(tools))
+      
+      # TODO assert that tool calls were made
+
+      echo "Automated tool response: ", resp.choices[0].message.get.content
+      
+      # Verify we got a meaningful response that includes both answers
+      let content = resp.choices[0].message.get.content
+      check content.len > 0
+      # The response should mention both the sum (42) and flight information
+      check "42" in content  # 15 + 27 = 42
+      check ("flight" in content.toLowerAscii() or "duration" in content.toLowerAscii())
