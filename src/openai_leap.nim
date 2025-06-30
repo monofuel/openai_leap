@@ -800,3 +800,92 @@ proc pullModel*(api: OpenAiApi, model: string, timeout: int = 0) =
   if resp.code != 200:
     raise newException(OpenAiError, "Failed to pull model: " & resp.body)
 
+
+
+# -------------------------------
+# Utils
+
+# Some helpers to help with converting requests / responses to markdown.
+# these are useful for testing, debugging, and making templates of requests at runtime without a whole lot of code.
+# eg: rather than log a huge json object, just write the markdown to a file somewhere.
+
+proc toMarkdown*(req: CreateChatCompletionReq): string =
+  ## Serialize a create chat completion request into markdown.
+  return ""
+
+proc toMarkdown*(resp: CreateChatCompletionResp): string =
+  ## Serialize a create chat completion response into markdown.
+  result = "# Chat Completion Response\n\n"
+  
+  # Basic metadata
+  result &= "## Response Details\n\n"
+  result &= &"- **ID**: {resp.id}\n"
+  result &= &"- **Model**: {resp.model}\n"
+  result &= &"- **Created**: {resp.created}\n"
+  result &= &"- **Object**: {resp.`object`}\n"
+  result &= &"- **System Fingerprint**: {resp.system_fingerprint}\n\n"
+  
+  # Choices/Messages
+  result &= "## Response Choices\n\n"
+  for i, choice in resp.choices:
+    result &= &"### Choice {choice.index}\n\n"
+    result &= &"- **Finish Reason**: {choice.finish_reason}\n"
+    
+    if choice.message.isSome:
+      let msg = choice.message.get
+      result &= &"- **Role**: {msg.role}\n"
+      if msg.content != "":
+        result &= "- **Content**:\n\n"
+        result &= &"```\n{msg.content}\n```\n\n"
+      
+      if msg.name.isSome:
+        result &= &"- **Name**: {msg.name.get}\n"
+      
+      if msg.refusal.isSome:
+        result &= &"- **Refusal**: {msg.refusal.get}\n"
+      
+      if msg.tool_calls.isSome and msg.tool_calls.get.len > 0:
+        result &= "- **Tool Calls**:\n"
+        for tool_call in msg.tool_calls.get:
+          result &= &"  - **ID**: {tool_call.id}\n"
+          result &= &"  - **Type**: {tool_call.`type`}\n"
+          result &= &"  - **Function**: {tool_call.function.name}\n"
+          result &= &"  - **Arguments**: `{tool_call.function.arguments}`\n"
+    
+    if choice.delta.isSome:
+      let delta = choice.delta.get
+      result &= "- **Delta**:\n"
+      result &= &"  - **Role**: {delta.role}\n"
+      if delta.content != "":
+        result &= &"  - **Content**: {delta.content}\n"
+    
+    if choice.log_probs.isSome:
+      result &= "- **Log Probs**: Available\n"
+    
+    result &= "\n"
+  
+  # Usage statistics
+  if resp.usage != nil:
+    result &= "## Usage Statistics\n\n"
+    result &= &"- **Prompt Tokens**: {resp.usage.prompt_tokens}\n"
+    result &= &"- **Total Tokens**: {resp.usage.total_tokens}\n"
+    if resp.usage.total_tokens > 0 and resp.usage.prompt_tokens > 0:
+      let completion_tokens = resp.usage.total_tokens - resp.usage.prompt_tokens
+      result &= &"- **Completion Tokens**: {completion_tokens}\n"
+
+proc toMarkdown*(req: CreateChatCompletionReq, resp: CreateChatCompletionResp): string =
+  ## Serialize both a create chat completion request and response into markdown.
+  return ""
+
+
+proc toCreateChatCompletionReq*(markdown: string): CreateChatCompletionReq =
+  ## Deserialize a create chat completion request from markdown.
+  return CreateChatCompletionReq()
+
+proc toCreateChatCompletionResp*(markdown: string): CreateChatCompletionResp =
+  ## Deserialize a create chat completion response from markdown.
+  return CreateChatCompletionResp()
+
+proc toCreateChatCompletionReqAndResp*(markdown: string): (CreateChatCompletionReq, CreateChatCompletionResp) =
+  ## Deserialize a create chat completion request and response from markdown.
+  return (CreateChatCompletionReq(), CreateChatCompletionResp())

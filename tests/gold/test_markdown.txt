@@ -1,0 +1,200 @@
+---
+# Test: Basic CreateChatCompletionResp
+
+# Chat Completion Response
+
+## Response Details
+
+- **ID**: chatcmpl-123456789
+- **Model**: gpt-4
+- **Created**: 1699564800
+- **Object**: chat.completion
+- **System Fingerprint**: fp_12345678
+
+## Response Choices
+
+### Choice 0
+
+- **Finish Reason**: stop
+- **Role**: assistant
+- **Content**:
+
+```
+The weather in San Francisco is 18°C with partly cloudy skies.
+```
+
+
+## Usage Statistics
+
+- **Prompt Tokens**: 150
+- **Total Tokens**: 200
+- **Completion Tokens**: 50
+
+
+# Test: CreateChatCompletionResp with Tool Calls
+
+# Chat Completion Response
+
+## Response Details
+
+- **ID**: chatcmpl-987654321
+- **Model**: gpt-4
+- **Created**: 1699564900
+- **Object**: chat.completion
+- **System Fingerprint**: fp_87654321
+
+## Response Choices
+
+### Choice 0
+
+- **Finish Reason**: tool_calls
+- **Role**: assistant
+- **Content**:
+
+```
+I'll check the weather for you.
+```
+
+- **Tool Calls**:
+  - **ID**: call_123456789
+  - **Type**: function
+  - **Function**: get_weather
+  - **Arguments**: `{"location": "San Francisco", "unit": "celsius"}`
+
+## Usage Statistics
+
+- **Prompt Tokens**: 150
+- **Total Tokens**: 200
+- **Completion Tokens**: 50
+
+
+# Test: CreateChatCompletionResp with Refusal
+
+# Chat Completion Response
+
+## Response Details
+
+- **ID**: chatcmpl-111222333
+- **Model**: gpt-4
+- **Created**: 1699565000
+- **Object**: chat.completion
+- **System Fingerprint**: fp_11122233
+
+## Response Choices
+
+### Choice 1
+
+- **Finish Reason**: stop
+- **Role**: assistant
+- **Refusal**: I cannot provide information about that topic.
+
+## Usage Statistics
+
+- **Prompt Tokens**: 150
+- **Total Tokens**: 200
+- **Completion Tokens**: 50
+
+
+# Test: CreateChatCompletionResp with Streaming Delta
+
+# Chat Completion Response
+
+## Response Details
+
+- **ID**: chatcmpl-444555666
+- **Model**: gpt-4
+- **Created**: 1699565100
+- **Object**: chat.completion.chunk
+- **System Fingerprint**: fp_44455566
+
+## Response Choices
+
+### Choice 0
+
+- **Finish Reason**: 
+- **Delta**:
+  - **Role**: assistant
+  - **Content**:  with
+
+
+
+# Test: CreateChatCompletionResp with Multiple Choices
+
+# Chat Completion Response
+
+## Response Details
+
+- **ID**: chatcmpl-777888999
+- **Model**: gpt-4
+- **Created**: 1699565200
+- **Object**: chat.completion
+- **System Fingerprint**: fp_77788899
+
+## Response Choices
+
+### Choice 0
+
+- **Finish Reason**: stop
+- **Role**: assistant
+- **Content**:
+
+```
+The weather in San Francisco is 18°C with partly cloudy skies.
+```
+
+
+### Choice 0
+
+- **Finish Reason**: tool_calls
+- **Role**: assistant
+- **Content**:
+
+```
+I'll check the weather for you.
+```
+
+- **Tool Calls**:
+  - **ID**: call_123456789
+  - **Type**: function
+  - **Function**: get_weather
+  - **Arguments**: `{"location": "San Francisco", "unit": "celsius"}`
+
+### Choice 1
+
+- **Finish Reason**: stop
+- **Role**: assistant
+- **Refusal**: I cannot provide information about that topic.
+
+## Usage Statistics
+
+- **Prompt Tokens**: 150
+- **Total Tokens**: 200
+- **Completion Tokens**: 50
+
+
+# Test: CreateChatCompletionResp with Empty Content
+
+# Chat Completion Response
+
+## Response Details
+
+- **ID**: chatcmpl-000111222
+- **Model**: gpt-3.5-turbo
+- **Created**: 1699565300
+- **Object**: chat.completion
+- **System Fingerprint**: fp_00011122
+
+## Response Choices
+
+### Choice 0
+
+- **Finish Reason**: stop
+- **Role**: assistant
+
+## Usage Statistics
+
+- **Prompt Tokens**: 150
+- **Total Tokens**: 200
+- **Completion Tokens**: 50
+
+

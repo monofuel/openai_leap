@@ -14,3 +14,6 @@ nimcache
 
 # secrets file
 .env
+
+# test output
+tests/tmp
