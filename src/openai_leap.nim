@@ -811,7 +811,102 @@ proc pullModel*(api: OpenAiApi, model: string, timeout: int = 0) =
 
 proc toMarkdown*(req: CreateChatCompletionReq): string =
   ## Serialize a create chat completion request into markdown.
-  return ""
+  result = "# Chat Completion Request\n\n"
+  
+  # Basic settings
+  result &= "## Request Settings\n\n"
+  result &= &"- **Model**: {req.model}\n"
+  
+  if req.temperature.isSome:
+    result &= &"- **Temperature**: {req.temperature.get}\n"
+  if req.max_tokens.isSome:
+    result &= &"- **Max Tokens**: {req.max_tokens.get}\n"
+  if req.top_p.isSome:
+    result &= &"- **Top P**: {req.top_p.get}\n"
+  if req.frequency_penalty.isSome:
+    result &= &"- **Frequency Penalty**: {req.frequency_penalty.get}\n"
+  if req.presence_penalty.isSome:
+    result &= &"- **Presence Penalty**: {req.presence_penalty.get}\n"
+  if req.n.isSome:
+    result &= &"- **N (Choices)**: {req.n.get}\n"
+  if req.seed.isSome:
+    result &= &"- **Seed**: {req.seed.get}\n"
+  if req.stop.isSome:
+    result &= &"- **Stop**: {req.stop.get}\n"
+  if req.stream.isSome:
+    result &= &"- **Stream**: {req.stream.get}\n"
+  if req.user.isSome:
+    result &= &"- **User**: {req.user.get}\n"
+  
+  # Response format
+  if req.response_format.isSome:
+    result &= &"- **Response Format**: {req.response_format.get.`type`}\n"
+    if req.response_format.get.json_schema.isSome:
+      result &= "- **JSON Schema**: Available\n"
+  
+  # Advanced settings
+  if req.logprobs.isSome:
+    result &= &"- **Log Probs**: {req.logprobs.get}\n"
+  if req.top_logprobs.isSome:
+    result &= &"- **Top Log Probs**: {req.top_logprobs.get}\n"
+  if req.logit_bias.isSome and req.logit_bias.get.len > 0:
+    result &= &"- **Logit Bias**: {req.logit_bias.get.len} entries\n"
+  
+  result &= "\n"
+  
+  # Messages
+  result &= "## Messages\n\n"
+  for i, msg in req.messages:
+    result &= &"### Message {i + 1} ({msg.role})\n\n"
+    
+    if msg.name.isSome:
+      result &= &"- **Name**: {msg.name.get}\n"
+    
+    if msg.tool_call_id.isSome:
+      result &= &"- **Tool Call ID**: {msg.tool_call_id.get}\n"
+    
+    if msg.content.isSome:
+      result &= "- **Content**:\n\n"
+      for part in msg.content.get:
+        case part.`type`:
+        of "text":
+          if part.text.isSome:
+            result &= "```\n" & part.text.get & "\n```\n\n"
+        of "image_url":
+          if part.image_url.isSome:
+            result &= &"**Image URL**: {part.image_url.get.url}\n"
+            if part.image_url.get.detail.isSome:
+              result &= &"**Detail Level**: {part.image_url.get.detail.get}\n"
+            result &= "\n"
+        else:
+          result &= &"**Unknown content type**: {part.`type`}\n\n"
+    
+    if msg.tool_calls.isSome:
+      result &= "- **Tool Calls**:\n"
+      for tool_call in msg.tool_calls.get:
+        result &= &"  - **ID**: {tool_call.id}\n"
+        result &= &"  - **Type**: {tool_call.`type`}\n"
+        result &= &"  - **Function**: {tool_call.function.name}\n"
+        result &= &"  - **Arguments**: `{tool_call.function.arguments}`\n"
+    
+    result &= "\n"
+  
+  # Tools
+  if req.tools.isSome and req.tools.get.len > 0:
+    result &= "## Available Tools\n\n"
+    for i, tool in req.tools.get:
+      result &= &"### Tool {i + 1}: {tool.function.name}\n\n"
+      result &= &"- **Type**: {tool.`type`}\n"
+      if tool.function.description.isSome:
+        result &= &"- **Description**: {tool.function.description.get}\n"
+      if tool.function.parameters.isSome:
+        result &= "- **Parameters**:\n```json\n" & $tool.function.parameters.get & "\n```\n"
+      result &= "\n"
+    
+    # Tool choice
+    if req.tool_choice.isSome:
+      result &= "## Tool Choice\n\n"
+      result &= "```json\n" & $req.tool_choice.get & "\n```\n\n"
 
 proc toMarkdown*(resp: CreateChatCompletionResp): string =
   ## Serialize a create chat completion response into markdown.

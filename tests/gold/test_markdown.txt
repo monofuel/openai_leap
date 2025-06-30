@@ -242,3 +242,167 @@ I'll check the weather for you.
 
 **Match:** true
 
+# Test: CreateChatCompletionReq Serialization
+
+## Basic CreateChatCompletionReq
+
+# Chat Completion Request
+
+## Request Settings
+
+- **Model**: gpt-4
+- **Temperature**: 0.7
+- **Max Tokens**: 150
+
+## Messages
+
+### Message 1 (system)
+
+- **Content**:
+
+```
+You are a helpful assistant.
+```
+
+
+### Message 2 (user)
+
+- **Content**:
+
+```
+What's the weather like?
+```
+
+
+
+
+## CreateChatCompletionReq with Tools
+
+# Chat Completion Request
+
+## Request Settings
+
+- **Model**: gpt-4
+- **Temperature**: 0.5
+
+## Messages
+
+### Message 1 (user)
+
+- **Content**:
+
+```
+What's the weather in San Francisco?
+```
+
+
+## Available Tools
+
+### Tool 1: get_weather
+
+- **Type**: function
+- **Description**: Get current weather for a location
+- **Parameters**:
+```json
+{"type":"object","properties":{"location":{"type":"string"}}}
+```
+
+## Tool Choice
+
+```json
+"auto"
+```
+
+
+
+## CreateChatCompletionReq with Response Format
+
+# Chat Completion Request
+
+## Request Settings
+
+- **Model**: gpt-4
+- **Seed**: 12345
+- **Response Format**: json_schema
+- **JSON Schema**: Available
+
+## Messages
+
+### Message 1 (user)
+
+- **Content**:
+
+```
+Give me weather data as JSON
+```
+
+
+
+
+## CreateChatCompletionReq with Image Content
+
+# Chat Completion Request
+
+## Request Settings
+
+- **Model**: gpt-4-vision-preview
+
+## Messages
+
+### Message 1 (user)
+
+- **Content**:
+
+```
+What do you see in this image?
+```
+
+**Image URL**: https://example.com/image.jpg
+**Detail Level**: high
+
+
+
+
+## CreateChatCompletionReq with All Parameters
+
+# Chat Completion Request
+
+## Request Settings
+
+- **Model**: gpt-4
+- **Temperature**: 0.8
+- **Max Tokens**: 200
+- **Top P**: 0.9
+- **Frequency Penalty**: 0.1
+- **Presence Penalty**: 0.2
+- **N (Choices)**: 2
+- **Seed**: 42
+- **Stop**: END
+- **User**: user123
+- **Log Probs**: true
+- **Top Log Probs**: 5
+- **Logit Bias**: 1 entries
+
+## Messages
+
+### Message 1 (system)
+
+- **Content**:
+
+```
+You are a helpful assistant.
+```
+
+
+### Message 2 (user)
+
+- **Name**: alice
+- **Content**:
+
+```
+Hello!
+```
+
+
+
+

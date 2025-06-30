@@ -222,6 +222,136 @@ output.add "**Original JSON:**\n```json\n" & emptyOriginalJson & "\n```\n\n"
 output.add "**Parsed JSON:**\n```json\n" & emptyParsedJson & "\n```\n\n"
 output.add "**Match:** " & $(emptyOriginalJson == emptyParsedJson) & "\n\n"
 
+# Test request serialization
+output.add "# Test: CreateChatCompletionReq Serialization\n\n"
+
+# Create test request data
+let
+  testTool = Tool(
+    `type`: "function",
+    function: ToolFunction(
+      name: "get_weather",
+      description: option("Get current weather for a location"),
+      parameters: option(parseJson("""{"type": "object", "properties": {"location": {"type": "string"}}}"""))
+    )
+  )
+
+  testResponseFormat = ResponseFormatObj(
+    `type`: "json_schema",
+    json_schema: option(parseJson("""{"type": "object", "properties": {"weather": {"type": "string"}}}"""))
+  )
+
+# Test basic request
+output.add "## Basic CreateChatCompletionReq\n\n"
+let basicReq = CreateChatCompletionReq(
+  messages: @[
+    Message(
+      role: "system",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option("You are a helpful assistant."))
+      ])
+    ),
+    Message(
+      role: "user", 
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option("What's the weather like?"))
+      ])
+    )
+  ],
+  model: "gpt-4",
+  temperature: option(0.7f),
+  max_tokens: option(150)
+)
+output.add basicReq.toMarkdown() & "\n\n"
+
+# Test request with tools
+output.add "## CreateChatCompletionReq with Tools\n\n"
+let toolsReq = CreateChatCompletionReq(
+  messages: @[
+    Message(
+      role: "user",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option("What's the weather in San Francisco?"))
+      ])
+    )
+  ],
+  model: "gpt-4",
+  temperature: option(0.5f),
+  tools: option(@[testTool]),
+  tool_choice: option(% "auto")
+)
+output.add toolsReq.toMarkdown() & "\n\n"
+
+# Test request with response format
+output.add "## CreateChatCompletionReq with Response Format\n\n"
+let formatReq = CreateChatCompletionReq(
+  messages: @[
+    Message(
+      role: "user",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option("Give me weather data as JSON"))
+      ])
+    )
+  ],
+  model: "gpt-4",
+  response_format: option(testResponseFormat),
+  seed: option(12345)
+)
+output.add formatReq.toMarkdown() & "\n\n"
+
+# Test request with image content
+output.add "## CreateChatCompletionReq with Image Content\n\n"
+let imageReq = CreateChatCompletionReq(
+  messages: @[
+    Message(
+      role: "user",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option("What do you see in this image?")),
+        MessageContentPart(
+          `type`: "image_url", 
+          image_url: option(ImageUrlPart(url: "https://example.com/image.jpg", detail: option("high")))
+        )
+      ])
+    )
+  ],
+  model: "gpt-4-vision-preview"
+)
+output.add imageReq.toMarkdown() & "\n\n"
+
+# Test request with all optional parameters
+output.add "## CreateChatCompletionReq with All Parameters\n\n"
+let fullReq = CreateChatCompletionReq(
+  messages: @[
+    Message(
+      role: "system",
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option("You are a helpful assistant."))
+      ])
+    ),
+    Message(
+      role: "user",
+      name: option("alice"),
+      content: option(@[
+        MessageContentPart(`type`: "text", text: option("Hello!"))
+      ])
+    )
+  ],
+  model: "gpt-4",
+  frequency_penalty: option(0.1f),
+  logit_bias: option({"50256": 1.0f}.toTable),
+  logprobs: option(true),
+  top_logprobs: option(5),
+  max_tokens: option(200),
+  n: option(2),
+  presence_penalty: option(0.2f),
+  temperature: option(0.8f),
+  seed: option(42),
+  stop: option("END"),
+  top_p: option(0.9f),
+  user: option("user123")
+)
+output.add fullReq.toMarkdown() & "\n\n"
+
 # Write out to tests/tmp/test_markdown.txt
 const 
   tmpFile = "tests/tmp/test_markdown.txt"
