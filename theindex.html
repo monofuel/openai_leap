@@ -48,7 +48,9 @@
           </ul></dd>
 <dt><a name="createChatCompletion" href="#createChatCompletion"><span>createChatCompletion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp" href="openai_leap.html#createChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">openai_leap: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp</a></li>
+          data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; req: var CreateChatCompletionReq;
+                     tools: Option[ToolsTable] = none(ToolsTable)): CreateChatCompletionResp" href="openai_leap.html#createChatCompletion%2COpenAiApi%2CCreateChatCompletionReq%2COption%5BToolsTable%5D">openai_leap: proc createChatCompletion(api: OpenAiApi; req: var CreateChatCompletionReq;
+                     tools: Option[ToolsTable] = none(ToolsTable)): CreateChatCompletionResp</a></li>
           <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string; responseFormat: JsonNode = nil): string" href="openai_leap.html#createChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring%2CJsonNode">openai_leap: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
@@ -168,9 +170,13 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
              organization: string = &quot;&quot;; maxInFlight: int = 16;
-             curlTimeout: int = 60): OpenAiApi" href="openai_leap.html#newOpenAiApi%2Cstring%2Cstring%2Cstring%2Cint%2Cint">openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
+             curlTimeout: int = 60 * 5): OpenAiApi" href="openai_leap.html#newOpenAiApi%2Cstring%2Cstring%2Cstring%2Cint%2Cint">openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
              organization: string = &quot;&quot;; maxInFlight: int = 16;
-             curlTimeout: int = 60): OpenAiApi</a></li>
+             curlTimeout: int = 60 * 5): OpenAiApi</a></li>
+          </ul></dd>
+<dt><a name="newToolsTable" href="#newToolsTable"><span>newToolsTable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc newToolsTable(): ToolsTable" href="openai_leap.html#newToolsTable">openai_leap: proc newToolsTable(): ToolsTable</a></li>
           </ul></dd>
 <dt><a name="next" href="#next"><span>next:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -238,7 +244,13 @@
           </ul></dd>
 <dt><a name="pullModel" href="#pullModel"><span>pullModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc pullModel(api: OpenAiApi; model: string)" href="openai_leap.html#pullModel%2COpenAiApi%2Cstring">openai_leap: proc pullModel(api: OpenAiApi; model: string)</a></li>
+          data-doc-search-tag="openai_leap: proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)" href="openai_leap.html#pullModel%2COpenAiApi%2Cstring%2Cint">openai_leap: proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)</a></li>
+          </ul></dd>
+<dt><a name="register" href="#register"><span>register:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;
+         impl: ToolImpl)" href="openai_leap.html#register%2CToolsTable%2Cstring%2CToolFunction%2CToolImpl">openai_leap: proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;
+         impl: ToolImpl)</a></li>
           </ul></dd>
 <dt><a name="RespMessage" href="#RespMessage"><span>RespMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -255,6 +267,28 @@
           data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring">openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream</a></li>
+          </ul></dd>
+<dt><a name="toCreateChatCompletionReq" href="#toCreateChatCompletionReq"><span>toCreateChatCompletionReq:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq" href="openai_leap.html#toCreateChatCompletionReq%2Cstring">openai_leap: proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq</a></li>
+          </ul></dd>
+<dt><a name="toCreateChatCompletionReqAndResp" href="#toCreateChatCompletionReqAndResp"><span>toCreateChatCompletionReqAndResp:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,
+    CreateChatCompletionResp)" href="openai_leap.html#toCreateChatCompletionReqAndResp%2Cstring">openai_leap: proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,
+    CreateChatCompletionResp)</a></li>
+          </ul></dd>
+<dt><a name="toCreateChatCompletionResp" href="#toCreateChatCompletionResp"><span>toCreateChatCompletionResp:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp" href="openai_leap.html#toCreateChatCompletionResp%2Cstring">openai_leap: proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp</a></li>
+          </ul></dd>
+<dt><a name="toMarkdown" href="#toMarkdown"><span>toMarkdown:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc toMarkdown(req: CreateChatCompletionReq): string" href="openai_leap.html#toMarkdown%2CCreateChatCompletionReq">openai_leap: proc toMarkdown(req: CreateChatCompletionReq): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string" href="openai_leap.html#toMarkdown%2CCreateChatCompletionReq%2CCreateChatCompletionResp">openai_leap: proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc toMarkdown(resp: CreateChatCompletionResp): string" href="openai_leap.html#toMarkdown%2CCreateChatCompletionResp">openai_leap: proc toMarkdown(resp: CreateChatCompletionResp): string</a></li>
           </ul></dd>
 <dt><a name="Tool" href="#Tool"><span>Tool:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -276,9 +310,17 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type ToolFunctionResp" href="openai_leap.html#ToolFunctionResp">openai_leap: type ToolFunctionResp</a></li>
           </ul></dd>
+<dt><a name="ToolImpl" href="#ToolImpl"><span>ToolImpl:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: type ToolImpl" href="openai_leap.html#ToolImpl">openai_leap: type ToolImpl</a></li>
+          </ul></dd>
 <dt><a name="ToolResp" href="#ToolResp"><span>ToolResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type ToolResp" href="openai_leap.html#ToolResp">openai_leap: type ToolResp</a></li>
+          </ul></dd>
+<dt><a name="ToolsTable" href="#ToolsTable"><span>ToolsTable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: type ToolsTable" href="openai_leap.html#ToolsTable">openai_leap: type ToolsTable</a></li>
           </ul></dd>
 <dt><a name="updateApiKey" href="#updateApiKey"><span>updateApiKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -292,7 +334,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-06-19 19:26:35 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-06-30 18:57:44 UTC</small>
       </div>
     </div>
   </div>
