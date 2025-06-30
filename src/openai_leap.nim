@@ -884,7 +884,181 @@ proc toCreateChatCompletionReq*(markdown: string): CreateChatCompletionReq =
 
 proc toCreateChatCompletionResp*(markdown: string): CreateChatCompletionResp =
   ## Deserialize a create chat completion response from markdown.
-  return CreateChatCompletionResp()
+  result = CreateChatCompletionResp()
+  
+  let lines = markdown.splitLines()
+  var i = 0
+  
+  # Helper proc to find next section
+  proc findNextSection(startIdx: int, sectionName: string): int =
+    for j in startIdx..<lines.len:
+      if lines[j].startsWith("## " & sectionName):
+        return j
+    return -1
+  
+  # Helper proc to extract value from bullet point
+  proc extractValue(line: string, key: string): string =
+    let prefix = "- **" & key & "**: "
+    if line.startsWith(prefix):
+      return line[prefix.len..^1]
+    return ""
+  
+  # Helper proc to parse integer from line
+  proc extractInt(line: string, key: string): int =
+    let val = extractValue(line, key)
+    if val != "":
+      try:
+        return parseInt(val)
+      except:
+        return 0
+    return 0
+  
+  # Parse Response Details section
+  let detailsIdx = findNextSection(0, "Response Details")
+  if detailsIdx >= 0:
+    i = detailsIdx + 1
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      if line.startsWith("- **"):
+        let id = extractValue(line, "ID")
+        if id != "": result.id = id
+        
+        let model = extractValue(line, "Model")
+        if model != "": result.model = model
+        
+        let created = extractInt(line, "Created")
+        if created > 0: result.created = created
+        
+        let obj = extractValue(line, "Object")
+        if obj != "": result.`object` = obj
+        
+        let fingerprint = extractValue(line, "System Fingerprint")
+        if fingerprint != "": result.system_fingerprint = fingerprint
+      
+      inc i
+  
+  # Parse Response Choices section
+  result.choices = @[]
+  let choicesIdx = findNextSection(0, "Response Choices")
+  if choicesIdx >= 0:
+    i = choicesIdx + 1
+    
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      
+      # Look for choice sections
+      if line.startsWith("### Choice "):
+        var choice = CreateChatMessage()
+        let choiceNumStr = line[11..^1] # "### Choice " is 11 chars
+        try:
+          choice.index = parseInt(choiceNumStr)
+        except:
+          choice.index = 0
+                
+        inc i
+        var content = ""
+        var inContentBlock = false
+        var toolCalls: seq[ToolResp] = @[]
+        var message = RespMessage()
+        message.role = "assistant" # Default role
+        message.content = ""
+        
+        # Parse choice details
+        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+          let choiceLine = lines[i].strip()
+          
+          if inContentBlock:
+            if choiceLine == "```":
+              inContentBlock = false
+              message.content = content
+            else:
+              if content != "": content &= "\n"
+              content &= lines[i] # preserve original indentation in content
+          elif choiceLine.startsWith("- **"):
+            let finishReason = extractValue(choiceLine, "Finish Reason")
+            if finishReason != "": choice.finish_reason = finishReason
+            
+            let role = extractValue(choiceLine, "Role")
+            if role != "": message.role = role
+            
+            let name = extractValue(choiceLine, "Name")
+            if name != "": message.name = option(name)
+            
+            let refusal = extractValue(choiceLine, "Refusal")
+            if refusal != "": message.refusal = option(refusal)
+            
+            if choiceLine.startsWith("- **Content**:"):
+              # Content follows on next lines in a code block
+              inc i
+              # Skip empty lines until we find the opening ```
+              while i < lines.len and lines[i].strip() == "":
+                inc i
+              if i < lines.len and lines[i].strip() == "```":
+                inContentBlock = true
+                content = ""
+              else:
+                dec i # Back up if we didn't find code block
+            elif choiceLine.startsWith("- **Tool Calls**:"):
+              # Parse tool calls that follow
+              inc i
+              toolCalls = @[]
+              while i < lines.len and not lines[i].startsWith("- **") and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+                let toolLine = lines[i] # Don't strip - need indentation to detect structure
+                if toolLine.startsWith("  - **ID**: "):
+                  var toolCall = ToolResp()
+                  toolCall.id = toolLine[12..^1]
+                  
+                  # Parse the rest of this tool call
+                  inc i
+                  if i < lines.len and lines[i].startsWith("  - **Type**: "):
+                    toolCall.`type` = lines[i][14..^1]
+                  inc i
+                  if i < lines.len and lines[i].startsWith("  - **Function**: "):
+                    var funcResp = ToolFunctionResp()
+                    funcResp.name = lines[i][18..^1]
+                    inc i
+                    if i < lines.len and lines[i].startsWith("  - **Arguments**: `") and lines[i].endsWith("`"):
+                      let argsLine = lines[i]
+                      funcResp.arguments = argsLine[20..^2] # Remove "  - **Arguments**: `" and trailing "`"
+                    toolCall.function = funcResp
+                  
+                  toolCalls.add(toolCall)
+                else:
+                  inc i
+              
+              if toolCalls.len > 0:
+                message.tool_calls = option(toolCalls)
+              dec i # Back up since outer loop will increment
+          elif choiceLine == "```" and not inContentBlock:
+            inContentBlock = true
+            content = ""
+          
+          inc i
+        
+        # Set up the choice - always add the message since we have defaults
+        choice.message = option(message)
+        
+        result.choices.add(choice)
+        dec i # Back up one since the outer loop will increment
+      
+      inc i
+  
+  # Parse Usage Statistics section  
+  let usageIdx = findNextSection(0, "Usage Statistics")
+  if usageIdx >= 0:
+    i = usageIdx + 1
+    result.usage = Usage()
+    
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      if line.startsWith("- **"):
+        let promptTokens = extractInt(line, "Prompt Tokens")
+        if promptTokens > 0: result.usage.prompt_tokens = promptTokens
+        
+        let totalTokens = extractInt(line, "Total Tokens")  
+        if totalTokens > 0: result.usage.total_tokens = totalTokens
+      
+      inc i
 
 proc toCreateChatCompletionReqAndResp*(markdown: string): (CreateChatCompletionReq, CreateChatCompletionResp) =
   ## Deserialize a create chat completion request and response from markdown.

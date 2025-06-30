@@ -189,6 +189,39 @@ let emptyResp = CreateChatCompletionResp(
 )
 output.add emptyResp.toMarkdown() & "\n\n"
 
+# Test round-trip parsing - serialize then parse back and compare JSON
+output.add "# Test: Round-trip Parsing\n\n"
+
+# Test basic response round-trip
+output.add "## Basic Response Round-trip\n\n"
+let basicMarkdown = basicResp.toMarkdown()
+let parsedBasic = toCreateChatCompletionResp(basicMarkdown)
+let originalJson = basicResp.toJson()
+let parsedJson = parsedBasic.toJson()
+output.add "**Original JSON:**\n```json\n" & originalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & parsedJson & "\n```\n\n"
+output.add "**Match:** " & $(originalJson == parsedJson) & "\n\n"
+
+# Test tool calls response round-trip  
+output.add "## Tool Calls Response Round-trip\n\n"
+let toolCallsMarkdown = toolCallsResp.toMarkdown()
+let parsedToolCalls = toCreateChatCompletionResp(toolCallsMarkdown)
+let toolCallsOriginalJson = toolCallsResp.toJson()
+let toolCallsParsedJson = parsedToolCalls.toJson()
+output.add "**Original JSON:**\n```json\n" & toolCallsOriginalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & toolCallsParsedJson & "\n```\n\n"
+output.add "**Match:** " & $(toolCallsOriginalJson == toolCallsParsedJson) & "\n\n"
+
+# Test empty content response round-trip
+output.add "## Empty Content Response Round-trip\n\n"
+let emptyMarkdown = emptyResp.toMarkdown()
+let parsedEmpty = toCreateChatCompletionResp(emptyMarkdown)
+let emptyOriginalJson = emptyResp.toJson()
+let emptyParsedJson = parsedEmpty.toJson()
+output.add "**Original JSON:**\n```json\n" & emptyOriginalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & emptyParsedJson & "\n```\n\n"
+output.add "**Match:** " & $(emptyOriginalJson == emptyParsedJson) & "\n\n"
+
 # Write out to tests/tmp/test_markdown.txt
 const 
   tmpFile = "tests/tmp/test_markdown.txt"

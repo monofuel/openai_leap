@@ -198,3 +198,47 @@ I'll check the weather for you.
 - **Completion Tokens**: 50
 
 
+# Test: Round-trip Parsing
+
+## Basic Response Round-trip
+
+**Original JSON:**
+```json
+{"id":"chatcmpl-123456789","choices":[{"finish_reason":"stop","index":0,"message":{"content":"The weather in San Francisco is 18°C with partly cloudy skies.","role":"assistant","name":null,"tool_calls":null,"refusal":null},"delta":null,"log_probs":null}],"created":1699564800,"model":"gpt-4","system_fingerprint":"fp_12345678","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Parsed JSON:**
+```json
+{"id":"chatcmpl-123456789","choices":[{"finish_reason":"stop","index":0,"message":{"content":"The weather in San Francisco is 18°C with partly cloudy skies.","role":"assistant","name":null,"tool_calls":null,"refusal":null},"delta":null,"log_probs":null}],"created":1699564800,"model":"gpt-4","system_fingerprint":"fp_12345678","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Match:** true
+
+## Tool Calls Response Round-trip
+
+**Original JSON:**
+```json
+{"id":"chatcmpl-987654321","choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":"I'll check the weather for you.","role":"assistant","name":null,"tool_calls":[{"id":"call_123456789","type":"function","function":{"name":"get_weather","arguments":"{\"location\": \"San Francisco\", \"unit\": \"celsius\"}"}}],"refusal":null},"delta":null,"log_probs":null}],"created":1699564900,"model":"gpt-4","system_fingerprint":"fp_87654321","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Parsed JSON:**
+```json
+{"id":"chatcmpl-987654321","choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":"I'll check the weather for you.","role":"assistant","name":null,"tool_calls":[{"id":"call_123456789","type":"function","function":{"name":"get_weather","arguments":"{\"location\": \"San Francisco\", \"unit\": \"celsius\"}"}}],"refusal":null},"delta":null,"log_probs":null}],"created":1699564900,"model":"gpt-4","system_fingerprint":"fp_87654321","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Match:** true
+
+## Empty Content Response Round-trip
+
+**Original JSON:**
+```json
+{"id":"chatcmpl-000111222","choices":[{"finish_reason":"stop","index":0,"message":{"content":"","role":"assistant","name":null,"tool_calls":null,"refusal":null},"delta":null,"log_probs":null}],"created":1699565300,"model":"gpt-3.5-turbo","system_fingerprint":"fp_00011122","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Parsed JSON:**
+```json
+{"id":"chatcmpl-000111222","choices":[{"finish_reason":"stop","index":0,"message":{"content":"","role":"assistant","name":null,"tool_calls":null,"refusal":null},"delta":null,"log_probs":null}],"created":1699565300,"model":"gpt-3.5-turbo","system_fingerprint":"fp_00011122","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Match:** true
+
