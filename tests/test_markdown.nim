@@ -352,6 +352,78 @@ let fullReq = CreateChatCompletionReq(
 )
 output.add fullReq.toMarkdown() & "\n\n"
 
+# Test round-trip parsing for requests
+output.add "# Test: CreateChatCompletionReq Round-trip Parsing\n\n"
+
+# Test basic request round-trip
+output.add "## Basic Request Round-trip\n\n"
+let basicReqMarkdown = basicReq.toMarkdown()
+let parsedBasicReq = toCreateChatCompletionReq(basicReqMarkdown)
+let basicReqOriginalJson = basicReq.toJson()
+let basicReqParsedJson = parsedBasicReq.toJson()
+output.add "**Original JSON:**\n```json\n" & basicReqOriginalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & basicReqParsedJson & "\n```\n\n"
+output.add "**Match:** " & $(basicReqOriginalJson == basicReqParsedJson) & "\n\n"
+
+# Test tools request round-trip
+output.add "## Tools Request Round-trip\n\n"
+let toolsReqMarkdown = toolsReq.toMarkdown()
+let parsedToolsReq = toCreateChatCompletionReq(toolsReqMarkdown)
+let toolsReqOriginalJson = toolsReq.toJson()
+let toolsReqParsedJson = parsedToolsReq.toJson()
+output.add "**Original JSON:**\n```json\n" & toolsReqOriginalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & toolsReqParsedJson & "\n```\n\n"
+output.add "**Match:** " & $(toolsReqOriginalJson == toolsReqParsedJson) & "\n\n"
+
+# Test image request round-trip
+output.add "## Image Request Round-trip\n\n"
+let imageReqMarkdown = imageReq.toMarkdown()
+let parsedImageReq = toCreateChatCompletionReq(imageReqMarkdown)
+let imageReqOriginalJson = imageReq.toJson()
+let imageReqParsedJson = parsedImageReq.toJson()
+output.add "**Original JSON:**\n```json\n" & imageReqOriginalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & imageReqParsedJson & "\n```\n\n"
+output.add "**Match:** " & $(imageReqOriginalJson == imageReqParsedJson) & "\n\n"
+
+# Test combined request+response serialization and parsing
+output.add "# Test: Combined Request+Response\n\n"
+
+# Test combined serialization
+output.add "## Combined Request+Response Serialization\n\n"
+let combinedMarkdown = toMarkdown(basicReq, basicResp)
+output.add combinedMarkdown & "\n\n"
+
+# Test combined round-trip parsing
+output.add "## Combined Request+Response Round-trip\n\n"
+let (parsedReq, parsedResp) = toCreateChatCompletionReqAndResp(combinedMarkdown)
+
+# Compare request
+let combinedReqOriginal = basicReq.toJson()
+let combinedReqParsed = parsedReq.toJson()
+output.add "**Request Original JSON:**\n```json\n" & combinedReqOriginal & "\n```\n\n"
+output.add "**Request Parsed JSON:**\n```json\n" & combinedReqParsed & "\n```\n\n"
+output.add "**Request Match:** " & $(combinedReqOriginal == combinedReqParsed) & "\n\n"
+
+# Compare response
+let combinedRespOriginal = basicResp.toJson()
+let combinedRespParsed = parsedResp.toJson()
+output.add "**Response Original JSON:**\n```json\n" & combinedRespOriginal & "\n```\n\n"
+output.add "**Response Parsed JSON:**\n```json\n" & combinedRespParsed & "\n```\n\n"
+output.add "**Response Match:** " & $(combinedRespOriginal == combinedRespParsed) & "\n\n"
+
+# Test with tools request+response
+output.add "## Combined Tools Request+Response Round-trip\n\n"
+let toolsCombinedMarkdown = toMarkdown(toolsReq, toolCallsResp)
+let (parsedCombinedToolsReq, parsedCombinedToolsResp) = toCreateChatCompletionReqAndResp(toolsCombinedMarkdown)
+
+let toolsReqOriginal = toolsReq.toJson()
+let toolsReqParsed = parsedCombinedToolsReq.toJson()
+let toolsRespOriginal = toolCallsResp.toJson()
+let toolsRespParsed = parsedCombinedToolsResp.toJson()
+
+output.add "**Tools Request Match:** " & $(toolsReqOriginal == toolsReqParsed) & "\n"
+output.add "**Tools Response Match:** " & $(toolsRespOriginal == toolsRespParsed) & "\n\n"
+
 # Write out to tests/tmp/test_markdown.txt
 const 
   tmpFile = "tests/tmp/test_markdown.txt"

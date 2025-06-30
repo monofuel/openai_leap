@@ -406,3 +406,146 @@ Hello!
 
 
 
+# Test: CreateChatCompletionReq Round-trip Parsing
+
+## Basic Request Round-trip
+
+**Original JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"You are a helpful assistant."}],"role":"system"},{"content":[{"type":"text","text":"What's the weather like?"}],"role":"user"}],"model":"gpt-4","max_tokens":150,"temperature":0.7}
+```
+
+**Parsed JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"You are a helpful assistant."}],"role":"system"},{"content":[{"type":"text","text":"What's the weather like?"}],"role":"user"}],"model":"gpt-4","max_tokens":150,"temperature":0.7}
+```
+
+**Match:** true
+
+## Tools Request Round-trip
+
+**Original JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"What's the weather in San Francisco?"}],"role":"user"}],"model":"gpt-4","temperature":0.5,"tools":[{"type":"function","function":{"description":"Get current weather for a location","name":"get_weather","parameters":{"type":"object","properties":{"location":{"type":"string"}}}}}],"tool_choice":"auto"}
+```
+
+**Parsed JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"What's the weather in San Francisco?"}],"role":"user"}],"model":"gpt-4","temperature":0.5,"tools":[{"type":"function","function":{"description":"Get current weather for a location","name":"get_weather","parameters":{"type":"object","properties":{"location":{"type":"string"}}}}}],"tool_choice":"auto"}
+```
+
+**Match:** true
+
+## Image Request Round-trip
+
+**Original JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"What do you see in this image?"},{"type":"image_url","image_url":{"url":"https://example.com/image.jpg","detail":"high"}}],"role":"user"}],"model":"gpt-4-vision-preview"}
+```
+
+**Parsed JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"What do you see in this image?"},{"type":"image_url","image_url":{"url":"https://example.com/image.jpg","detail":"high"}}],"role":"user"}],"model":"gpt-4-vision-preview"}
+```
+
+**Match:** true
+
+# Test: Combined Request+Response
+
+## Combined Request+Response Serialization
+
+# Chat Completion Exchange
+
+## Request
+
+## Request Settings
+
+- **Model**: gpt-4
+- **Temperature**: 0.7
+- **Max Tokens**: 150
+
+## Messages
+
+### Message 1 (system)
+
+- **Content**:
+
+```
+You are a helpful assistant.
+```
+
+
+### Message 2 (user)
+
+- **Content**:
+
+```
+What's the weather like?
+```
+
+
+
+
+---
+
+## Response
+
+## Response Details
+
+- **ID**: chatcmpl-123456789
+- **Model**: gpt-4
+- **Created**: 1699564800
+- **Object**: chat.completion
+- **System Fingerprint**: fp_12345678
+
+## Response Choices
+
+### Choice 0
+
+- **Finish Reason**: stop
+- **Role**: assistant
+- **Content**:
+
+```
+The weather in San Francisco is 18°C with partly cloudy skies.
+```
+
+
+## Usage Statistics
+
+- **Prompt Tokens**: 150
+- **Total Tokens**: 200
+- **Completion Tokens**: 50
+
+
+## Combined Request+Response Round-trip
+
+**Request Original JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"You are a helpful assistant."}],"role":"system"},{"content":[{"type":"text","text":"What's the weather like?"}],"role":"user"}],"model":"gpt-4","max_tokens":150,"temperature":0.7}
+```
+
+**Request Parsed JSON:**
+```json
+{"messages":[{"content":[{"type":"text","text":"You are a helpful assistant."}],"role":"system"},{"content":[{"type":"text","text":"What's the weather like?"}],"role":"user"}],"model":"gpt-4","max_tokens":150,"temperature":0.7}
+```
+
+**Request Match:** true
+
+**Response Original JSON:**
+```json
+{"id":"chatcmpl-123456789","choices":[{"finish_reason":"stop","index":0,"message":{"content":"The weather in San Francisco is 18°C with partly cloudy skies.","role":"assistant","name":null,"tool_calls":null,"refusal":null},"delta":null,"log_probs":null}],"created":1699564800,"model":"gpt-4","system_fingerprint":"fp_12345678","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Response Parsed JSON:**
+```json
+{"id":"chatcmpl-123456789","choices":[{"finish_reason":"stop","index":0,"message":{"content":"The weather in San Francisco is 18°C with partly cloudy skies.","role":"assistant","name":null,"tool_calls":null,"refusal":null},"delta":null,"log_probs":null}],"created":1699564800,"model":"gpt-4","system_fingerprint":"fp_12345678","object":"chat.completion","usage":{"prompt_tokens":150,"total_tokens":200}}
+```
+
+**Response Match:** true
+
+## Combined Tools Request+Response Round-trip
+
+**Tools Request Match:** true
+**Tools Response Match:** true
+

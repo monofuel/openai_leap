@@ -970,12 +970,353 @@ proc toMarkdown*(resp: CreateChatCompletionResp): string =
 
 proc toMarkdown*(req: CreateChatCompletionReq, resp: CreateChatCompletionResp): string =
   ## Serialize both a create chat completion request and response into markdown.
-  return ""
+  result = "# Chat Completion Exchange\n\n"
+  
+  # Add request section
+  result &= "## Request\n\n"
+  let reqMarkdown = req.toMarkdown()
+  # Remove the main title from request markdown since we have our own
+  var reqLines = reqMarkdown.splitLines()
+  if reqLines.len > 0 and reqLines[0].startsWith("# "):
+    reqLines = reqLines[1..^1]
+    # Also remove empty line after title if present
+    if reqLines.len > 0 and reqLines[0].strip() == "":
+      reqLines = reqLines[1..^1]
+  result &= reqLines.join("\n")
+  
+  result &= "\n\n---\n\n"
+  
+  # Add response section
+  result &= "## Response\n\n"
+  let respMarkdown = resp.toMarkdown()
+  # Remove the main title from response markdown since we have our own
+  var respLines = respMarkdown.splitLines()
+  if respLines.len > 0 and respLines[0].startsWith("# "):
+    respLines = respLines[1..^1]
+    # Also remove empty line after title if present
+    if respLines.len > 0 and respLines[0].strip() == "":
+      respLines = respLines[1..^1]
+  result &= respLines.join("\n")
 
 
 proc toCreateChatCompletionReq*(markdown: string): CreateChatCompletionReq =
   ## Deserialize a create chat completion request from markdown.
-  return CreateChatCompletionReq()
+  result = CreateChatCompletionReq()
+  
+  let lines = markdown.splitLines()
+  var i = 0
+  
+  # Helper proc to find next section
+  proc findNextSection(startIdx: int, sectionName: string): int =
+    for j in startIdx..<lines.len:
+      if lines[j].startsWith("## " & sectionName):
+        return j
+    return -1
+  
+  # Helper proc to extract value from bullet point
+  proc extractValue(line: string, key: string): string =
+    let prefix = "- **" & key & "**: "
+    if line.startsWith(prefix):
+      return line[prefix.len..^1]
+    return ""
+  
+  # Helper proc to parse float from line
+  proc extractFloat(line: string, key: string): float32 =
+    let val = extractValue(line, key)
+    if val != "":
+      try:
+        return parseFloat(val).float32
+      except:
+        return 0.0f
+    return 0.0f
+  
+  # Helper proc to parse int from line
+  proc extractInt(line: string, key: string): int =
+    let val = extractValue(line, key)
+    if val != "":
+      try:
+        return parseInt(val)
+      except:
+        return 0
+    return 0
+  
+  # Helper proc to parse bool from line
+  proc extractBool(line: string, key: string): bool =
+    let val = extractValue(line, key)
+    return val == "true"
+  
+  # Parse Request Settings section
+  let settingsIdx = findNextSection(0, "Request Settings")
+  if settingsIdx >= 0:
+    i = settingsIdx + 1
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      if line.startsWith("- **"):
+        let model = extractValue(line, "Model")
+        if model != "": result.model = model
+        
+        let temp = extractFloat(line, "Temperature")
+        if temp > 0.0f: result.temperature = option(temp)
+        
+        let maxTokens = extractInt(line, "Max Tokens")
+        if maxTokens > 0: result.max_tokens = option(maxTokens)
+        
+        let topP = extractFloat(line, "Top P")
+        if topP > 0.0f: result.top_p = option(topP)
+        
+        let freqPenalty = extractFloat(line, "Frequency Penalty")
+        if freqPenalty != 0.0f: result.frequency_penalty = option(freqPenalty)
+        
+        let presPenalty = extractFloat(line, "Presence Penalty")
+        if presPenalty != 0.0f: result.presence_penalty = option(presPenalty)
+        
+        let n = extractInt(line, "N (Choices)")
+        if n > 0: result.n = option(n)
+        
+        let seed = extractInt(line, "Seed")
+        if seed > 0: result.seed = option(seed)
+        
+        let stop = extractValue(line, "Stop")
+        if stop != "": result.stop = option(stop)
+        
+        let stream = extractBool(line, "Stream")
+        if line.contains("Stream"): result.stream = option(stream)
+        
+        let user = extractValue(line, "User")
+        if user != "": result.user = option(user)
+        
+        let responseFormat = extractValue(line, "Response Format")
+        if responseFormat != "":
+          var respFmt = ResponseFormatObj()
+          respFmt.`type` = responseFormat
+          result.response_format = option(respFmt)
+        
+        let logprobs = extractBool(line, "Log Probs")
+        if line.contains("Log Probs"): result.logprobs = option(logprobs)
+        
+        let topLogprobs = extractInt(line, "Top Log Probs")
+        if topLogprobs > 0: result.top_logprobs = option(topLogprobs)
+      
+      inc i
+  
+  # Parse Messages section
+  result.messages = @[]
+  let messagesIdx = findNextSection(0, "Messages")
+  if messagesIdx >= 0:
+    i = messagesIdx + 1
+    
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      
+      # Look for message sections
+      if line.startsWith("### Message ") and line.contains("(") and line.contains(")"):
+        var message = Message()
+        
+        # Extract role from "### Message N (role)"
+        let roleStart = line.find("(") + 1
+        let roleEnd = line.find(")")
+        if roleStart > 0 and roleEnd > roleStart:
+          message.role = line[roleStart..<roleEnd]
+        
+        inc i
+        var content = ""
+        var inContentBlock = false
+        var contentParts: seq[MessageContentPart] = @[]
+        
+        # Parse message details
+        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+          let msgLine = lines[i].strip()
+          
+          if inContentBlock:
+            if msgLine == "```":
+              inContentBlock = false
+              # Add text content part
+              contentParts.add(MessageContentPart(
+                `type`: "text",
+                text: option(content)
+              ))
+              content = ""
+            else:
+              if content != "": content &= "\n"
+              content &= lines[i] # preserve original indentation
+          elif msgLine.startsWith("- **"):
+            let name = extractValue(msgLine, "Name")
+            if name != "": message.name = option(name)
+            
+            let toolCallId = extractValue(msgLine, "Tool Call ID")
+            if toolCallId != "": message.tool_call_id = option(toolCallId)
+            
+            if msgLine.startsWith("- **Content**:"):
+              # Content follows on next lines in a code block
+              inc i
+              # Skip empty lines until we find the opening ```
+              while i < lines.len and lines[i].strip() == "":
+                inc i
+              if i < lines.len and lines[i].strip() == "```":
+                inContentBlock = true
+                content = ""
+              else:
+                dec i # Back up if we didn't find code block
+            elif msgLine.startsWith("- **Tool Calls**:"):
+              # Parse tool calls that follow
+              inc i
+              var toolCalls: seq[ToolResp] = @[]
+              while i < lines.len and not lines[i].startsWith("- **") and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+                let toolLine = lines[i]
+                if toolLine.startsWith("  - **ID**: "):
+                  var toolCall = ToolResp()
+                  toolCall.id = toolLine[12..^1]
+                  
+                  # Parse the rest of this tool call
+                  inc i
+                  if i < lines.len and lines[i].startsWith("  - **Type**: "):
+                    toolCall.`type` = lines[i][14..^1]
+                  inc i
+                  if i < lines.len and lines[i].startsWith("  - **Function**: "):
+                    var funcResp = ToolFunctionResp()
+                    funcResp.name = lines[i][18..^1]
+                    inc i
+                    if i < lines.len and lines[i].startsWith("  - **Arguments**: `") and lines[i].endsWith("`"):
+                      let argsLine = lines[i]
+                      funcResp.arguments = argsLine[20..^2]
+                    toolCall.function = funcResp
+                  
+                  toolCalls.add(toolCall)
+                else:
+                  inc i
+              
+              if toolCalls.len > 0:
+                message.tool_calls = option(toolCalls)
+              dec i # Back up since outer loop will increment
+          elif msgLine.startsWith("**Image URL**: "):
+            # Parse image content
+            let imageUrl = msgLine[15..^1]
+            var imagePart = MessageContentPart(`type`: "image_url")
+            var imageUrlPart = ImageUrlPart(url: imageUrl)
+            
+            # Check next line for detail level
+            if i + 1 < lines.len and lines[i + 1].strip().startsWith("**Detail Level**: "):
+              inc i
+              let detail = lines[i].strip()[18..^1]
+              imageUrlPart.detail = option(detail)
+            
+            imagePart.image_url = option(imageUrlPart)
+            contentParts.add(imagePart)
+          elif msgLine == "```" and not inContentBlock:
+            inContentBlock = true
+            content = ""
+          
+          inc i
+        
+        # Set message content if we have parts
+        if contentParts.len > 0:
+          message.content = option(contentParts)
+        
+        result.messages.add(message)
+        dec i # Back up one since the outer loop will increment
+      
+      inc i
+  
+  # Parse Available Tools section
+  let toolsIdx = findNextSection(0, "Available Tools")
+  if toolsIdx >= 0:
+    i = toolsIdx + 1
+    var tools: seq[Tool] = @[]
+    
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      
+      # Look for tool sections
+      if line.startsWith("### Tool ") and line.contains(": "):
+        var tool = Tool()
+        var toolFunc = ToolFunction()
+        
+        # Extract tool name from "### Tool N: name"
+        let nameStart = line.find(": ") + 2
+        toolFunc.name = line[nameStart..^1]
+        
+        inc i
+        var inParamsBlock = false
+        var paramsJson = ""
+        
+        # Parse tool details
+        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+          let toolLine = lines[i].strip()
+          
+          if inParamsBlock:
+            if toolLine == "```":
+              inParamsBlock = false
+              # Parse the JSON
+              try:
+                toolFunc.parameters = option(parseJson(paramsJson))
+              except:
+                discard # ignore JSON parse errors
+              paramsJson = ""
+            else:
+              paramsJson &= lines[i] & "\n"
+          elif toolLine.startsWith("- **"):
+            let toolType = extractValue(toolLine, "Type")
+            if toolType != "": tool.`type` = toolType
+            
+            let description = extractValue(toolLine, "Description")
+            if description != "": toolFunc.description = option(description)
+            
+            if toolLine.startsWith("- **Parameters**:"):
+              # Parameters follow in a JSON code block
+              inc i
+              # Skip empty lines until we find the opening ```
+              while i < lines.len and lines[i].strip() == "":
+                inc i
+              if i < lines.len and lines[i].strip().startsWith("```"):
+                inParamsBlock = true
+                paramsJson = ""
+              else:
+                dec i # Back up if we didn't find code block
+          elif toolLine.startsWith("```") and toolLine.len > 3:
+            # Handle single-line JSON blocks
+            let jsonStr = toolLine[3..^3] # Remove ``` from both ends
+            try:
+              toolFunc.parameters = option(parseJson(jsonStr))
+            except:
+              discard
+          
+          inc i
+        
+        tool.function = toolFunc
+        tools.add(tool)
+        dec i # Back up one since the outer loop will increment
+      
+      inc i
+    
+    if tools.len > 0:
+      result.tools = option(tools)
+  
+  # Parse Tool Choice section
+  let toolChoiceIdx = findNextSection(0, "Tool Choice")
+  if toolChoiceIdx >= 0:
+    i = toolChoiceIdx + 1
+    var inJsonBlock = false
+    var jsonStr = ""
+    
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      
+      if inJsonBlock:
+        if line == "```":
+          inJsonBlock = false
+          # Parse the JSON
+          try:
+            result.tool_choice = option(parseJson(jsonStr))
+          except:
+            discard # ignore JSON parse errors
+          jsonStr = ""
+        else:
+          jsonStr &= lines[i] & "\n"
+      elif line == "```json":
+        inJsonBlock = true
+        jsonStr = ""
+      
+      inc i
 
 proc toCreateChatCompletionResp*(markdown: string): CreateChatCompletionResp =
   ## Deserialize a create chat completion response from markdown.
@@ -1157,4 +1498,44 @@ proc toCreateChatCompletionResp*(markdown: string): CreateChatCompletionResp =
 
 proc toCreateChatCompletionReqAndResp*(markdown: string): (CreateChatCompletionReq, CreateChatCompletionResp) =
   ## Deserialize a create chat completion request and response from markdown.
-  return (CreateChatCompletionReq(), CreateChatCompletionResp())
+  let lines = markdown.splitLines()
+  
+  # Find the Request and Response sections
+  var requestStartIdx = -1
+  var responseStartIdx = -1
+  
+  for i, line in lines:
+    if line.strip() == "## Request":
+      requestStartIdx = i
+    elif line.strip() == "## Response":
+      responseStartIdx = i
+  
+  if requestStartIdx == -1 or responseStartIdx == -1:
+    # If we can't find the sections, return empty objects
+    return (CreateChatCompletionReq(), CreateChatCompletionResp())
+  
+  # Extract request section
+  var requestLines: seq[string] = @[]
+  var i = requestStartIdx + 1
+  while i < responseStartIdx and i < lines.len:
+    # Skip the separator line "---"
+    if lines[i].strip() != "---":
+      requestLines.add(lines[i])
+    inc i
+  
+  # Extract response section  
+  var responseLines: seq[string] = @[]
+  i = responseStartIdx + 1
+  while i < lines.len:
+    responseLines.add(lines[i])
+    inc i
+  
+  # Add back the main titles that our individual parsers expect
+  let requestMarkdown = "# Chat Completion Request\n\n" & requestLines.join("\n")
+  let responseMarkdown = "# Chat Completion Response\n\n" & responseLines.join("\n")
+  
+  # Parse each section
+  let req = toCreateChatCompletionReq(requestMarkdown)
+  let resp = toCreateChatCompletionResp(responseMarkdown)
+  
+  return (req, resp)
