@@ -38,6 +38,10 @@
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap.html#cancelFineTuneModel%2COpenAiApi%2Cstring">openai_leap: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
           </ul></dd>
+<dt><a name="ChatCompletionCallback" href="#ChatCompletionCallback"><span>ChatCompletionCallback:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: type ChatCompletionCallback" href="openai_leap.html#ChatCompletionCallback">openai_leap: type ChatCompletionCallback</a></li>
+          </ul></dd>
 <dt><a name="ChatCompletionChunk" href="#ChatCompletionChunk"><span>ChatCompletionChunk:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: object ChatCompletionChunk" href="openai_leap.html#ChatCompletionChunk">openai_leap: object ChatCompletionChunk</a></li>
@@ -48,9 +52,7 @@
           </ul></dd>
 <dt><a name="createChatCompletion" href="#createChatCompletion"><span>createChatCompletion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; req: var CreateChatCompletionReq;
-                     tools: Option[ToolsTable] = none(ToolsTable)): CreateChatCompletionResp" href="openai_leap.html#createChatCompletion%2COpenAiApi%2CCreateChatCompletionReq%2COption%5BToolsTable%5D">openai_leap: proc createChatCompletion(api: OpenAiApi; req: var CreateChatCompletionReq;
-                     tools: Option[ToolsTable] = none(ToolsTable)): CreateChatCompletionResp</a></li>
+          data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp" href="openai_leap.html#createChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">openai_leap: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp</a></li>
           <li><a class="reference external"
           data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string; responseFormat: JsonNode = nil): string" href="openai_leap.html#createChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring%2CJsonNode">openai_leap: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
@@ -63,6 +65,14 @@
 <dt><a name="CreateChatCompletionResp" href="#CreateChatCompletionResp"><span>CreateChatCompletionResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="openai_leap: type CreateChatCompletionResp" href="openai_leap.html#CreateChatCompletionResp">openai_leap: type CreateChatCompletionResp</a></li>
+          </ul></dd>
+<dt><a name="createChatCompletionWithTools" href="#createChatCompletionWithTools"><span>createChatCompletionWithTools:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="openai_leap: proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;
+                              tools: ToolsTable;
+                              callback: ChatCompletionCallback = nil): CreateChatCompletionResp" href="openai_leap.html#createChatCompletionWithTools%2COpenAiApi%2CCreateChatCompletionReq%2CToolsTable%2CChatCompletionCallback">openai_leap: proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;
+                              tools: ToolsTable;
+                              callback: ChatCompletionCallback = nil): CreateChatCompletionResp</a></li>
           </ul></dd>
 <dt><a name="CreateChatMessage" href="#CreateChatMessage"><span>CreateChatMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -334,7 +344,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-06-30 18:57:44 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-07-05 18:54:03 UTC</small>
       </div>
     </div>
   </div>
