@@ -121,7 +121,8 @@ type
     function*: ToolChoiceFuncion
 
   ToolImpl* = proc (args: JsonNode): string
-  ToolsTable* = Table[string, (ToolFunction, ToolImpl)] 
+  ToolsTable* = Table[string, (ToolFunction, ToolImpl)]
+  ChatCompletionCallback* = proc(req: CreateChatCompletionReq, resp: CreateChatCompletionResp)
 
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
@@ -485,39 +486,59 @@ proc generateEmbeddings*(
 
 proc createChatCompletion*(
   api: OpenAiApi,
-  req: var CreateChatCompletionReq,
-  tools: Option[ToolsTable] = none(ToolsTable)
+  req: CreateChatCompletionReq
 ): CreateChatCompletionResp =
-  ## Create a chat completion. without streaming.
-  ## If tools are provided, the req.messages will be mutated to include all tool calls and responses.
-  req.stream = option(false)
+  ## Create a chat completion without tool calling.
+  var mutableReq = req
+  mutableReq.stream = option(false)
+  
+  let reqBody = toJson(mutableReq)
+  let resp = post(api, "/chat/completions", reqBody)
+  result = fromJson(resp.body, CreateChatCompletionResp)
 
-  # Add the tools to the request if provided
-  if tools.isSome and tools.get.len > 0:
+proc createChatCompletionWithTools*(
+  api: OpenAiApi,
+  req: CreateChatCompletionReq,
+  tools: ToolsTable,
+  callback: ChatCompletionCallback = nil
+): CreateChatCompletionResp =
+  ## Create a chat completion with tool calling.
+  ## The callback is called after each response, allowing the caller to observe the conversation flow.
+  
+  # Work with a copy to avoid mutating the input
+  var workingReq = req
+  workingReq.stream = option(false)
+
+  # Add the tools to the request
+  if tools.len > 0:
     var toolSeq: seq[Tool] = @[]
-    for toolName, (toolFunc, toolImpl) in tools.get.pairs:
+    for toolName, (toolFunc, toolImpl) in tools.pairs:
       let tool = Tool(
         `type`: "function",
         function: toolFunc
       )
       toolSeq.add(tool)
-    req.tools = option(toolSeq)
+    workingReq.tools = option(toolSeq)
     # Set tool_choice to "auto" when tools are provided
-    req.tool_choice = option(% "auto")
+    workingReq.tool_choice = option(% "auto")
 
-  let reqBody = toJson(req)
+  let reqBody = toJson(workingReq)
   let resp = post(api, "/chat/completions", reqBody)
   result = fromJson(resp.body, CreateChatCompletionResp)
 
+  # Call callback after initial response
+  if callback != nil:
+    callback(workingReq, result)
+
   # Handle tool calls by iterating until no more tool calls are needed
-  if tools.isSome and tools.get.len > 0:
+  if tools.len > 0:
     while result.choices[0].message.get.tool_calls.isSome and 
           result.choices[0].message.get.tool_calls.get.len > 0:
       
       let toolMsg = result.choices[0].message.get
       
       # Add the assistant's message with tool calls to the conversation
-      req.messages.add(Message(
+      workingReq.messages.add(Message(
         role: "assistant",
         content: option(@[
           MessageContentPart(
@@ -532,17 +553,16 @@ proc createChatCompletion*(
       # TODO parallel tool handling
       for toolCallReq in toolMsg.tool_calls.get:
         let toolFunc = toolCallReq.function
-        let toolsTable = tools.get
         
-        if not toolsTable.hasKey(toolFunc.name):
+        if not tools.hasKey(toolFunc.name):
           raise newException(Exception, "LLM tried to call a tool that doesn't exist: " & toolFunc.name)
 
-        let (_, toolImpl) = toolsTable[toolFunc.name]
+        let (_, toolImpl) = tools[toolFunc.name]
         let toolFuncArgs = parseJson(toolFunc.arguments)
         let toolResult = toolImpl(toolFuncArgs)
         
         # Add tool result message
-        req.messages.add(Message(
+        workingReq.messages.add(Message(
           role: "tool",
           content: option(@[
             MessageContentPart(
@@ -554,9 +574,13 @@ proc createChatCompletion*(
         ))
       
       # Make follow-up request with updated messages
-      let followUpReqBody = toJson(req)
+      let followUpReqBody = toJson(workingReq)
       let followUpResp = post(api, "/chat/completions", followUpReqBody)
       result = fromJson(followUpResp.body, CreateChatCompletionResp)
+
+      # Call callback after each follow-up response
+      if callback != nil:
+        callback(workingReq, result)
 
   return result
 
