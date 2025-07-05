@@ -54,7 +54,7 @@ suite "openai tools":
         )
       ]
 
-      var firstRequest = CreateChatCompletionReq(
+      let firstRequest = CreateChatCompletionReq(
         model: TestModel,
         messages: messages,
         tools: option(@[
@@ -118,7 +118,7 @@ suite "openai tools":
       ))
       echo toJson(messages)
 
-      var req = CreateChatCompletionReq(
+      let req = CreateChatCompletionReq(
           model: TestModel,
           messages: messages,
         )
@@ -171,7 +171,7 @@ suite "openai tools":
       )
       
       # Create request asking for both math and flight info
-      var req = CreateChatCompletionReq(
+      let req = CreateChatCompletionReq(
         model: TestModel,
         messages: @[
           Message(
@@ -185,19 +185,25 @@ suite "openai tools":
         ]
       )
       
+      # Track conversation progress
+      var conversationHistory: seq[(CreateChatCompletionReq, CreateChatCompletionResp)] = @[]
+      
       # Execute with automated tool handling
-      let resp = openai.createChatCompletion(req, option(tools))
+      let resp = openai.createChatCompletionWithTools(req, tools, proc(req: CreateChatCompletionReq, resp: CreateChatCompletionResp) =
+        conversationHistory.add((req, resp))
+        echo "Conversation step ", conversationHistory.len, " - Messages: ", req.messages.len
+      )
       
       # Verify conversation was extended with tool calls
-      echo "Conversation expanded from 1 to ", req.messages.len, " messages"
-      check req.messages.len > 1
+      echo "Conversation expanded from 1 to ", conversationHistory[^1][0].messages.len, " messages"
+      check conversationHistory[^1][0].messages.len > 1
       
       # Verify expected tools were called with correct arguments
       var addNumbersCalled = false
       var flightTimesCalled = false
       var toolResponseCount = 0
       
-      for msg in req.messages:
+      for msg in conversationHistory[^1][0].messages:
         case msg.role:
         of "assistant":
           if msg.tool_calls.isSome:
