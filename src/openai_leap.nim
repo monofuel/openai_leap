@@ -57,7 +57,7 @@ type
 
   CreateEmbeddingRespObj* = ref object
     index*: int              # index into the input sequence in the request
-    embedding*: seq[float64] # https://platform.openai.com/docs/guides/embeddings
+    embedding*: seq[float32] # https://platform.openai.com/docs/guides/embeddings
     `object`*: string
 
   CreateEmbeddingResp* = ref object
