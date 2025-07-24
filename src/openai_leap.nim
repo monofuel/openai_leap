@@ -369,7 +369,7 @@ proc post*(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code} {resp.body}"
+      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {body}"
     )
   result = resp
 
@@ -404,7 +404,7 @@ proc postStream(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code}"
+      &"API call {path} failed: {resp.code}\nRequest body: {body}"
     )
   result = resp
 
@@ -430,7 +430,7 @@ proc post(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code} {resp.body}"
+      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {body}"
     )
   result = resp
 
@@ -538,21 +538,16 @@ proc createChatCompletionWithTools*(
       let toolMsg = result.choices[0].message.get
       
       # Add the assistant's message with tool calls to the conversation
-      # Only include content if it's not empty
-      var assistantMessage = Message(
+      workingReq.messages.add(Message(
         role: "assistant",
-        tool_calls: toolMsg.tool_calls
-      )
-      
-      if toolMsg.content.strip().len > 0:
-        assistantMessage.content = option(@[
+        content: option(@[
           MessageContentPart(
             `type`: "text", 
             text: option(toolMsg.content)
           )
-        ])
-      
-      workingReq.messages.add(assistantMessage)
+        ]),
+        tool_calls: toolMsg.tool_calls
+      ))
       
       # Execute each tool call and add results as tool messages
       # TODO parallel tool handling
@@ -566,14 +561,13 @@ proc createChatCompletionWithTools*(
         let toolFuncArgs = parseJson(toolFunc.arguments)
         let toolResult = toolImpl(toolFuncArgs)
         
-        # Add tool result message - ensure we always have content
-        let resultContent = if toolResult.strip().len > 0: toolResult else: "Tool completed successfully (no output)"
+        # Add tool result message
         workingReq.messages.add(Message(
           role: "tool",
           content: option(@[
             MessageContentPart(
               `type`: "text", 
-              text: option(resultContent)
+              text: option(toolResult)
             )
           ]),
           tool_call_id: option(toolCallReq.id)
