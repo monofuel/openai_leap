@@ -538,16 +538,21 @@ proc createChatCompletionWithTools*(
       let toolMsg = result.choices[0].message.get
       
       # Add the assistant's message with tool calls to the conversation
-      workingReq.messages.add(Message(
+      var assistantMessage = Message(
         role: "assistant",
-        content: option(@[
+        tool_calls: toolMsg.tool_calls
+      )
+      
+      # Only add content if there's actual text content
+      if toolMsg.content.strip() != "":
+        assistantMessage.content = option(@[
           MessageContentPart(
             `type`: "text", 
             text: option(toolMsg.content)
           )
-        ]),
-        tool_calls: toolMsg.tool_calls
-      ))
+        ])
+      
+      workingReq.messages.add(assistantMessage)
       
       # Execute each tool call and add results as tool messages
       # TODO parallel tool handling
