@@ -369,7 +369,7 @@ proc post*(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {body}"
+      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {toJson(body)}"
     )
   result = resp
 
@@ -404,7 +404,7 @@ proc postStream(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code}\nRequest body: {body}"
+      &"API call {path} failed: {resp.code}\nRequest body: {toJson(body)}"
     )
   result = resp
 
@@ -430,7 +430,7 @@ proc post(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {body}"
+      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {toJson(body)}"
     )
   result = resp
 
