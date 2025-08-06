@@ -559,12 +559,17 @@ proc createChatCompletionWithTools*(
       for toolCallReq in toolMsg.tool_calls.get:
         let toolFunc = toolCallReq.function
         
-        if not tools.hasKey(toolFunc.name):
-          raise newException(Exception, "LLM tried to call a tool that doesn't exist: " & toolFunc.name)
-
-        let (_, toolImpl) = tools[toolFunc.name]
-        let toolFuncArgs = parseJson(toolFunc.arguments)
-        let toolResult = toolImpl(toolFuncArgs)
+        let toolResult = if not tools.hasKey(toolFunc.name):
+          # Handle unknown tools gracefully by returning an error message to the LLM
+          var availableTools: seq[string] = @[]
+          for name in tools.keys:
+            availableTools.add(name)
+          let toolsList = availableTools.join(", ")
+          &"Error: Tool '{toolFunc.name}' does not exist. Available tools are: {toolsList}. Please use one of the available tools instead."
+        else:
+          let (_, toolImpl) = tools[toolFunc.name]
+          let toolFuncArgs = parseJson(toolFunc.arguments)
+          toolImpl(toolFuncArgs)
         
         # Add tool result message
         workingReq.messages.add(Message(
