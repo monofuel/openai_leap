@@ -1133,123 +1133,121 @@ proc toCreateChatCompletionReq*(markdown: string): CreateChatCompletionReq =
       
       inc i
   
-  # Parse Messages section
+  # Parse Messages - scan entire document for Message headers
   result.messages = @[]
-  let messagesIdx = findNextSection(0, "Messages")
-  if messagesIdx >= 0:
-    i = messagesIdx + 1
+  i = 0
+  
+  while i < lines.len:
+    let line = lines[i].strip()
     
-    while i < lines.len and not lines[i].startsWith("## "):
-      let line = lines[i].strip()
+    # Look for message sections
+    if line.startsWith("### Message ") and line.contains("(") and line.contains(")"):
+      var message = Message()
       
-      # Look for message sections
-      if line.startsWith("### Message ") and line.contains("(") and line.contains(")"):
-        var message = Message()
-        
-        # Extract role from "### Message N (role)"
-        let roleStart = line.find("(") + 1
-        let roleEnd = line.find(")")
-        if roleStart > 0 and roleEnd > roleStart:
-          message.role = line[roleStart..<roleEnd]
-        
-        inc i
-        var content = ""
-        var inContentBlock = false
-        var contentParts: seq[MessageContentPart] = @[]
-        
-        # Parse message details
-        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
-          let msgLine = lines[i].strip()
-          
-          if inContentBlock:
-            if msgLine == "```":
-              inContentBlock = false
-              # Add text content part
-              contentParts.add(MessageContentPart(
-                `type`: "text",
-                text: option(content)
-              ))
-              content = ""
-            else:
-              if content != "": content &= "\n"
-              content &= lines[i] # preserve original indentation
-          elif msgLine.startsWith("- **"):
-            let name = extractValue(msgLine, "Name")
-            if name != "": message.name = option(name)
-            
-            let toolCallId = extractValue(msgLine, "Tool Call ID")
-            if toolCallId != "": message.tool_call_id = option(toolCallId)
-            
-            if msgLine.startsWith("- **Content**:"):
-              # Content follows on next lines in a code block
-              inc i
-              # Skip empty lines until we find the opening ```
-              while i < lines.len and lines[i].strip() == "":
-                inc i
-              if i < lines.len and lines[i].strip() == "```":
-                inContentBlock = true
-                content = ""
-              else:
-                dec i # Back up if we didn't find code block
-            elif msgLine.startsWith("- **Tool Calls**:"):
-              # Parse tool calls that follow
-              inc i
-              var toolCalls: seq[ToolResp] = @[]
-              while i < lines.len and not lines[i].startsWith("- **") and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
-                let toolLine = lines[i]
-                if toolLine.startsWith("  - **ID**: "):
-                  var toolCall = ToolResp()
-                  toolCall.id = toolLine[12..^1]
-                  
-                  # Parse the rest of this tool call
-                  inc i
-                  if i < lines.len and lines[i].startsWith("  - **Type**: "):
-                    toolCall.`type` = lines[i][14..^1]
-                  inc i
-                  if i < lines.len and lines[i].startsWith("  - **Function**: "):
-                    var funcResp = ToolFunctionResp()
-                    funcResp.name = lines[i][18..^1]
-                    inc i
-                    if i < lines.len and lines[i].startsWith("  - **Arguments**: `") and lines[i].endsWith("`"):
-                      let argsLine = lines[i]
-                      funcResp.arguments = argsLine[20..^2]
-                    toolCall.function = funcResp
-                  
-                  toolCalls.add(toolCall)
-                else:
-                  inc i
-              
-              if toolCalls.len > 0:
-                message.tool_calls = option(toolCalls)
-              dec i # Back up since outer loop will increment
-          elif msgLine.startsWith("**Image URL**: "):
-            # Parse image content
-            let imageUrl = msgLine[15..^1]
-            var imagePart = MessageContentPart(`type`: "image_url")
-            var imageUrlPart = ImageUrlPart(url: imageUrl)
-            
-            # Check next line for detail level
-            if i + 1 < lines.len and lines[i + 1].strip().startsWith("**Detail Level**: "):
-              inc i
-              let detail = lines[i].strip()[18..^1]
-              imageUrlPart.detail = option(detail)
-            
-            imagePart.image_url = option(imageUrlPart)
-            contentParts.add(imagePart)
-          elif msgLine == "```" and not inContentBlock:
-            inContentBlock = true
-            content = ""
-          
-          inc i
-        
-        # Set message content if we have parts
-        if contentParts.len > 0:
-          message.content = option(contentParts)
-        
-        result.messages.add(message)
-        dec i # Back up one since the outer loop will increment
+      # Extract role from "### Message N (role)"
+      let roleStart = line.find("(") + 1
+      let roleEnd = line.find(")")
+      if roleStart > 0 and roleEnd > roleStart:
+        message.role = line[roleStart..<roleEnd]
       
       inc i
+      var content = ""
+      var inContentBlock = false
+      var contentParts: seq[MessageContentPart] = @[]
+      
+      # Parse message details
+      while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+        let msgLine = lines[i].strip()
+        
+        if inContentBlock:
+          if msgLine == "```":
+            inContentBlock = false
+            # Add text content part
+            contentParts.add(MessageContentPart(
+              `type`: "text",
+              text: option(content)
+            ))
+            content = ""
+          else:
+            if content != "": content &= "\n"
+            content &= lines[i] # preserve original indentation
+        elif msgLine.startsWith("- **"):
+          let name = extractValue(msgLine, "Name")
+          if name != "": message.name = option(name)
+          
+          let toolCallId = extractValue(msgLine, "Tool Call ID")
+          if toolCallId != "": message.tool_call_id = option(toolCallId)
+          
+          if msgLine.startsWith("- **Content**:"):
+            # Content follows on next lines in a code block
+            inc i
+            # Skip empty lines until we find the opening ```
+            while i < lines.len and lines[i].strip() == "":
+              inc i
+            if i < lines.len and lines[i].strip() == "```":
+              inContentBlock = true
+              content = ""
+            else:
+              dec i # Back up if we didn't find code block
+          elif msgLine.startsWith("- **Tool Calls**:"):
+            # Parse tool calls that follow
+            inc i
+            var toolCalls: seq[ToolResp] = @[]
+            while i < lines.len and not lines[i].startsWith("- **") and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+              let toolLine = lines[i]
+              if toolLine.startsWith("  - **ID**: "):
+                var toolCall = ToolResp()
+                toolCall.id = toolLine[12..^1]
+                
+                # Parse the rest of this tool call
+                inc i
+                if i < lines.len and lines[i].startsWith("  - **Type**: "):
+                  toolCall.`type` = lines[i][14..^1]
+                inc i
+                if i < lines.len and lines[i].startsWith("  - **Function**: "):
+                  var funcResp = ToolFunctionResp()
+                  funcResp.name = lines[i][18..^1]
+                  inc i
+                  if i < lines.len and lines[i].startsWith("  - **Arguments**: `") and lines[i].endsWith("`"):
+                    let argsLine = lines[i]
+                    funcResp.arguments = argsLine[20..^2]
+                  toolCall.function = funcResp
+                
+                toolCalls.add(toolCall)
+              else:
+                inc i
+            
+            if toolCalls.len > 0:
+              message.tool_calls = option(toolCalls)
+            dec i # Back up since outer loop will increment
+        elif msgLine.startsWith("**Image URL**: "):
+          # Parse image content
+          let imageUrl = msgLine[15..^1]
+          var imagePart = MessageContentPart(`type`: "image_url")
+          var imageUrlPart = ImageUrlPart(url: imageUrl)
+          
+          # Check next line for detail level
+          if i + 1 < lines.len and lines[i + 1].strip().startsWith("**Detail Level**: "):
+            inc i
+            let detail = lines[i].strip()[18..^1]
+            imageUrlPart.detail = option(detail)
+          
+          imagePart.image_url = option(imageUrlPart)
+          contentParts.add(imagePart)
+        elif msgLine == "```" and not inContentBlock:
+          inContentBlock = true
+          content = ""
+        
+        inc i
+      
+      # Set message content if we have parts
+      if contentParts.len > 0:
+        message.content = option(contentParts)
+      
+      result.messages.add(message)
+      dec i # Back up one since the outer loop will increment
+    
+    inc i
   
   # Parse Available Tools section
   let toolsIdx = findNextSection(0, "Available Tools")
