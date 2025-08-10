@@ -73,8 +73,8 @@ nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionReq	proc toMarkdo
 nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionResp	proc toMarkdown(resp: CreateChatCompletionResp): string		945
 nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionReq,CreateChatCompletionResp	proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string		1005
 nim	toCreateChatCompletionReq	openai_leap.html#toCreateChatCompletionReq,string	proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq		1036
-nim	toCreateChatCompletionResp	openai_leap.html#toCreateChatCompletionResp,string	proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp		1355
-nim	toCreateChatCompletionReqAndResp	openai_leap.html#toCreateChatCompletionReqAndResp,string	proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,\n    CreateChatCompletionResp)		1533
+nim	toCreateChatCompletionResp	openai_leap.html#toCreateChatCompletionResp,string	proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp		1353
+nim	toCreateChatCompletionReqAndResp	openai_leap.html#toCreateChatCompletionReqAndResp,string	proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,\n    CreateChatCompletionResp)		1531
 nimgrp	createchatcompletion	openai_leap.html#createChatCompletion-procs-all	proc		487
 nimgrp	streamchatcompletion	openai_leap.html#streamChatCompletion-procs-all	proc		597
 nimgrp	tomarkdown	openai_leap.html#toMarkdown-procs-all	proc		846
