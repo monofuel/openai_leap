@@ -238,6 +238,51 @@ type
     data*: seq[OpenAIFinetuneJob]
     has_more*: bool
 
+proc stripEscapeSequences*(input: string): string =
+  ## Remove ANSI escape sequences from a string to ensure valid JSON payloads.
+  result = ""
+  var i = 0
+  while i < input.len:
+    if i < input.len and ord(input[i]) == 0x1B: # ESC character
+      inc i
+      # Skip characters until a letter (end of ANSI sequence)
+      while i < input.len and ord(input[i]) in 32..126:
+        let c = input[i]
+        inc i
+        if c in {'A'..'Z', 'a'..'z'}:
+          break
+    else:
+      result.add(input[i])
+      inc i
+
+proc sanitizeText*(s: string): string =
+  ## Strip ANSI escape sequences from plain text.
+  stripEscapeSequences(s)
+
+proc sanitizeMessageContentPart(part: var MessageContentPart) =
+  ## Sanitize a single content part.
+  if part.`type` == "text" and part.text.isSome:
+    let cleaned = sanitizeText(part.text.get)
+    part.text = option(cleaned)
+
+proc sanitizeMessage(msg: var Message) =
+  ## Sanitize all text content in a message.
+  if msg.content.isSome:
+    var cleanedParts: seq[MessageContentPart] = @[]
+    for p in msg.content.get:
+      var part = p
+      sanitizeMessageContentPart(part)
+      cleanedParts.add(part)
+    msg.content = option(cleanedParts)
+
+proc sanitizeChatReq*(req: var CreateChatCompletionReq) =
+  ## Sanitize a chat request prior to JSON serialization.
+  if req.messages.len > 0:
+    for i in 0..req.messages.high:
+      var m = req.messages[i]
+      sanitizeMessage(m)
+      req.messages[i] = m
+
 proc dumpHook(s: var string, v: object) =
   ## Jsony skip optional fields that are nil.
   s.add '{'
@@ -475,11 +520,11 @@ proc generateEmbeddings*(
 ): CreateEmbeddingResp =
   ## Generate embeddings for a list of documents.
   let req = CreateEmbeddingReq()
-  req.input = input
+  req.input = sanitizeText(input)
   req.model = model
   req.dimensions = dimensions
   if user != "":
-    req.user = option(user)
+    req.user = option(sanitizeText(user))
   let reqBody = toJson(req)
   let resp = post(api, "/embeddings", reqBody)
   result = fromJson(resp.body, CreateEmbeddingResp)
@@ -491,6 +536,7 @@ proc createChatCompletion*(
   ## Create a chat completion without tool calling.
   var mutableReq = req
   mutableReq.stream = option(false)
+  sanitizeChatReq(mutableReq)
   
   let reqBody = toJson(mutableReq)
   let resp = post(api, "/chat/completions", reqBody)
@@ -508,6 +554,7 @@ proc createChatCompletionWithTools*(
   # Work with a copy to avoid mutating the input
   var workingReq = req
   workingReq.stream = option(false)
+  sanitizeChatReq(workingReq)
 
   # Add the tools to the request
   if tools.len > 0:
@@ -548,7 +595,7 @@ proc createChatCompletionWithTools*(
         assistantMessage.content = option(@[
           MessageContentPart(
             `type`: "text", 
-            text: option(toolMsg.content)
+            text: option(sanitizeText(toolMsg.content))
           )
         ])
       
@@ -577,13 +624,14 @@ proc createChatCompletionWithTools*(
           content: option(@[
             MessageContentPart(
               `type`: "text", 
-              text: option(toolResult)
+              text: option(sanitizeText(toolResult))
             )
           ]),
           tool_call_id: option(toolCallReq.id)
         ))
       
       # Make follow-up request with updated messages
+      sanitizeChatReq(workingReq)
       let followUpReqBody = toJson(workingReq)
       let followUpResp = post(api, "/chat/completions", followUpReqBody)
       result = fromJson(followUpResp.body, CreateChatCompletionResp)
@@ -600,7 +648,9 @@ proc streamChatCompletion*(
 ): OpenAIStream =
   ## Stream a chat completion response
   req.stream = option(true)
-  let reqBody = toJson(req)
+  var sanitizedReq = req
+  sanitizeChatReq(sanitizedReq)
+  let reqBody = toJson(sanitizedReq)
   return OpenAIStream(stream: postStream(api, "/chat/completions", reqBody))
 
 proc createChatCompletion*(
@@ -624,17 +674,18 @@ proc createChatCompletion*(
     Message(
       role: "system",
       content: option(@[
-        MessageContentPart(`type`: "text", text: option(systemPrompt))
+        MessageContentPart(`type`: "text", text: option(sanitizeText(systemPrompt)))
       ])
     ),
     Message(
       role: "user",
       content: option(@[
-        MessageContentPart(`type`: "text", text: option(input))
+        MessageContentPart(`type`: "text", text: option(sanitizeText(input)))
       ])
     )
   ]
   var mutableReq = req
+  sanitizeChatReq(mutableReq)
   let resp = api.createChatCompletion(mutableReq)
   result = resp.choices[0].message.get.content
 
