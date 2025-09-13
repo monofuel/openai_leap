@@ -1207,7 +1207,7 @@ proc toCreateChatCompletionReq*(markdown: string): CreateChatCompletionReq =
       var contentParts: seq[MessageContentPart] = @[]
       
       # Parse message details
-      while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+      while i < lines.len:
         let msgLine = lines[i].strip()
         
         if inContentBlock:
@@ -1222,6 +1222,9 @@ proc toCreateChatCompletionReq*(markdown: string): CreateChatCompletionReq =
           else:
             if content != "": content &= "\n"
             content &= lines[i] # preserve original indentation
+        # Only exit on section headers when NOT in a content block
+        elif not inContentBlock and (lines[i].startsWith("### ") or lines[i].startsWith("## ")):
+          break
         elif msgLine.startsWith("- **"):
           let name = extractValue(msgLine, "Name")
           if name != "": message.name = option(name)
