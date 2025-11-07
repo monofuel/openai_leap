@@ -8,76 +8,114 @@ nim	OpenAiModel	openai_leap.html#OpenAiModel	type OpenAiModel		32
 nim	Usage	openai_leap.html#Usage	type Usage		38
 nim	ListModelResponse	openai_leap.html#ListModelResponse	type ListModelResponse		42
 nim	DeleteModelResponse	openai_leap.html#DeleteModelResponse	type DeleteModelResponse		46
-nim	CreateEmbeddingReq	openai_leap.html#CreateEmbeddingReq	type CreateEmbeddingReq		51
-nim	CreateEmbeddingRespObj	openai_leap.html#CreateEmbeddingRespObj	type CreateEmbeddingRespObj		58
-nim	CreateEmbeddingResp	openai_leap.html#CreateEmbeddingResp	type CreateEmbeddingResp		63
-nim	ToolFunctionResp	openai_leap.html#ToolFunctionResp	type ToolFunctionResp		69
-nim	ToolResp	openai_leap.html#ToolResp	type ToolResp		73
-nim	ImageUrlPart	openai_leap.html#ImageUrlPart	type ImageUrlPart		78
-nim	MessageContentPart	openai_leap.html#MessageContentPart	type MessageContentPart		82
-nim	Message	openai_leap.html#Message	type Message		87
-nim	RespMessage	openai_leap.html#RespMessage	type RespMessage		96
-nim	ResponseFormatObj	openai_leap.html#ResponseFormatObj	type ResponseFormatObj		103
-nim	ToolFunction	openai_leap.html#ToolFunction	type ToolFunction		107
-nim	Tool	openai_leap.html#Tool	type Tool		112
-nim	ToolChoiceFuncion	openai_leap.html#ToolChoiceFuncion	type ToolChoiceFuncion		116
-nim	ToolChoice	openai_leap.html#ToolChoice	type ToolChoice		119
-nim	ToolImpl	openai_leap.html#ToolImpl	type ToolImpl		123
-nim	ToolsTable	openai_leap.html#ToolsTable	type ToolsTable		124
-nim	ChatCompletionCallback	openai_leap.html#ChatCompletionCallback	type ChatCompletionCallback		125
-nim	CreateChatCompletionReq	openai_leap.html#CreateChatCompletionReq	type CreateChatCompletionReq		127
-nim	CreateChatMessage	openai_leap.html#CreateChatMessage	type CreateChatMessage		149
-nim	CreateChatCompletionResp	openai_leap.html#CreateChatCompletionResp	type CreateChatCompletionResp		156
-nim	AudioTranscription	openai_leap.html#AudioTranscription	object AudioTranscription		165
-nim	ChatCompletionChunk	openai_leap.html#ChatCompletionChunk	object ChatCompletionChunk		168
-nim	OpenAIFineTuneMessage	openai_leap.html#OpenAIFineTuneMessage	type OpenAIFineTuneMessage		178
-nim	OpenAIFineTuneChat	openai_leap.html#OpenAIFineTuneChat	type OpenAIFineTuneChat		182
-nim	OpenAIFile	openai_leap.html#OpenAIFile	type OpenAIFile		185
-nim	OpenAIListFiles	openai_leap.html#OpenAIListFiles	type OpenAIListFiles		193
-nim	OpenAIHyperParameters	openai_leap.html#OpenAIHyperParameters	type OpenAIHyperParameters		197
-nim	OpenAIFinetuneRequest	openai_leap.html#OpenAIFinetuneRequest	type OpenAIFinetuneRequest		203
-nim	FineTuneError	openai_leap.html#FineTuneError	type FineTuneError		212
-nim	OpenAIFinetuneJob	openai_leap.html#OpenAIFinetuneJob	type OpenAIFinetuneJob		217
-nim	OpenAIFinetuneList	openai_leap.html#OpenAIFinetuneList	type OpenAIFinetuneList		236
-nim	stripEscapeSequences	openai_leap.html#stripEscapeSequences,string	proc stripEscapeSequences(input: string): string		241
-nim	sanitizeText	openai_leap.html#sanitizeText,string	proc sanitizeText(s: string): string		258
-nim	sanitizeChatReq	openai_leap.html#sanitizeChatReq,CreateChatCompletionReq	proc sanitizeChatReq(req: var CreateChatCompletionReq)		278
-nim	newOpenAiApi	openai_leap.html#newOpenAiApi,string,string,string,int,int	proc newOpenAiApi(baseUrl: string = "https://api.openai.com/v1"; apiKey: string = "";\n             organization: string = ""; maxInFlight: int = 16;\n             curlTimeout: int = 60 * 5): OpenAiApi		309
-nim	newToolsTable	openai_leap.html#newToolsTable	proc newToolsTable(): ToolsTable		339
-nim	register	openai_leap.html#register,ToolsTable,string,ToolFunction,ToolImpl	proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;\n         impl: ToolImpl)		343
-nim	updateApiKey	openai_leap.html#updateApiKey,OpenAiApi,string	proc updateApiKey(api: OpenAiApi; apiKey: string)		347
-nim	close	openai_leap.html#close,OpenAiApi	proc close(api: OpenAiApi)		352
-nim	get	openai_leap.html#get,OpenAiApi,string,Opts	proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response		357
-nim	post	openai_leap.html#post,OpenAiApi,string,string,Opts	proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response		387
-nim	listModels	openai_leap.html#listModels,OpenAiApi	proc listModels(api: OpenAiApi): seq[OpenAiModel]		498
-nim	getModel	openai_leap.html#getModel,OpenAiApi,string	proc getModel(api: OpenAiApi; modelId: string): OpenAiModel		504
-nim	deleteModel	openai_leap.html#deleteModel,OpenAiApi,string	proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse		509
-nim	generateEmbeddings	openai_leap.html#generateEmbeddings,OpenAiApi,string,string,Option[int],string	proc generateEmbeddings(api: OpenAiApi; model: string; input: string;\n                   dimensions: Option[int] = none(int); user: string = ""): CreateEmbeddingResp		514
-nim	createChatCompletion	openai_leap.html#createChatCompletion,OpenAiApi,CreateChatCompletionReq	proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp		532
-nim	createChatCompletionWithTools	openai_leap.html#createChatCompletionWithTools,OpenAiApi,CreateChatCompletionReq,ToolsTable,ChatCompletionCallback	proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;\n                              tools: ToolsTable;\n                              callback: ChatCompletionCallback = nil): CreateChatCompletionResp		545
-nim	streamChatCompletion	openai_leap.html#streamChatCompletion,OpenAiApi,CreateChatCompletionReq	proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream		645
-nim	createChatCompletion	openai_leap.html#createChatCompletion,OpenAiApi,string,string,string,JsonNode	proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string; responseFormat: JsonNode = nil): string		656
-nim	streamChatCompletion	openai_leap.html#streamChatCompletion,OpenAiApi,string,string,string	proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string): OpenAIStream		692
-nim	next	openai_leap.html#next,OpenAIStream	proc next(s: OpenAIStream): Option[ChatCompletionChunk]		717
-nim	createFineTuneDataset	openai_leap.html#createFineTuneDataset,OpenAiApi,string	proc createFineTuneDataset(api: OpenAiApi; filepath: string): OpenAIFile		755
-nim	listFiles	openai_leap.html#listFiles,OpenAiApi	proc listFiles(api: OpenAiApi): OpenAIListFiles		791
-nim	getFileDetails	openai_leap.html#getFileDetails,OpenAiApi,string	proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile		796
-nim	deleteFile	openai_leap.html#deleteFile,OpenAiApi,string	proc deleteFile(api: OpenAiApi; fileId: string)		801
-nim	createFineTuneJob	openai_leap.html#createFineTuneJob,OpenAiApi,OpenAIFinetuneRequest	proc createFineTuneJob(api: OpenAiApi; req: OpenAIFinetuneRequest): OpenAIFinetuneJob		807
-nim	getFineTuneModel	openai_leap.html#getFineTuneModel,OpenAiApi,string	proc getFineTuneModel(api: OpenAiApi; modelId: string)		816
-nim	listFineTuneJobs	openai_leap.html#listFineTuneJobs,OpenAiApi	proc listFineTuneJobs(api: OpenAiApi): OpenAIFinetuneList		820
-nim	listFineTuneModelEvents	openai_leap.html#listFineTuneModelEvents,OpenAiApi,string	proc listFineTuneModelEvents(api: OpenAiApi; modelId: string)		826
-nim	listFineTuneCheckpoints	openai_leap.html#listFineTuneCheckpoints,OpenAiApi,string	proc listFineTuneCheckpoints(api: OpenAiApi; modelId: string)		830
-nim	cancelFineTuneModel	openai_leap.html#cancelFineTuneModel,OpenAiApi,string	proc cancelFineTuneModel(api: OpenAiApi; modelId: string)		835
-nim	deleteFineTuneModel	openai_leap.html#deleteFineTuneModel,OpenAiApi,string	proc deleteFineTuneModel(api: OpenAiApi; modelId: string)		839
-nim	audioTranscriptions	openai_leap.html#audioTranscriptions,OpenAiApi,string,string	proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription		843
-nim	pullModel	openai_leap.html#pullModel,OpenAiApi,string,int	proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)		868
-nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionReq	proc toMarkdown(req: CreateChatCompletionReq): string		897
-nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionResp	proc toMarkdown(resp: CreateChatCompletionResp): string		996
-nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionReq,CreateChatCompletionResp	proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string		1056
-nim	toCreateChatCompletionReq	openai_leap.html#toCreateChatCompletionReq,string	proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq		1087
-nim	toCreateChatCompletionResp	openai_leap.html#toCreateChatCompletionResp,string	proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp		1407
-nim	toCreateChatCompletionReqAndResp	openai_leap.html#toCreateChatCompletionReqAndResp,string	proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,\n    CreateChatCompletionResp)		1585
-nimgrp	createchatcompletion	openai_leap.html#createChatCompletion-procs-all	proc		532
-nimgrp	streamchatcompletion	openai_leap.html#streamChatCompletion-procs-all	proc		645
-nimgrp	tomarkdown	openai_leap.html#toMarkdown-procs-all	proc		897
+nim	DeleteResponse	openai_leap.html#DeleteResponse	type DeleteResponse		51
+nim	RetrievalQuery	openai_leap.html#RetrievalQuery	EmbeddingTask.RetrievalQuery		56
+nim	RetrievalDocument	openai_leap.html#RetrievalDocument	EmbeddingTask.RetrievalDocument		56
+nim	QuestionAnswering	openai_leap.html#QuestionAnswering	EmbeddingTask.QuestionAnswering		56
+nim	FactVerification	openai_leap.html#FactVerification	EmbeddingTask.FactVerification		56
+nim	Classification	openai_leap.html#Classification	EmbeddingTask.Classification		56
+nim	Clustering	openai_leap.html#Clustering	EmbeddingTask.Clustering		56
+nim	SemanticSimilarity	openai_leap.html#SemanticSimilarity	EmbeddingTask.SemanticSimilarity		56
+nim	CodeRetrieval	openai_leap.html#CodeRetrieval	EmbeddingTask.CodeRetrieval		56
+nim	EmbeddingTask	openai_leap.html#EmbeddingTask	enum EmbeddingTask		56
+nim	CreateEmbeddingReq	openai_leap.html#CreateEmbeddingReq	type CreateEmbeddingReq		66
+nim	CreateEmbeddingRespObj	openai_leap.html#CreateEmbeddingRespObj	type CreateEmbeddingRespObj		73
+nim	CreateEmbeddingResp	openai_leap.html#CreateEmbeddingResp	type CreateEmbeddingResp		78
+nim	ToolFunctionResp	openai_leap.html#ToolFunctionResp	type ToolFunctionResp		84
+nim	ToolResp	openai_leap.html#ToolResp	type ToolResp		88
+nim	ImageUrlPart	openai_leap.html#ImageUrlPart	type ImageUrlPart		93
+nim	MessageContentPart	openai_leap.html#MessageContentPart	type MessageContentPart		97
+nim	Message	openai_leap.html#Message	type Message		102
+nim	RespMessage	openai_leap.html#RespMessage	type RespMessage		111
+nim	ResponseFormatObj	openai_leap.html#ResponseFormatObj	type ResponseFormatObj		118
+nim	ToolFunction	openai_leap.html#ToolFunction	type ToolFunction		122
+nim	Tool	openai_leap.html#Tool	type Tool		127
+nim	ToolChoiceFuncion	openai_leap.html#ToolChoiceFuncion	type ToolChoiceFuncion		131
+nim	ToolChoice	openai_leap.html#ToolChoice	type ToolChoice		134
+nim	ToolImpl	openai_leap.html#ToolImpl	type ToolImpl		138
+nim	ToolsTable	openai_leap.html#ToolsTable	type ToolsTable		139
+nim	ChatCompletionCallback	openai_leap.html#ChatCompletionCallback	type ChatCompletionCallback		140
+nim	ResponseTool	openai_leap.html#ResponseTool	type ResponseTool		143
+nim	ResponseToolCall	openai_leap.html#ResponseToolCall	type ResponseToolCall		149
+nim	ResponseToolCallOutput	openai_leap.html#ResponseToolCallOutput	type ResponseToolCallOutput		155
+nim	ResponseToolImpl	openai_leap.html#ResponseToolImpl	type ResponseToolImpl		160
+nim	ResponseToolsTable	openai_leap.html#ResponseToolsTable	type ResponseToolsTable		161
+nim	CreateChatCompletionReq	openai_leap.html#CreateChatCompletionReq	type CreateChatCompletionReq		163
+nim	CreateChatMessage	openai_leap.html#CreateChatMessage	type CreateChatMessage		185
+nim	CreateChatCompletionResp	openai_leap.html#CreateChatCompletionResp	type CreateChatCompletionResp		192
+nim	AudioTranscription	openai_leap.html#AudioTranscription	object AudioTranscription		201
+nim	ChatCompletionChunk	openai_leap.html#ChatCompletionChunk	object ChatCompletionChunk		204
+nim	OpenAIFineTuneMessage	openai_leap.html#OpenAIFineTuneMessage	type OpenAIFineTuneMessage		214
+nim	OpenAIFineTuneChat	openai_leap.html#OpenAIFineTuneChat	type OpenAIFineTuneChat		218
+nim	OpenAIFile	openai_leap.html#OpenAIFile	type OpenAIFile		221
+nim	OpenAIListFiles	openai_leap.html#OpenAIListFiles	type OpenAIListFiles		229
+nim	OpenAIHyperParameters	openai_leap.html#OpenAIHyperParameters	type OpenAIHyperParameters		233
+nim	OpenAIFinetuneRequest	openai_leap.html#OpenAIFinetuneRequest	type OpenAIFinetuneRequest		239
+nim	FineTuneError	openai_leap.html#FineTuneError	type FineTuneError		248
+nim	OpenAIFinetuneJob	openai_leap.html#OpenAIFinetuneJob	type OpenAIFinetuneJob		253
+nim	OpenAIFinetuneList	openai_leap.html#OpenAIFinetuneList	type OpenAIFinetuneList		272
+nim	ResponseInputText	openai_leap.html#ResponseInputText	type ResponseInputText		279
+nim	ResponseInputImage	openai_leap.html#ResponseInputImage	type ResponseInputImage		282
+nim	ResponseInputFile	openai_leap.html#ResponseInputFile	type ResponseInputFile		286
+nim	ResponseInputContent	openai_leap.html#ResponseInputContent	type ResponseInputContent		289
+nim	ResponseInput	openai_leap.html#ResponseInput	type ResponseInput		294
+nim	ResponseOutputText	openai_leap.html#ResponseOutputText	type ResponseOutputText		299
+nim	ResponseOutputImage	openai_leap.html#ResponseOutputImage	type ResponseOutputImage		302
+nim	ResponseOutputToolCall	openai_leap.html#ResponseOutputToolCall	type ResponseOutputToolCall		305
+nim	ResponseOutputContent	openai_leap.html#ResponseOutputContent	type ResponseOutputContent		310
+nim	ResponseOutput	openai_leap.html#ResponseOutput	type ResponseOutput		315
+nim	ResponseUsage	openai_leap.html#ResponseUsage	type ResponseUsage		319
+nim	OpenAiResponse	openai_leap.html#OpenAiResponse	type OpenAiResponse		324
+nim	CreateResponseReq	openai_leap.html#CreateResponseReq	type CreateResponseReq		356
+nim	OpenAIResponseStream	openai_leap.html#OpenAIResponseStream	type OpenAIResponseStream		384
+nim	stripEscapeSequences	openai_leap.html#stripEscapeSequences,string	proc stripEscapeSequences(input: string): string		388
+nim	sanitizeText	openai_leap.html#sanitizeText,string	proc sanitizeText(s: string): string		405
+nim	sanitizeChatReq	openai_leap.html#sanitizeChatReq,CreateChatCompletionReq	proc sanitizeChatReq(req: var CreateChatCompletionReq)		425
+nim	newOpenAiApi	openai_leap.html#newOpenAiApi,string,string,string,int,int	proc newOpenAiApi(baseUrl: string = "https://api.openai.com/v1"; apiKey: string = "";\n             organization: string = ""; maxInFlight: int = 16;\n             curlTimeout: int = 60 * 5): OpenAiApi		456
+nim	newToolsTable	openai_leap.html#newToolsTable	proc newToolsTable(): ToolsTable		486
+nim	register	openai_leap.html#register,ToolsTable,string,ToolFunction,ToolImpl	proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;\n         impl: ToolImpl)		490
+nim	updateApiKey	openai_leap.html#updateApiKey,OpenAiApi,string	proc updateApiKey(api: OpenAiApi; apiKey: string)		494
+nim	close	openai_leap.html#close,OpenAiApi	proc close(api: OpenAiApi)		499
+nim	get	openai_leap.html#get,OpenAiApi,string,Opts	proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response		504
+nim	post	openai_leap.html#post,OpenAiApi,string,string,Opts	proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response		534
+nim	listModels	openai_leap.html#listModels,OpenAiApi	proc listModels(api: OpenAiApi): seq[OpenAiModel]		688
+nim	getModel	openai_leap.html#getModel,OpenAiApi,string	proc getModel(api: OpenAiApi; modelId: string): OpenAiModel		694
+nim	deleteModel	openai_leap.html#deleteModel,OpenAiApi,string	proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse		699
+nim	generateEmbeddings	openai_leap.html#generateEmbeddings,OpenAiApi,string,string,Option[int],string	proc generateEmbeddings(api: OpenAiApi; model: string; input: string;\n                   dimensions: Option[int] = none(int); user: string = ""): CreateEmbeddingResp		704
+nim	generateEmbeddingWithTask	openai_leap.html#generateEmbeddingWithTask,OpenAiApi,string,string,EmbeddingTask,string,Option[int],string	proc generateEmbeddingWithTask(api: OpenAiApi; model: string; input: string;\n                          task: EmbeddingTask; title: string = "none";\n                          dimensions: Option[int] = none(int); user: string = ""): CreateEmbeddingResp		742
+nim	createChatCompletion	openai_leap.html#createChatCompletion,OpenAiApi,CreateChatCompletionReq	proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp		764
+nim	createChatCompletionWithTools	openai_leap.html#createChatCompletionWithTools,OpenAiApi,CreateChatCompletionReq,ToolsTable,ChatCompletionCallback	proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;\n                              tools: ToolsTable;\n                              callback: ChatCompletionCallback = nil): CreateChatCompletionResp		777
+nim	streamChatCompletion	openai_leap.html#streamChatCompletion,OpenAiApi,CreateChatCompletionReq	proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream		877
+nim	createChatCompletion	openai_leap.html#createChatCompletion,OpenAiApi,string,string,string,JsonNode	proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string; responseFormat: JsonNode = nil): string		888
+nim	streamChatCompletion	openai_leap.html#streamChatCompletion,OpenAiApi,string,string,string	proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string): OpenAIStream		924
+nim	next	openai_leap.html#next,OpenAIStream	proc next(s: OpenAIStream): Option[ChatCompletionChunk]		949
+nim	createFineTuneDataset	openai_leap.html#createFineTuneDataset,OpenAiApi,string	proc createFineTuneDataset(api: OpenAiApi; filepath: string): OpenAIFile		987
+nim	createResponse	openai_leap.html#createResponse,OpenAiApi,CreateResponseReq	proc createResponse(api: OpenAiApi; req: CreateResponseReq): OpenAiResponse		1023
+nim	createResponse	openai_leap.html#createResponse,OpenAiApi,string,string,string	proc createResponse(api: OpenAiApi; model: string; input: string;\n               instructions: string = ""): OpenAiResponse		1036
+nim	getResponse	openai_leap.html#getResponse,OpenAiApi,string	proc getResponse(api: OpenAiApi; responseId: string): OpenAiResponse		1059
+nim	deleteResponse	openai_leap.html#deleteResponse,OpenAiApi,string	proc deleteResponse(api: OpenAiApi; responseId: string): DeleteResponse		1064
+nim	streamGetResponse	openai_leap.html#streamGetResponse,OpenAiApi,string	proc streamGetResponse(api: OpenAiApi; responseId: string): OpenAIResponseStream		1072
+nim	streamResponse	openai_leap.html#streamResponse,OpenAiApi,CreateResponseReq	proc streamResponse(api: OpenAiApi; req: CreateResponseReq): OpenAIResponseStream		1077
+nim	nextResponseChunk	openai_leap.html#nextResponseChunk,OpenAIResponseStream	proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]		1088
+nim	listFiles	openai_leap.html#listFiles,OpenAiApi	proc listFiles(api: OpenAiApi): OpenAIListFiles		1148
+nim	getFileDetails	openai_leap.html#getFileDetails,OpenAiApi,string	proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile		1153
+nim	deleteFile	openai_leap.html#deleteFile,OpenAiApi,string	proc deleteFile(api: OpenAiApi; fileId: string)		1158
+nim	createFineTuneJob	openai_leap.html#createFineTuneJob,OpenAiApi,OpenAIFinetuneRequest	proc createFineTuneJob(api: OpenAiApi; req: OpenAIFinetuneRequest): OpenAIFinetuneJob		1164
+nim	getFineTuneModel	openai_leap.html#getFineTuneModel,OpenAiApi,string	proc getFineTuneModel(api: OpenAiApi; modelId: string)		1173
+nim	listFineTuneJobs	openai_leap.html#listFineTuneJobs,OpenAiApi	proc listFineTuneJobs(api: OpenAiApi): OpenAIFinetuneList		1177
+nim	listFineTuneModelEvents	openai_leap.html#listFineTuneModelEvents,OpenAiApi,string	proc listFineTuneModelEvents(api: OpenAiApi; modelId: string)		1183
+nim	listFineTuneCheckpoints	openai_leap.html#listFineTuneCheckpoints,OpenAiApi,string	proc listFineTuneCheckpoints(api: OpenAiApi; modelId: string)		1187
+nim	cancelFineTuneModel	openai_leap.html#cancelFineTuneModel,OpenAiApi,string	proc cancelFineTuneModel(api: OpenAiApi; modelId: string)		1192
+nim	deleteFineTuneModel	openai_leap.html#deleteFineTuneModel,OpenAiApi,string	proc deleteFineTuneModel(api: OpenAiApi; modelId: string)		1196
+nim	audioTranscriptions	openai_leap.html#audioTranscriptions,OpenAiApi,string,string	proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription		1200
+nim	pullModel	openai_leap.html#pullModel,OpenAiApi,string,int	proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)		1225
+nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionReq	proc toMarkdown(req: CreateChatCompletionReq): string		1254
+nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionResp	proc toMarkdown(resp: CreateChatCompletionResp): string		1353
+nim	toMarkdown	openai_leap.html#toMarkdown,CreateChatCompletionReq,CreateChatCompletionResp	proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string		1413
+nim	toCreateChatCompletionReq	openai_leap.html#toCreateChatCompletionReq,string	proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq		1444
+nim	toCreateChatCompletionResp	openai_leap.html#toCreateChatCompletionResp,string	proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp		1764
+nim	toCreateChatCompletionReqAndResp	openai_leap.html#toCreateChatCompletionReqAndResp,string	proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,\n    CreateChatCompletionResp)		1942
+nimgrp	createchatcompletion	openai_leap.html#createChatCompletion-procs-all	proc		764
+nimgrp	streamchatcompletion	openai_leap.html#streamChatCompletion-procs-all	proc		877
+nimgrp	createresponse	openai_leap.html#createResponse-procs-all	proc		1023
+nimgrp	tomarkdown	openai_leap.html#toMarkdown-procs-all	proc		1254
