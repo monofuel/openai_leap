@@ -238,6 +238,117 @@ type
     data*: seq[OpenAIFinetuneJob]
     has_more*: bool
 
+# Responses API types
+type
+  ResponseInputText* = ref object
+    text*: string
+
+  ResponseInputImage* = ref object
+    url*: string
+    detail*: Option[string] # low, high, auto
+
+  ResponseInputFile* = ref object
+    file_id*: string
+
+  ResponseInputContent* = ref object
+    `type`*: string # input_text, input_image
+    text*: Option[string]
+    image_url*: Option[ResponseInputImage]
+
+  ResponseInput* = ref object
+    `type`*: string # message, image_url, file
+    role*: Option[string] # user, assistant, system, developer (for message type)
+    content*: Option[seq[ResponseInputContent]] # for message type
+
+  ResponseOutputText* = ref object
+    text*: string
+
+  ResponseOutputImage* = ref object
+    url*: string
+
+  ResponseOutputToolCall* = ref object
+    id*: string
+    `type`*: string # function, builtin_function
+    function*: Option[ToolFunctionResp] # for custom functions
+
+  ResponseOutputContent* = ref object
+    `type`*: string # text, tool_call, etc.
+    text*: Option[string]
+    tool_call*: Option[ResponseOutputToolCall]
+
+  ResponseOutput* = ref object
+    role*: string
+    content*: seq[ResponseOutputContent]
+
+  ResponseUsage* = ref object
+    input_tokens*: int
+    output_tokens*: int
+    total_tokens*: int
+
+  OpenAiResponse* = ref object
+    id*: string
+    `object`*: string # always "response"
+    created_at*: int
+    model*: string
+    status*: string # completed, failed, in_progress, cancelled, queued, incomplete
+    error*: Option[JsonNode]
+    incomplete_details*: Option[string]
+    instructions*: Option[string]
+    max_output_tokens*: Option[int]
+    max_tool_calls*: Option[int]
+    metadata*: Option[Table[string, string]]
+    output*: seq[ResponseOutput]
+    output_text*: Option[string]
+    parallel_tool_calls*: Option[bool]
+    previous_response_id*: Option[string]
+    prompt*: Option[JsonNode]
+    prompt_cache_key*: Option[string]
+    reasoning*: Option[JsonNode]
+    safety_identifier*: Option[string]
+    service_tier*: Option[string]
+    store*: Option[bool]
+    temperature*: Option[float32]
+    text*: Option[JsonNode]
+    tool_choice*: Option[JsonNode]
+    tools*: Option[seq[Tool]]
+    top_logprobs*: Option[int]
+    top_p*: Option[float32]
+    truncation*: Option[string]
+    usage*: Option[ResponseUsage]
+    user*: Option[string]
+
+  CreateResponseReq* = ref object
+    input*: Option[seq[ResponseInput]] # or string
+    instructions*: Option[string]
+    model*: string
+    background*: Option[bool]
+    `include`*: Option[seq[string]]
+    max_output_tokens*: Option[int]
+    max_tool_calls*: Option[int]
+    metadata*: Option[Table[string, string]]
+    parallel_tool_calls*: Option[bool]
+    previous_response_id*: Option[string]
+    prompt*: Option[JsonNode]
+    prompt_cache_key*: Option[string]
+    reasoning*: Option[JsonNode]
+    safety_identifier*: Option[string]
+    service_tier*: Option[string]
+    store*: Option[bool]
+    stream*: Option[bool]
+    stream_options*: Option[JsonNode]
+    temperature*: Option[float32]
+    text*: Option[JsonNode]
+    tool_choice*: Option[JsonNode]
+    tools*: Option[seq[Tool]]
+    top_logprobs*: Option[int]
+    top_p*: Option[float32]
+    truncation*: Option[string]
+    user*: Option[string]
+
+  OpenAIResponseStream* = ref object
+    stream*: ResponseStream
+    buffer*: string
+
 proc stripEscapeSequences*(input: string): string =
   ## Remove ANSI escape sequences from a string to ensure valid JSON payloads.
   result = ""
@@ -787,6 +898,88 @@ curl -s https://api.openai.com/v1/files \
       "Failed to upload file, curl returned " & $res
     )
   result = fromJson(output, OpenAIFile)
+
+proc createResponse*(
+  api: OpenAiApi,
+  req: CreateResponseReq
+): OpenAiResponse =
+  ## Create a model response using the new Responses API.
+  ## This is OpenAI's newer, more advanced API that supports multiple input types,
+  ## built-in tools, and more sophisticated reasoning.
+  var mutableReq = req
+  mutableReq.stream = option(false)
+  let reqBody = toJson(mutableReq)
+  let resp = post(api, "/responses", reqBody)
+  result = fromJson(resp.body, OpenAiResponse)
+
+proc createResponse*(
+  api: OpenAiApi,
+  model: string,
+  input: string,
+  instructions: string = ""
+): OpenAiResponse =
+  ## Create a simple text response using the Responses API.
+  let req = CreateResponseReq()
+  req.model = model
+  req.input = option(@[
+    ResponseInput(
+      `type`: "message",
+      role: option("user"),
+      content: option(@[ResponseInputContent(
+        `type`: "input_text",
+        text: option(input)
+      )])
+    )
+  ])
+  if instructions != "":
+    req.instructions = option(instructions)
+  result = api.createResponse(req)
+
+# proc streamResponse*(
+#   api: OpenAiApi,
+#   req: CreateResponseReq
+# ): OpenAIResponseStream =
+#   ## Stream a response using the Responses API.
+#   var mutableReq = req
+#   mutableReq.stream = option(true)
+#   let reqBody = toJson(mutableReq)
+#   result = OpenAIResponseStream(stream: postStream(api, "/responses", reqBody))
+
+# proc nextResponseChunk*(s: OpenAIResponseStream): Option[JsonNode] =
+#   ## Get the next chunk from a streaming response.
+#   ## Returns the parsed JSON chunk or none when stream ends.
+
+#   template returnIfChunk() =
+#     var newLineIndex = s.buffer.find("\n")
+#     if newLineIndex != -1:
+#       var line = s.buffer[0..newLineIndex]
+#       s.buffer = s.buffer[newLineIndex+1 .. ^1]
+
+#       if line.startsWith("data: "):
+#         line.removePrefix("data: ")
+#         if line.strip() != "[DONE]":
+#           try:
+#             return option(parseJson(line))
+#           except:
+#             discard # Skip invalid JSON
+
+#   # return any existing objects in the buffer
+#   returnIfChunk()
+
+#   # read in from the socket until s.buffer has a newline
+#   while not s.buffer.contains("\n"):
+#     try:
+#       var chunk: string
+#       let bytesRead = s.stream.read(chunk)
+#       s.buffer &= chunk
+#       if bytesRead == 0:
+#         s.stream.close()
+#         return none(JsonNode)
+#     except:
+#       s.stream.close()
+
+#   # handle the fresh read in line
+#   returnIfChunk()
 
 proc listFiles*(api: OpenAiApi): OpenAIListFiles =
   ## List all the files.
