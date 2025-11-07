@@ -53,6 +53,16 @@ type
     `object`*: string
     deleted*: bool
 
+  EmbeddingTask* = enum
+    RetrievalQuery
+    RetrievalDocument
+    QuestionAnswering
+    FactVerification
+    Classification
+    Clustering
+    SemanticSimilarity
+    CodeRetrieval
+
   CreateEmbeddingReq* = ref object
     input*: string           # | seq[string] | seq[int] | seq[seq[int]]
     model*: string
@@ -708,6 +718,48 @@ proc generateEmbeddings*(
   let reqBody = toJson(req)
   let resp = post(api, "/embeddings", reqBody)
   result = fromJson(resp.body, CreateEmbeddingResp)
+
+proc getTaskPrompt(task: EmbeddingTask, title: string = "none"): string =
+  ## Get the prompt template for a specific embedding task.
+  case task:
+  of RetrievalQuery:
+    "task: search result | query: "
+  of RetrievalDocument:
+    &"title: {title} | text: "
+  of QuestionAnswering:
+    "task: question answering | query: "
+  of FactVerification:
+    "task: fact checking | query: "
+  of Classification:
+    "task: classification | query: "
+  of Clustering:
+    "task: clustering | query: "
+  of SemanticSimilarity:
+    "task: sentence similarity | query: "
+  of CodeRetrieval:
+    "task: code retrieval | query: "
+
+proc generateEmbeddingWithTask*(
+  api: OpenAiApi,
+  model: string,
+  input: string,
+  task: EmbeddingTask,
+  title: string = "none",
+  dimensions: Option[int] = none(int),
+  user: string = ""
+): CreateEmbeddingResp =
+  ## Generate embeddings with task-specific prompts optimized for EmbeddingGemma.
+  ## Supports any model with 'embeddinggemma' in the name (case-insensitive).
+  if not model.toLowerAscii().contains("embeddinggemma"):
+    raise newException(
+      OpenAiError,
+      &"Model '{model}' is not supported. Only models with 'embeddinggemma' in the name are supported for task-specific embeddings."
+    )
+
+  let prompt = getTaskPrompt(task, title)
+  let promptedInput = prompt & sanitizeText(input)
+
+  result = api.generateEmbeddings(model, promptedInput, dimensions, user)
 
 proc createChatCompletion*(
   api: OpenAiApi,
