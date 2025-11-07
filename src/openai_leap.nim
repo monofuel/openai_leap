@@ -748,18 +748,26 @@ proc generateEmbeddingWithTask*(
   dimensions: Option[int] = none(int),
   user: string = ""
 ): CreateEmbeddingResp =
-  ## Generate embeddings with task-specific prompts optimized for EmbeddingGemma.
-  ## Supports any model with 'embeddinggemma' in the name (case-insensitive).
-  if not model.toLowerAscii().contains("embeddinggemma"):
-    raise newException(
-      OpenAiError,
-      &"Model '{model}' is not supported. Only models with 'embeddinggemma' in the name are supported for task-specific embeddings."
-    )
+  ## Generate embeddings with optional task-specific prompts.
+  ## - EmbeddingGemma models: Support all task types with custom prompts
+  ## - Other models: Only support SemanticSimilarity (no special prompts)
 
-  let prompt = getTaskPrompt(task, title)
-  let promptedInput = prompt & sanitizeText(input)
+  let isEmbeddingGemma = model.toLowerAscii().contains("embeddinggemma")
 
-  result = api.generateEmbeddings(model, promptedInput, dimensions, user)
+  if isEmbeddingGemma:
+    # EmbeddingGemma supports all task types with custom prompts
+    let prompt = getTaskPrompt(task, title)
+    let promptedInput = prompt & sanitizeText(input)
+    result = api.generateEmbeddings(model, promptedInput, dimensions, user)
+  else:
+    # Non-EmbeddingGemma models only support SemanticSimilarity (no task prompts)
+    if task != SemanticSimilarity:
+      raise newException(
+        OpenAiError,
+        &"Model '{model}' only supports SemanticSimilarity task. Use an EmbeddingGemma model for other task types."
+      )
+    # Use input as-is for non-EmbeddingGemma models
+    result = api.generateEmbeddings(model, input, dimensions, user)
 
 proc createChatCompletion*(
   api: OpenAiApi,
