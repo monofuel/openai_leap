@@ -354,7 +354,7 @@ type
     reasoning*: Option[JsonNode]
     safety_identifier*: Option[string]
     service_tier*: Option[string]
-    store*: Option[bool]
+    store*: Option[bool] = option(true)
     stream*: Option[bool]
     stream_options*: Option[JsonNode]
     temperature*: Option[float32]
@@ -956,51 +956,76 @@ proc createResponse*(
     req.instructions = option(instructions)
   result = api.createResponse(req)
 
-# proc streamResponse*(
-#   api: OpenAiApi,
-#   req: CreateResponseReq
-# ): OpenAIResponseStream =
-#   ## Stream a response using the Responses API.
-#   var mutableReq = req
-#   mutableReq.stream = option(true)
-#   let reqBody = toJson(mutableReq)
-#   result = OpenAIResponseStream(stream: postStream(api, "/responses", reqBody))
+proc streamResponse*(
+  api: OpenAiApi,
+  req: CreateResponseReq
+): OpenAIResponseStream =
+  ## Stream a response using the Responses API.
+  var mutableReq = req
+  mutableReq.stream = option(true)
+  let reqBody = toJson(mutableReq)
+  let stream = postStream(api, "/responses", reqBody)
+  result = OpenAIResponseStream(stream: stream)
 
-# proc nextResponseChunk*(s: OpenAIResponseStream): Option[JsonNode] =
-#   ## Get the next chunk from a streaming response.
-#   ## Returns the parsed JSON chunk or none when stream ends.
+proc nextResponseChunk*(s: OpenAIResponseStream): Option[JsonNode] =
+  ## Get the next chunk from a streaming response.
+  ## Returns the parsed JSON chunk or none when stream ends.
 
-#   template returnIfChunk() =
-#     var newLineIndex = s.buffer.find("\n")
-#     if newLineIndex != -1:
-#       var line = s.buffer[0..newLineIndex]
-#       s.buffer = s.buffer[newLineIndex+1 .. ^1]
+  template returnIfChunk() =
+    # Find complete SSE message (ends with double newline)
+    var msgEndIndex = s.buffer.find("\n\n")
+    if msgEndIndex != -1:
+      var message = s.buffer[0..msgEndIndex]
+      s.buffer = s.buffer[msgEndIndex+2 .. ^1]
 
-#       if line.startsWith("data: "):
-#         line.removePrefix("data: ")
-#         if line.strip() != "[DONE]":
-#           try:
-#             return option(parseJson(line))
-#           except:
-#             discard # Skip invalid JSON
+      # Parse the SSE message
+      var dataLine = ""
+      for line in message.splitLines():
+        if line.startsWith("data: "):
+          dataLine = line
+          break
 
-#   # return any existing objects in the buffer
-#   returnIfChunk()
+      if dataLine != "":
+        dataLine.removePrefix("data: ")
+        if dataLine.strip() != "[DONE]":
+          try:
+            return option(parseJson(dataLine))
+          except:
+            echo "Failed to parse JSON: " & dataLine
+            discard # Skip invalid JSON
 
-#   # read in from the socket until s.buffer has a newline
-#   while not s.buffer.contains("\n"):
-#     try:
-#       var chunk: string
-#       let bytesRead = s.stream.read(chunk)
-#       s.buffer &= chunk
-#       if bytesRead == 0:
-#         s.stream.close()
-#         return none(JsonNode)
-#     except:
-#       s.stream.close()
+  # return any existing objects in the buffer
+  returnIfChunk()
 
-#   # handle the fresh read in line
-#   returnIfChunk()
+  # Try to read some initial data to see if there's an error response
+  if s.buffer.len == 0:
+    try:
+      var chunk: string
+      let bytesRead = s.stream.read(chunk)
+      if bytesRead == 0:
+        s.stream.close()
+        return none(JsonNode)
+      s.buffer &= chunk
+    except:
+      echo "Exception caught reading initial data from stream"
+      s.stream.close()
+      return none(JsonNode)
+
+  # read in from the socket until s.buffer has a complete SSE message (double newline)
+  while not s.buffer.contains("\n\n"):
+    try:
+      var chunk: string
+      let bytesRead = s.stream.read(chunk)
+      s.buffer &= chunk
+      if bytesRead == 0:
+        s.stream.close()
+        return none(JsonNode)
+    except:
+      s.stream.close()
+      return none(JsonNode)
+
+  # handle the fresh read in line
+  returnIfChunk()
 
 proc listFiles*(api: OpenAiApi): OpenAIListFiles =
   ## List all the files.
