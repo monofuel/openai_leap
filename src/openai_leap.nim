@@ -124,6 +124,27 @@ type
   ToolsTable* = Table[string, (ToolFunction, ToolImpl)]
   ChatCompletionCallback* = proc(req: CreateChatCompletionReq, resp: CreateChatCompletionResp)
 
+  # Responses API specific tool types
+  ResponseTool* = ref object
+    `type`*: string # "function"
+    name*: string
+    description*: Option[string]
+    parameters*: Option[JsonNode] # JSON Schema Object
+
+  ResponseToolCall* = ref object
+    `type`*: string # "function_call"
+    call_id*: string
+    name*: string
+    arguments*: string # JSON string
+
+  ResponseToolCallOutput* = ref object
+    `type`*: string # "function_call_output"
+    call_id*: string
+    output*: string # JSON string
+
+  ResponseToolImpl* = proc (name: string, args: JsonNode): string
+  ResponseToolsTable* = Table[string, ResponseToolImpl]
+
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
     model*: string
@@ -339,7 +360,7 @@ type
     temperature*: Option[float32]
     text*: Option[JsonNode]
     tool_choice*: Option[JsonNode]
-    tools*: Option[seq[Tool]]
+    tools*: Option[seq[ResponseTool]]
     top_logprobs*: Option[int]
     top_p*: Option[float32]
     truncation*: Option[string]
