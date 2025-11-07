@@ -2,6 +2,8 @@
 # similarity, document / query, classification, and more
 import std/[unittest, math], openai_leap
 
+# this test uses a local lm-studio so I'm not running it on CI currently.
+
 const
   BaseUrl = "http://127.0.0.1:1234/v1"  # LM Studio API
 
