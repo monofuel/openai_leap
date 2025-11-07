@@ -200,3 +200,28 @@ suite "responses":
     check retrievedResponse.model.startsWith(TestModel)
     check retrievedResponse.status == "completed"
 
+  test "delete response":
+    # First create a response to delete
+    let createReq = CreateResponseReq()
+    createReq.model = TestModel
+    createReq.store = option(true)  # Ensure response is stored
+    createReq.input = option(@[ResponseInput(
+      `type`: "message",
+      role: option("user"),
+      content: option(@[ResponseInputContent(
+        `type`: "input_text",
+        text: option("Delete me!")
+      )])
+    )])
+
+    let createdResponse = openai.createResponse(createReq)
+    let responseId = createdResponse.id
+
+    # Now delete the response
+    let deleteResult = openai.deleteResponse(responseId)
+
+    # Validate the delete response
+    check deleteResult.id == responseId
+    check deleteResult.`object` == "response.deleted"  # API returns this specific object type
+    check deleteResult.deleted == true
+

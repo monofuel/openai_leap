@@ -48,6 +48,11 @@ type
     `object`*: string
     deleted*: bool
 
+  DeleteResponse* = ref object
+    id*: string
+    `object`*: string
+    deleted*: bool
+
   CreateEmbeddingReq* = ref object
     input*: string           # | seq[string] | seq[int] | seq[seq[int]]
     model*: string
@@ -1003,6 +1008,14 @@ proc getResponse*(api: OpenAiApi, responseId: string): OpenAiResponse =
   ## Get a model response by ID.
   let resp = api.get("/responses/" & responseId)
   result = fromJson(resp.body, OpenAiResponse)
+
+proc deleteResponse*(
+  api: OpenAiApi,
+  responseId: string
+): DeleteResponse =
+  ## Delete a model response by ID.
+  let resp = api.delete("/responses/" & responseId)
+  result = fromJson(resp.body, DeleteResponse)
 
 proc streamGetResponse*(api: OpenAiApi, responseId: string): OpenAIResponseStream =
   ## Stream a model response by ID.
