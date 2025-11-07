@@ -354,7 +354,7 @@ type
     reasoning*: Option[JsonNode]
     safety_identifier*: Option[string]
     service_tier*: Option[string]
-    store*: Option[bool] = option(true)
+    store*: Option[bool] = option(false)
     stream*: Option[bool]
     stream_options*: Option[JsonNode]
     temperature*: Option[float32]
@@ -582,6 +582,49 @@ proc postStream(
     raise newException(
       OpenAiError,
       &"API call {path} failed: {resp.code}\nRequest body: {toJson(body)}"
+    )
+  result = resp
+
+proc getStream(
+  api: OpenAiApi,
+  path: string,
+  queryParams: seq[(string, string)] = @[],
+  opts: Opts = Opts()
+): ResponseStream =
+  ## Make a streaming GET request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+  var timeout = api.curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
+
+  # Build query string
+  var queryString = ""
+  if queryParams.len > 0:
+    queryString = "?"
+    for i, (key, value) in queryParams:
+      if i > 0:
+        queryString &= "&"
+      queryString &= key & "=" & value
+
+  let resp = api.curly.request("GET",
+    api.baseUrl & path & queryString,
+    headers,
+    "",
+    timeout
+  )
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"API call {path} failed: {resp.code}"
     )
   result = resp
 
@@ -955,6 +998,16 @@ proc createResponse*(
   if instructions != "":
     req.instructions = option(instructions)
   result = api.createResponse(req)
+
+proc getResponse*(api: OpenAiApi, responseId: string): OpenAiResponse =
+  ## Get a model response by ID.
+  let resp = api.get("/responses/" & responseId)
+  result = fromJson(resp.body, OpenAiResponse)
+
+proc streamGetResponse*(api: OpenAiApi, responseId: string): OpenAIResponseStream =
+  ## Stream a model response by ID.
+  let queryParams = @[("stream", "true")]
+  result = OpenAIResponseStream(stream: getStream(api, "/responses/" & responseId, queryParams))
 
 proc streamResponse*(
   api: OpenAiApi,

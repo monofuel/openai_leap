@@ -173,3 +173,30 @@ suite "responses":
 
             # If we find tool calls, we could add the function call output
             # to continue the conversation, but for this test we just verify structure
+
+  test "get response":
+    # First create a response to get its ID
+    let createReq = CreateResponseReq()
+    createReq.model = TestModel
+    createReq.store = option(true)
+    createReq.input = option(@[ResponseInput(
+      `type`: "message",
+      role: option("user"),
+      content: option(@[ResponseInputContent(
+        `type`: "input_text",
+        text: option("Hello, world!")
+      )])
+    )])
+
+    let createdResponse = openai.createResponse(createReq)
+    let responseId = createdResponse.id
+
+    # Now retrieve the response by ID
+    let retrievedResponse = openai.getResponse(responseId)
+
+    # Validate the retrieved response
+    check retrievedResponse.id == responseId
+    check retrievedResponse.`object` == "response"
+    check retrievedResponse.model.startsWith(TestModel)
+    check retrievedResponse.status == "completed"
+
