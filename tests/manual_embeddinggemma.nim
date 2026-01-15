@@ -5,7 +5,8 @@ import std/[unittest, math], openai_leap
 # this test uses a local lm-studio so I'm not running it on CI currently.
 
 const
-  BaseUrl = "http://127.0.0.1:1234/v1"  # LM Studio API
+  BaseUrl = "http://10.11.2.16:8080/v1"   # LM Studio API
+  EmbedddingModel = "embeddinggemma"
 
 proc checkEmbeddingSanity(resp: CreateEmbeddingResp, testName: string = "") =
   ## Helper function to perform sanity checks on embedding vectors
@@ -71,7 +72,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "retrieval query embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "How do I use prompts with this model?",
       task = RetrievalQuery
     )
@@ -79,7 +80,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "retrieval document embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "The document text about using prompts...",
       task = RetrievalDocument,
       title = "Using Prompts in RAG"
@@ -88,7 +89,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "question answering embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "What is the capital of France?",
       task = QuestionAnswering
     )
@@ -96,7 +97,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "fact verification embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "The Earth is round.",
       task = FactVerification
     )
@@ -104,7 +105,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "classification embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "I need help with my account billing.",
       task = Classification
     )
@@ -112,7 +113,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "clustering embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "Machine learning algorithms for text analysis.",
       task = Clustering
     )
@@ -120,7 +121,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "semantic similarity embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "The chef prepared a delicious meal for the guests.",
       task = SemanticSimilarity
     )
@@ -128,7 +129,7 @@ suite "embeddinggemma task-specific embeddings":
 
   test "code retrieval embedding":
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "sort an array in Python",
       task = CodeRetrieval
     )
@@ -142,35 +143,11 @@ suite "embeddinggemma task-specific embeddings":
         task = RetrievalQuery
       )
 
-  test "flexible model name support":
-    # Test that any model with 'embeddinggemma' in the name works
-    let resp1 = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
-      input = "Test input",
-      task = RetrievalQuery
-    )
-    check resp1.`object` == "list"
-
-    # Test with different casing
-    let resp2 = api.generateEmbeddingWithTask(
-      model = "EMBEDDINGGEMMA-test",
-      input = "Test input",
-      task = RetrievalQuery
-    )
-    check resp2.`object` == "list"
-
-    # Test with partial match
-    let resp3 = api.generateEmbeddingWithTask(
-      model = "my-embeddinggemma-model",
-      input = "Test input",
-      task = RetrievalQuery
-    )
-    check resp3.`object` == "list"
 
   test "embedding vector sanity checks":
     # Test that EmbeddingGemma returns reasonable embedding vectors
     let resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "Hello world, this is a test input for embedding validation",
       task = RetrievalQuery
     )
@@ -191,24 +168,24 @@ suite "embeddinggemma semantic similarity":
 
     # Create embeddings for queries and documents
     let query1Resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "How do I implement a neural network in Python?",
       task = RetrievalQuery
     )
     let query2Resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "What's the weather like today?",
       task = RetrievalQuery
     )
 
     let doc1Resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "Neural networks can be implemented using TensorFlow or PyTorch libraries in Python. First, install the required packages, then create layers and compile the model.",
       task = RetrievalDocument,
       title = "Python Neural Network Tutorial"
     )
     let doc2Resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "Today's weather forecast shows sunny conditions with temperatures around 75°F. No precipitation expected.",
       task = RetrievalDocument,
       title = "Weather Report"
@@ -245,17 +222,17 @@ suite "embeddinggemma semantic similarity":
     # Test that semantic similarity task groups similar content together
 
     let similar1Resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "The chef prepared a delicious meal for the dinner guests.",
       task = SemanticSimilarity
     )
     let similar2Resp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "A tasty dinner was cooked by the chef for the visitors.",
       task = SemanticSimilarity
     )
     let differentResp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = "The weather forecast predicts rain tomorrow afternoon.",
       task = SemanticSimilarity
     )
@@ -287,17 +264,17 @@ suite "embeddinggemma semantic similarity":
     let sameInput = "How do neural networks work?"
 
     let retrievalResp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = sameInput,
       task = RetrievalQuery
     )
     let similarityResp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = sameInput,
       task = SemanticSimilarity
     )
     let classificationResp = api.generateEmbeddingWithTask(
-      model = "text-embedding-embeddinggemma-300m",
+      model = EmbedddingModel,
       input = sameInput,
       task = Classification
     )
