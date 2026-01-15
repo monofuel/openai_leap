@@ -317,7 +317,15 @@ suite "openai tools":
         model: TestModel,
         messages: @[
           Message(
-            role: "user", 
+            role: "system",
+            content: option(@[
+              MessageContentPart(`type`: "text", text: option(
+                "You are a helpful assistant. When answering questions about weather and activities, you must rely on your tool calls. first get the weather for the location, and then use recommended_activity to get the user's recommended activities for that weather."
+              ))
+            ])
+          ),
+          Message(
+            role: "user",
             content: option(@[
               MessageContentPart(`type`: "text", text: option(
                 "I want to know what Alice should do today. Can you find out where she is, check the weather there, and recommend an activity?"
