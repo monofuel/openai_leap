@@ -29,11 +29,15 @@ proc dumpHook(s: var string, v: object) =
 
 proc newResponseToolsTable*(): ResponseToolsTable =
   ## Create a new empty response tools table
-  result = initTable[string, (ToolFunction, ToolImpl)]()
+  result = ResponseToolsTable(data: initTable[string, (ToolFunction, ToolImpl)]())
 
-proc registerResponseTool*(table: var ResponseToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
+proc register*(table: var ResponseToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
   ## Add a tool to the response tools table
   table[name] = (toolFunc, impl)
+
+proc registerResponseTool*(table: var ResponseToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
+  ## Add a tool to the response tools table (deprecated; use register)
+  table.register(name, toolFunc, impl)
 
 proc createResponse*(
   api: OpenAiApi,

@@ -424,6 +424,111 @@ let toolsRespParsed = parsedCombinedToolsResp.toJson()
 output.add "**Tools Request Match:** " & $(toolsReqOriginal == toolsReqParsed) & "\n"
 output.add "**Tools Response Match:** " & $(toolsRespOriginal == toolsRespParsed) & "\n\n"
 
+# Test Responses API markdown serialization
+output.add "# Test: Responses API Markdown\n\n"
+
+let responseReq = CreateResponseReq(
+  model: "gpt-4o-mini",
+  instructions: option("You are a concise assistant."),
+  temperature: option(0.2f),
+  max_output_tokens: option(120),
+  top_p: option(0.9f),
+  user: option("user-123"),
+  store: option(true),
+  previous_response_id: option("resp_prev_123"),
+  max_tool_calls: option(2),
+  parallel_tool_calls: option(true),
+  tool_choice: option(% "auto"),
+  input: option(@[
+    ResponseInput(
+      `type`: "message",
+      role: option("user"),
+      content: option(@[ResponseInputContent(
+        `type`: "input_text",
+        text: option("Say hello.")
+      )])
+    )
+  ])
+)
+output.add responseReq.toMarkdown() & "\n\n"
+
+let responseOutput = OpenAiResponse(
+  id: "resp_123",
+  `object`: "response",
+  created_at: 1699565400,
+  model: "gpt-4o-mini",
+  status: "completed",
+  previous_response_id: option("resp_prev_123"),
+  output: @[
+    ResponseOutput(
+      `type`: "message",
+      role: option("assistant"),
+      content: option(@[
+        ResponseOutputContent(
+          `type`: "output_text",
+          text: option("Hello there.")
+        )
+      ])
+    ),
+    ResponseOutput(
+      `type`: "message",
+      role: option("assistant"),
+      content: option(@[
+        ResponseOutputContent(
+          `type`: "tool_call",
+          tool_call: option(ResponseOutputToolCall(
+            id: "call_abc",
+            `type`: "function",
+            function: option(ToolFunctionResp(
+              name: "get_weather",
+              arguments: """{"location":"San Francisco"}"""
+            ))
+          ))
+        )
+      ])
+    )
+  ],
+  usage: option(ResponseUsage(
+    input_tokens: 42,
+    output_tokens: 84,
+    total_tokens: 126
+  ))
+)
+output.add responseOutput.toMarkdown() & "\n\n"
+
+# Responses API round-trip parsing
+output.add "## Response Request Round-trip\n\n"
+let responseReqMarkdown = responseReq.toMarkdown()
+let parsedResponseReq = toCreateResponseReq(responseReqMarkdown)
+let responseReqOriginalJson = responseReq.toJson()
+let responseReqParsedJson = parsedResponseReq.toJson()
+output.add "**Original JSON:**\n```json\n" & responseReqOriginalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & responseReqParsedJson & "\n```\n\n"
+output.add "**Match:** " & $(responseReqOriginalJson == responseReqParsedJson) & "\n\n"
+
+output.add "## Response Round-trip\n\n"
+let responseMarkdown = responseOutput.toMarkdown()
+let parsedResponse = toOpenAiResponse(responseMarkdown)
+let responseOriginalJson = responseOutput.toJson()
+let responseParsedJson = parsedResponse.toJson()
+output.add "**Original JSON:**\n```json\n" & responseOriginalJson & "\n```\n\n"
+output.add "**Parsed JSON:**\n```json\n" & responseParsedJson & "\n```\n\n"
+output.add "**Match:** " & $(responseOriginalJson == responseParsedJson) & "\n\n"
+
+output.add "## Combined Response Request+Response Round-trip\n\n"
+let combinedResponseMarkdown = toMarkdown(responseReq, responseOutput)
+let (parsedResponseReqCombined, parsedResponseCombined) = toCreateResponseReqAndResp(combinedResponseMarkdown)
+let responseReqCombinedOriginal = responseReq.toJson()
+let responseReqCombinedParsed = parsedResponseReqCombined.toJson()
+let responseCombinedOriginal = responseOutput.toJson()
+let responseCombinedParsed = parsedResponseCombined.toJson()
+output.add "**Request Original JSON:**\n```json\n" & responseReqCombinedOriginal & "\n```\n\n"
+output.add "**Request Parsed JSON:**\n```json\n" & responseReqCombinedParsed & "\n```\n\n"
+output.add "**Request Match:** " & $(responseReqCombinedOriginal == responseReqCombinedParsed) & "\n\n"
+output.add "**Response Original JSON:**\n```json\n" & responseCombinedOriginal & "\n```\n\n"
+output.add "**Response Parsed JSON:**\n```json\n" & responseCombinedParsed & "\n```\n\n"
+output.add "**Response Match:** " & $(responseCombinedOriginal == responseCombinedParsed) & "\n\n"
+
 # Write out to tests/tmp/test_markdown.txt
 const 
   tmpFile = "tests/tmp/test_markdown.txt"

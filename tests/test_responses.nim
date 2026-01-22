@@ -261,7 +261,7 @@ suite "responses":
     test "createResponseWithTools basic functionality":
       # Setup tools table
       var basicTools = newResponseToolsTable()
-      basicTools.registerResponseTool("add_numbers",
+      basicTools.register("add_numbers",
         ToolFunction(
           name: "add_numbers",
           description: option("Add two numbers together"),
@@ -317,7 +317,7 @@ suite "responses":
 
       # Setup tools table with multiple functions
       var multiTools = newResponseToolsTable()
-      multiTools.registerResponseTool("add_numbers",
+      multiTools.register("add_numbers",
         ToolFunction(
           name: "add_numbers",
           description: option("Add two numbers together"),
@@ -333,7 +333,7 @@ suite "responses":
         addNumbersTool
       )
 
-      multiTools.registerResponseTool("get_weather",
+      multiTools.register("get_weather",
         ToolFunction(
           name: "get_weather",
           description: option("Get weather for a location"),
@@ -397,7 +397,7 @@ suite "responses":
     test "createResponseWithTools unknown tool error handling":
       # Setup tools table with only one tool
       var errorTools = newResponseToolsTable()
-      errorTools.registerResponseTool("multiply_numbers",
+      errorTools.register("multiply_numbers",
         ToolFunction(
           name: "multiply_numbers",
           description: option("Multiply two numbers"),
@@ -439,7 +439,7 @@ suite "responses":
       # Setup tools that work in sequence
       var seqTools = newResponseToolsTable()
 
-      seqTools.registerResponseTool("add_numbers",
+      seqTools.register("add_numbers",
         ToolFunction(
           name: "add_numbers",
           description: option("Add two numbers together"),
@@ -455,7 +455,7 @@ suite "responses":
         addNumbersTool
       )
 
-      seqTools.registerResponseTool("multiply_result",
+      seqTools.register("multiply_result",
         ToolFunction(
           name: "multiply_result",
           description: option("Multiply a number by 2"),
@@ -527,7 +527,7 @@ suite "responses":
     test "createResponseWithTools callback functionality":
       # Setup simple tool
       var callbackTools = newResponseToolsTable()
-      callbackTools.registerResponseTool("add_numbers",
+      callbackTools.register("add_numbers",
         ToolFunction(
           name: "add_numbers",
           description: option("Add two numbers together"),

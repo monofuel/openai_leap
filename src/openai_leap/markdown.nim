@@ -732,3 +732,572 @@ proc toCreateChatCompletionReqAndResp*(markdown: string): (CreateChatCompletionR
   let resp = toCreateChatCompletionResp(responseMarkdown)
 
   return (req, resp)
+
+proc toMarkdown*(req: CreateResponseReq): string =
+  ## Serialize a Responses API request into markdown.
+  result = "# Response Request\n\n"
+
+  # Basic settings
+  result &= "## Request Settings\n\n"
+  result &= &"- **Model**: {req.model}\n"
+
+  if req.instructions.isSome:
+    result &= &"- **Instructions**: {req.instructions.get}\n"
+  if req.temperature.isSome:
+    result &= &"- **Temperature**: {req.temperature.get}\n"
+  if req.max_output_tokens.isSome:
+    result &= &"- **Max Output Tokens**: {req.max_output_tokens.get}\n"
+  if req.top_p.isSome:
+    result &= &"- **Top P**: {req.top_p.get}\n"
+  if req.stream.isSome:
+    result &= &"- **Stream**: {req.stream.get}\n"
+  if req.user.isSome:
+    result &= &"- **User**: {req.user.get}\n"
+  if req.store.isSome:
+    result &= &"- **Store**: {req.store.get}\n"
+  if req.previous_response_id.isSome:
+    result &= &"- **Previous Response ID**: {req.previous_response_id.get}\n"
+  if req.max_tool_calls.isSome:
+    result &= &"- **Max Tool Calls**: {req.max_tool_calls.get}\n"
+  if req.parallel_tool_calls.isSome:
+    result &= &"- **Parallel Tool Calls**: {req.parallel_tool_calls.get}\n"
+  result &= "\n"
+
+  # Inputs
+  if req.input.isSome and req.input.get.len > 0:
+    result &= "## Inputs\n\n"
+    for i, input in req.input.get:
+      result &= &"### Input {i + 1} ({input.`type`})\n\n"
+      result &= &"- **Type**: {input.`type`}\n"
+      if input.role.isSome:
+        result &= &"- **Role**: {input.role.get}\n"
+      if input.call_id.isSome:
+        result &= &"- **Call ID**: {input.call_id.get}\n"
+      if input.output.isSome:
+        result &= "- **Output**:\n\n"
+        result &= "```\n" & input.output.get & "\n```\n\n"
+      if input.content.isSome:
+        result &= "- **Content**:\n\n"
+        for content in input.content.get:
+          case content.`type`
+          of "input_text":
+            if content.text.isSome:
+              result &= "```\n" & content.text.get & "\n```\n\n"
+          of "input_image":
+            if content.image_url.isSome:
+              result &= &"**Image URL**: {content.image_url.get.url}\n"
+              if content.image_url.get.detail.isSome:
+                result &= &"**Detail Level**: {content.image_url.get.detail.get}\n"
+              result &= "\n"
+          else:
+            result &= &"**Unknown content type**: {content.`type`}\n\n"
+      result &= "\n"
+
+  # Tools
+  if req.tools.isSome and req.tools.get.len > 0:
+    result &= "## Available Tools\n\n"
+    for i, tool in req.tools.get:
+      result &= &"### Tool {i + 1}: {tool.name}\n\n"
+      result &= &"- **Type**: {tool.`type`}\n"
+      if tool.description.isSome:
+        result &= &"- **Description**: {tool.description.get}\n"
+      if tool.parameters.isSome:
+        result &= "- **Parameters**:\n```json\n" & $tool.parameters.get & "\n```\n"
+      result &= "\n"
+
+  # Tool choice
+  if req.tool_choice.isSome:
+    result &= "## Tool Choice\n\n"
+    result &= "```json\n" & $req.tool_choice.get & "\n```\n\n"
+
+proc toMarkdown*(resp: OpenAiResponse): string =
+  ## Serialize a Responses API response into markdown.
+  result = "# Response\n\n"
+
+  # Basic metadata
+  result &= "## Response Details\n\n"
+  result &= &"- **ID**: {resp.id}\n"
+  result &= &"- **Model**: {resp.model}\n"
+  result &= &"- **Created**: {resp.created_at}\n"
+  result &= &"- **Status**: {resp.status}\n"
+  result &= &"- **Object**: {resp.`object`}\n"
+  if resp.previous_response_id.isSome:
+    result &= &"- **Previous Response ID**: {resp.previous_response_id.get}\n"
+  result &= "\n"
+
+  # Outputs
+  result &= "## Outputs\n\n"
+  for i, output in resp.output:
+    result &= &"### Output {i + 1} ({output.`type`})\n\n"
+    result &= &"- **Type**: {output.`type`}\n"
+    if output.role.isSome:
+      result &= &"- **Role**: {output.role.get}\n"
+    if output.status.isSome:
+      result &= &"- **Status**: {output.status.get}\n"
+    if output.call_id.isSome:
+      result &= &"- **Call ID**: {output.call_id.get}\n"
+    if output.name.isSome:
+      result &= &"- **Name**: {output.name.get}\n"
+    if output.arguments.isSome:
+      result &= &"- **Arguments**: `{output.arguments.get}`\n"
+
+    if output.content.isSome:
+      result &= "- **Content**:\n\n"
+      for content in output.content.get:
+        case content.`type`
+        of "output_text":
+          if content.text.isSome:
+            result &= "```\n" & content.text.get & "\n```\n\n"
+        of "tool_call":
+          if content.tool_call.isSome:
+            let toolCall = content.tool_call.get
+            result &= "**Tool Call**:\n"
+            result &= &"- **ID**: {toolCall.id}\n"
+            result &= &"- **Type**: {toolCall.`type`}\n"
+            if toolCall.function.isSome:
+              let functionInfo = toolCall.function.get
+              result &= &"- **Function**: {functionInfo.name}\n"
+              result &= &"- **Arguments**: `{functionInfo.arguments}`\n"
+            result &= "\n"
+        else:
+          result &= &"**Unknown content type**: {content.`type`}\n\n"
+    result &= "\n"
+
+  # Usage statistics
+  if resp.usage.isSome:
+    result &= "## Usage Statistics\n\n"
+    result &= &"- **Input Tokens**: {resp.usage.get.input_tokens}\n"
+    result &= &"- **Output Tokens**: {resp.usage.get.output_tokens}\n"
+    result &= &"- **Total Tokens**: {resp.usage.get.total_tokens}\n"
+
+proc toMarkdown*(req: CreateResponseReq, resp: OpenAiResponse): string =
+  ## Serialize both a Responses API request and response into markdown.
+  result = "# Response Exchange\n\n"
+
+  # Add request section
+  result &= "## Request\n\n"
+  let reqMarkdown = req.toMarkdown()
+  var reqLines = reqMarkdown.splitLines()
+  if reqLines.len > 0 and reqLines[0].startsWith("# "):
+    reqLines = reqLines[1..^1]
+    if reqLines.len > 0 and reqLines[0].strip() == "":
+      reqLines = reqLines[1..^1]
+  result &= reqLines.join("\n")
+
+  result &= "\n\n---\n\n"
+
+  # Add response section
+  result &= "## Response\n\n"
+  let respMarkdown = resp.toMarkdown()
+  var respLines = respMarkdown.splitLines()
+  if respLines.len > 0 and respLines[0].startsWith("# "):
+    respLines = respLines[1..^1]
+    if respLines.len > 0 and respLines[0].strip() == "":
+      respLines = respLines[1..^1]
+  result &= respLines.join("\n")
+
+proc toCreateResponseReq*(markdown: string): CreateResponseReq =
+  ## Deserialize a Responses API request from markdown.
+  result = CreateResponseReq()
+
+  let lines = markdown.splitLines()
+  var i = 0
+
+  proc findNextSection(startIdx: int, sectionName: string): int =
+    for j in startIdx..<lines.len:
+      if lines[j].startsWith("## " & sectionName):
+        return j
+    return -1
+
+  proc extractValue(line: string, key: string): string =
+    let prefix = "- **" & key & "**: "
+    if line.startsWith(prefix):
+      return line[prefix.len..^1]
+    return ""
+
+  proc extractFloat(line: string, key: string): float32 =
+    let val = extractValue(line, key)
+    if val != "":
+      try:
+        return parseFloat(val).float32
+      except:
+        return 0.0f
+    return 0.0f
+
+  proc extractInt(line: string, key: string): int =
+    let val = extractValue(line, key)
+    if val != "":
+      try:
+        return parseInt(val)
+      except:
+        return 0
+    return 0
+
+  proc extractBool(line: string, key: string): bool =
+    let val = extractValue(line, key)
+    return val == "true"
+
+  # Parse Request Settings section
+  let settingsIdx = findNextSection(0, "Request Settings")
+  if settingsIdx >= 0:
+    i = settingsIdx + 1
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      if line.startsWith("- **"):
+        let model = extractValue(line, "Model")
+        if model != "": result.model = model
+
+        let instructions = extractValue(line, "Instructions")
+        if instructions != "": result.instructions = option(instructions)
+
+        let temperature = extractFloat(line, "Temperature")
+        if temperature != 0.0f: result.temperature = option(temperature)
+
+        let maxOutput = extractInt(line, "Max Output Tokens")
+        if maxOutput > 0: result.max_output_tokens = option(maxOutput)
+
+        let topP = extractFloat(line, "Top P")
+        if topP != 0.0f: result.top_p = option(topP)
+
+        if extractValue(line, "Stream") != "":
+          result.stream = option(extractBool(line, "Stream"))
+
+        let user = extractValue(line, "User")
+        if user != "": result.user = option(user)
+
+        if extractValue(line, "Store") != "":
+          result.store = option(extractBool(line, "Store"))
+
+        let previousResponseId = extractValue(line, "Previous Response ID")
+        if previousResponseId != "":
+          result.previous_response_id = option(previousResponseId)
+
+        let maxToolCalls = extractInt(line, "Max Tool Calls")
+        if maxToolCalls > 0: result.max_tool_calls = option(maxToolCalls)
+
+        if extractValue(line, "Parallel Tool Calls") != "":
+          result.parallel_tool_calls = option(extractBool(line, "Parallel Tool Calls"))
+
+      inc i
+
+  # Parse Inputs section
+  var inputs: seq[ResponseInput] = @[]
+  let inputsIdx = findNextSection(0, "Inputs")
+  if inputsIdx >= 0:
+    i = inputsIdx + 1
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+
+      if line.startsWith("### Input "):
+        var input = ResponseInput()
+        var contents: seq[ResponseInputContent] = @[]
+        var inTextBlock = false
+        var inOutputBlock = false
+        var textBuffer = ""
+        var outputBuffer = ""
+
+        inc i
+        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+          let inputLine = lines[i].strip()
+
+          if inTextBlock:
+            if inputLine == "```":
+              inTextBlock = false
+              contents.add(ResponseInputContent(`type`: "input_text", text: option(textBuffer)))
+              textBuffer = ""
+            else:
+              if textBuffer != "": textBuffer &= "\n"
+              textBuffer &= lines[i]
+          elif inOutputBlock:
+            if inputLine == "```":
+              inOutputBlock = false
+              input.output = option(outputBuffer)
+              outputBuffer = ""
+            else:
+              if outputBuffer != "": outputBuffer &= "\n"
+              outputBuffer &= lines[i]
+          elif inputLine.startsWith("- **Type**: "):
+            input.`type` = extractValue(inputLine, "Type")
+          elif inputLine.startsWith("- **Role**: "):
+            let role = extractValue(inputLine, "Role")
+            if role != "": input.role = option(role)
+          elif inputLine.startsWith("- **Call ID**: "):
+            let callId = extractValue(inputLine, "Call ID")
+            if callId != "": input.call_id = option(callId)
+          elif inputLine.startsWith("- **Output**:"):
+            inc i
+            while i < lines.len and lines[i].strip() == "":
+              inc i
+            if i < lines.len and lines[i].strip() == "```":
+              inOutputBlock = true
+              outputBuffer = ""
+            else:
+              dec i
+          elif inputLine.startsWith("- **Content**:"):
+            inc i
+            while i < lines.len and lines[i].strip() == "":
+              inc i
+            if i < lines.len and lines[i].strip() == "```":
+              inTextBlock = true
+              textBuffer = ""
+            else:
+              dec i
+          elif inputLine.startsWith("**Image URL**: "):
+            let url = inputLine["**Image URL**: ".len..^1]
+            var img = ResponseInputImage(url: url)
+            let detailLineIdx = i + 1
+            if detailLineIdx < lines.len and lines[detailLineIdx].strip().startsWith("**Detail Level**: "):
+              let detail = lines[detailLineIdx].strip()["**Detail Level**: ".len..^1]
+              img.detail = option(detail)
+              inc i
+            contents.add(ResponseInputContent(`type`: "input_image", image_url: option(img)))
+
+          inc i
+
+        if contents.len > 0:
+          input.content = option(contents)
+        inputs.add(input)
+        dec i
+
+      inc i
+
+  if inputs.len > 0:
+    result.input = option(inputs)
+
+  # Parse Tool Choice section
+  let toolChoiceIdx = findNextSection(0, "Tool Choice")
+  if toolChoiceIdx >= 0:
+    i = toolChoiceIdx + 1
+    var inJsonBlock = false
+    var jsonStr = ""
+
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      if inJsonBlock:
+        if line == "```":
+          inJsonBlock = false
+          try:
+            result.tool_choice = option(parseJson(jsonStr))
+          except:
+            discard
+          jsonStr = ""
+        else:
+          jsonStr &= lines[i] & "\n"
+      elif line == "```json":
+        inJsonBlock = true
+        jsonStr = ""
+      inc i
+
+proc toOpenAiResponse*(markdown: string): OpenAiResponse =
+  ## Deserialize a Responses API response from markdown.
+  result = OpenAiResponse()
+  result.output = @[]
+
+  let lines = markdown.splitLines()
+  var i = 0
+
+  proc findNextSection(startIdx: int, sectionName: string): int =
+    for j in startIdx..<lines.len:
+      if lines[j].startsWith("## " & sectionName):
+        return j
+    return -1
+
+  proc extractValue(line: string, key: string): string =
+    let prefix = "- **" & key & "**: "
+    if line.startsWith(prefix):
+      return line[prefix.len..^1]
+    return ""
+
+  proc extractInt(line: string, key: string): int =
+    let val = extractValue(line, key)
+    if val != "":
+      try:
+        return parseInt(val)
+      except:
+        return 0
+    return 0
+
+  # Parse Response Details section
+  let detailsIdx = findNextSection(0, "Response Details")
+  if detailsIdx >= 0:
+    i = detailsIdx + 1
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      if line.startsWith("- **"):
+        let id = extractValue(line, "ID")
+        if id != "": result.id = id
+
+        let model = extractValue(line, "Model")
+        if model != "": result.model = model
+
+        let created = extractInt(line, "Created")
+        if created > 0: result.created_at = created
+
+        let status = extractValue(line, "Status")
+        if status != "": result.status = status
+
+        let obj = extractValue(line, "Object")
+        if obj != "": result.`object` = obj
+
+        let previousResponseId = extractValue(line, "Previous Response ID")
+        if previousResponseId != "": result.previous_response_id = option(previousResponseId)
+
+      inc i
+
+  # Parse Outputs section
+  let outputsIdx = findNextSection(0, "Outputs")
+  if outputsIdx >= 0:
+    i = outputsIdx + 1
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+
+      if line.startsWith("### Output "):
+        var output = ResponseOutput()
+        if line.contains("(") and line.endsWith(")"):
+          let startIdx = line.find("(")
+          output.`type` = line[startIdx + 1..^2]
+
+        var contents: seq[ResponseOutputContent] = @[]
+        var inTextBlock = false
+        var textBuffer = ""
+        var inToolCall = false
+        var toolCallId = ""
+        var toolCallType = ""
+        var toolCallFuncName = ""
+        var toolCallFuncArgs = ""
+
+        inc i
+        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+          let outputLine = lines[i].strip()
+
+          if inTextBlock:
+            if outputLine == "```":
+              inTextBlock = false
+              contents.add(ResponseOutputContent(`type`: "output_text", text: option(textBuffer)))
+              textBuffer = ""
+            else:
+              if textBuffer != "": textBuffer &= "\n"
+              textBuffer &= lines[i]
+          elif outputLine.startsWith("- **Type**: "):
+            output.`type` = extractValue(outputLine, "Type")
+          elif outputLine.startsWith("- **Role**: "):
+            let role = extractValue(outputLine, "Role")
+            if role != "": output.role = option(role)
+          elif outputLine.startsWith("- **Status**: "):
+            let status = extractValue(outputLine, "Status")
+            if status != "": output.status = option(status)
+          elif outputLine.startsWith("- **Call ID**: "):
+            let callId = extractValue(outputLine, "Call ID")
+            if callId != "": output.call_id = option(callId)
+          elif outputLine.startsWith("- **Name**: "):
+            let name = extractValue(outputLine, "Name")
+            if name != "": output.name = option(name)
+          elif outputLine.startsWith("- **Arguments**: "):
+            let args = extractValue(outputLine, "Arguments").strip(chars = {'`'})
+            if args != "": output.arguments = option(args)
+          elif outputLine.startsWith("- **Content**:"):
+            inc i
+            while i < lines.len and lines[i].strip() == "":
+              inc i
+            if i < lines.len and lines[i].strip() == "```":
+              inTextBlock = true
+              textBuffer = ""
+            else:
+              dec i
+          elif outputLine.startsWith("**Tool Call**:"):
+            inToolCall = true
+            toolCallId = ""
+            toolCallType = ""
+            toolCallFuncName = ""
+            toolCallFuncArgs = ""
+          elif inToolCall and outputLine.startsWith("- **ID**: "):
+            toolCallId = extractValue(outputLine, "ID")
+          elif inToolCall and outputLine.startsWith("- **Type**: "):
+            toolCallType = extractValue(outputLine, "Type")
+          elif inToolCall and outputLine.startsWith("- **Function**: "):
+            toolCallFuncName = extractValue(outputLine, "Function")
+          elif inToolCall and outputLine.startsWith("- **Arguments**: "):
+            toolCallFuncArgs = extractValue(outputLine, "Arguments").strip(chars = {'`'})
+          elif inToolCall and outputLine == "":
+            var toolCall = ResponseOutputToolCall(id: toolCallId, `type`: toolCallType)
+            if toolCallFuncName != "":
+              var functionInfo = ToolFunctionResp()
+              functionInfo.name = toolCallFuncName
+              functionInfo.arguments = toolCallFuncArgs
+              toolCall.function = option(functionInfo)
+            contents.add(ResponseOutputContent(`type`: "tool_call", tool_call: option(toolCall)))
+            inToolCall = false
+
+          inc i
+
+        if inToolCall:
+          var toolCall = ResponseOutputToolCall(id: toolCallId, `type`: toolCallType)
+          if toolCallFuncName != "":
+            var functionInfo = ToolFunctionResp()
+            functionInfo.name = toolCallFuncName
+            functionInfo.arguments = toolCallFuncArgs
+            toolCall.function = option(functionInfo)
+          contents.add(ResponseOutputContent(`type`: "tool_call", tool_call: option(toolCall)))
+
+        if contents.len > 0:
+          output.content = option(contents)
+        result.output.add(output)
+        dec i
+
+      inc i
+
+  # Parse Usage Statistics section
+  let usageIdx = findNextSection(0, "Usage Statistics")
+  if usageIdx >= 0:
+    i = usageIdx + 1
+    result.usage = option(ResponseUsage())
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+      if line.startsWith("- **"):
+        let inputTokens = extractInt(line, "Input Tokens")
+        if inputTokens > 0: result.usage.get.input_tokens = inputTokens
+
+        let outputTokens = extractInt(line, "Output Tokens")
+        if outputTokens > 0: result.usage.get.output_tokens = outputTokens
+
+        let totalTokens = extractInt(line, "Total Tokens")
+        if totalTokens > 0: result.usage.get.total_tokens = totalTokens
+
+      inc i
+
+proc toCreateResponseReqAndResp*(markdown: string): (CreateResponseReq, OpenAiResponse) =
+  ## Deserialize a Responses API request and response from markdown.
+  let lines = markdown.splitLines()
+
+  var requestStartIdx = -1
+  var responseStartIdx = -1
+
+  for i, line in lines:
+    if line.strip() == "## Request":
+      requestStartIdx = i
+    elif line.strip() == "## Response":
+      responseStartIdx = i
+
+  if requestStartIdx == -1 or responseStartIdx == -1:
+    return (CreateResponseReq(), OpenAiResponse())
+
+  var requestLines: seq[string] = @[]
+  var i = requestStartIdx + 1
+  while i < responseStartIdx and i < lines.len:
+    if lines[i].strip() != "---":
+      requestLines.add(lines[i])
+    inc i
+
+  var responseLines: seq[string] = @[]
+  i = responseStartIdx + 1
+  while i < lines.len:
+    responseLines.add(lines[i])
+    inc i
+
+  let requestMarkdown = "# Response Request\n\n" & requestLines.join("\n")
+  let responseMarkdown = "# Response\n\n" & responseLines.join("\n")
+
+  let req = toCreateResponseReq(requestMarkdown)
+  let resp = toOpenAiResponse(responseMarkdown)
+
+  return (req, resp)

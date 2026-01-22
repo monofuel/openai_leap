@@ -155,7 +155,9 @@ type
     call_id*: string
     output*: string # JSON string
 
-  ResponseToolsTable* = Table[string, (ToolFunction, ToolImpl)]
+  # using an object so that the types are sparate from ToolsTable.
+  ResponseToolsTable* = object
+    data*: Table[string, (ToolFunction, ToolImpl)]
 
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
@@ -393,6 +395,26 @@ type
   OpenAIResponseStream* = ref object
     stream*: ResponseStream
     buffer*: string
+
+proc len*(table: ResponseToolsTable): int =
+  table.data.len
+
+iterator pairs*(table: ResponseToolsTable): (string, (ToolFunction, ToolImpl)) =
+  for pair in table.data.pairs:
+    yield pair
+
+iterator keys*(table: ResponseToolsTable): string =
+  for key in table.data.keys:
+    yield key
+
+proc hasKey*(table: ResponseToolsTable, key: string): bool =
+  table.data.hasKey(key)
+
+proc `[]`*(table: ResponseToolsTable, key: string): (ToolFunction, ToolImpl) =
+  table.data[key]
+
+proc `[]=`*(table: var ResponseToolsTable, key: string, value: (ToolFunction, ToolImpl)) =
+  table.data[key] = value
 
 template sync*(a: Lock, body: untyped) =
   acquire(a)
