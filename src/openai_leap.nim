@@ -4,9 +4,11 @@ import curly, webby
 import jsony
 import openai_leap/common
 import openai_leap/responses
+import openai_leap/embeddings
 
 export common
 export responses
+export embeddings
 
 ## OpenAI Api Reference: https://platform.openai.com/docs/api-reference/introduction
 ## 
@@ -84,74 +86,6 @@ proc deleteModel*(api: OpenAiApi, modelId: string): DeleteModelResponse =
   ## Delete a specific model.
   let resp = api.delete("/models/" & modelId)
   result = fromJson(resp.body, DeleteModelResponse)
-
-proc generateEmbeddings*(
-  api: OpenAiApi,
-  model: string,
-  input: string,
-  dimensions: Option[int] = none(int),
-  user: string = ""
-): CreateEmbeddingResp =
-  ## Generate embeddings for a list of documents.
-  let req = CreateEmbeddingReq()
-  req.input = sanitizeText(input)
-  req.model = model
-  req.dimensions = dimensions
-  if user != "":
-    req.user = option(sanitizeText(user))
-  let reqBody = toJson(req)
-  let resp = post(api, "/embeddings", reqBody)
-  result = fromJson(resp.body, CreateEmbeddingResp)
-
-proc getTaskPrompt(task: EmbeddingTask, title: string = "none"): string =
-  ## Get the prompt template for a specific embedding task.
-  case task:
-  of RetrievalQuery:
-    "task: search result | query: "
-  of RetrievalDocument:
-    &"title: {title} | text: "
-  of QuestionAnswering:
-    "task: question answering | query: "
-  of FactVerification:
-    "task: fact checking | query: "
-  of Classification:
-    "task: classification | query: "
-  of Clustering:
-    "task: clustering | query: "
-  of SemanticSimilarity:
-    "task: sentence similarity | query: "
-  of CodeRetrieval:
-    "task: code retrieval | query: "
-
-proc generateEmbeddingWithTask*(
-  api: OpenAiApi,
-  model: string,
-  input: string,
-  task: EmbeddingTask,
-  title: string = "none",
-  dimensions: Option[int] = none(int),
-  user: string = ""
-): CreateEmbeddingResp =
-  ## Generate embeddings with optional task-specific prompts.
-  ## - EmbeddingGemma models: Support all task types with custom prompts
-  ## - Other models: Only support SemanticSimilarity (no special prompts)
-
-  let isEmbeddingGemma = model.toLowerAscii().contains("embeddinggemma")
-
-  if isEmbeddingGemma:
-    # EmbeddingGemma supports all task types with custom prompts
-    let prompt = getTaskPrompt(task, title)
-    let promptedInput = prompt & sanitizeText(input)
-    result = api.generateEmbeddings(model, promptedInput, dimensions, user)
-  else:
-    # Non-EmbeddingGemma models only support SemanticSimilarity (no task prompts)
-    if task != SemanticSimilarity:
-      raise newException(
-        OpenAiError,
-        &"Model '{model}' only supports SemanticSimilarity task. Use an EmbeddingGemma model for other task types."
-      )
-    # Use input as-is for non-EmbeddingGemma models
-    result = api.generateEmbeddings(model, input, dimensions, user)
 
 proc createChatCompletion*(
   api: OpenAiApi,
