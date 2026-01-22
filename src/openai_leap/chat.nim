@@ -1,7 +1,7 @@
 import
-  std/[json, options, strformat, strutils, tables]
-import curly, jsony, webby
-import openai_leap/common
+  std/[json, options, strformat, strutils, tables],
+  curly, jsony, webby,
+  openai_leap/common
 
 proc dumpHook(s: var string, v: object) =
   ## Jsony skip optional fields that are nil.

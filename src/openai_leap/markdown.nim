@@ -1,6 +1,6 @@
 import
-  std/[json, options, strformat, strutils, tables]
-import openai_leap/common
+  std/[json, options, strformat, strutils, tables],
+  openai_leap/common
 
 proc toMarkdown*(req: CreateChatCompletionReq): string =
   ## Serialize a create chat completion request into markdown.

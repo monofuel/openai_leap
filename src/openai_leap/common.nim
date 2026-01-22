@@ -1,7 +1,7 @@
 import
-  std/[json, locks, options, os, strformat, tables]
-import curly
-import jsony
+  std/[json, locks, options, os, strformat, tables],
+  curly,
+  jsony
 
 # Important: the OpenAI API uses snake_case. request objects must be snake_case this or the fields will be ignored by the API.
 # jsony is flexible in parsing the responses in either camelCase or snake_case but better to use snake_case for consistency.

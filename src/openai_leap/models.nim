@@ -1,5 +1,6 @@
-import jsony
-import openai_leap/common
+import
+  jsony,
+  openai_leap/common
 
 proc listModels*(api: OpenAiApi): seq[OpenAiModel] =
   ## List available models.

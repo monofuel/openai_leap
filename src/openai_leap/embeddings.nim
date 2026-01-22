@@ -1,7 +1,7 @@
 import
-  std/[options, strformat, strutils]
-import jsony
-import openai_leap/common
+  std/[options, strformat, strutils],
+  jsony,
+  openai_leap/common
 
 proc dumpHook(s: var string, v: object) =
   ## Jsony skip optional fields that are nil.
