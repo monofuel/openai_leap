@@ -157,8 +157,7 @@ type
     call_id*: string
     output*: string # JSON string
 
-  ResponseToolImpl* = proc (name: string, args: JsonNode): string
-  ResponseToolsTable* = Table[string, ResponseToolImpl]
+  ResponseToolsTable* = Table[string, (ToolFunction, ToolImpl)]
 
   CreateChatCompletionReq* = ref object
     messages*: seq[Message]
@@ -292,9 +291,11 @@ type
     image_url*: Option[ResponseInputImage]
 
   ResponseInput* = ref object
-    `type`*: string # message, image_url, file
+    `type`*: string # message, image_url, file, function_call_output
     role*: Option[string] # user, assistant, system, developer (for message type)
     content*: Option[seq[ResponseInputContent]] # for message type
+    call_id*: Option[string] # for function_call_output
+    output*: Option[string] # for function_call_output
 
   ResponseOutputText* = ref object
     text*: string
@@ -308,13 +309,19 @@ type
     function*: Option[ToolFunctionResp] # for custom functions
 
   ResponseOutputContent* = ref object
-    `type`*: string # text, tool_call, etc.
+    `type`*: string # output_text, tool_call, etc.
     text*: Option[string]
     tool_call*: Option[ResponseOutputToolCall]
 
   ResponseOutput* = ref object
-    role*: string
-    content*: seq[ResponseOutputContent]
+    id*: string
+    `type`*: string # message, function_call, etc.
+    status*: Option[string]
+    role*: Option[string]
+    content*: Option[seq[ResponseOutputContent]]
+    call_id*: Option[string]
+    name*: Option[string]
+    arguments*: Option[string]
 
   ResponseUsage* = ref object
     input_tokens*: int
@@ -352,6 +359,8 @@ type
     truncation*: Option[string]
     usage*: Option[ResponseUsage]
     user*: Option[string]
+
+  ResponseCallback* = proc(req: CreateResponseReq, resp: OpenAiResponse)
 
   CreateResponseReq* = ref object
     input*: Option[seq[ResponseInput]] # or string
@@ -489,6 +498,14 @@ proc newToolsTable*(): ToolsTable =
 
 proc register*(table: var ToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
   ## Add a tool to the tools table
+  table[name] = (toolFunc, impl)
+
+proc newResponseToolsTable*(): ResponseToolsTable =
+  ## Create a new empty response tools table
+  result = initTable[string, (ToolFunction, ToolImpl)]()
+
+proc registerResponseTool*(table: var ResponseToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
+  ## Add a tool to the response tools table
   table[name] = (toolFunc, impl)
 
 proc updateApiKey*(api: OpenAiApi, apiKey: string) =
@@ -774,7 +791,8 @@ proc createChatCompletion*(
   req: CreateChatCompletionReq
 ): CreateChatCompletionResp =
   ## Create a chat completion without tool calling.
-  var mutableReq = req
+  # Create a deep copy to avoid mutating the input
+  var mutableReq = fromJson(toJson(req), CreateChatCompletionReq)
   mutableReq.stream = option(false)
   sanitizeChatReq(mutableReq)
   
@@ -790,9 +808,9 @@ proc createChatCompletionWithTools*(
 ): CreateChatCompletionResp =
   ## Create a chat completion with tool calling.
   ## The callback is called after each response, allowing the caller to observe the conversation flow.
-  
-  # Work with a copy to avoid mutating the input
-  var workingReq = req
+
+  # Create a deep copy to avoid mutating the input
+  var workingReq = fromJson(toJson(req), CreateChatCompletionReq)
   workingReq.stream = option(false)
   sanitizeChatReq(workingReq)
 
@@ -924,7 +942,8 @@ proc createChatCompletion*(
       ])
     )
   ]
-  var mutableReq = req
+  # Create a deep copy to avoid mutating the request
+  var mutableReq = fromJson(toJson(req), CreateChatCompletionReq)
   sanitizeChatReq(mutableReq)
   let resp = api.createChatCompletion(mutableReq)
   result = resp.choices[0].message.get.content
@@ -1035,7 +1054,8 @@ proc createResponse*(
   ## Create a model response using the new Responses API.
   ## This is OpenAI's newer, more advanced API that supports multiple input types,
   ## built-in tools, and more sophisticated reasoning.
-  var mutableReq = req
+  # Create a deep copy to avoid mutating the input
+  let mutableReq = fromJson(toJson(req), CreateResponseReq)
   mutableReq.stream = option(false)
   let reqBody = toJson(mutableReq)
   let resp = post(api, "/responses", reqBody)
@@ -1087,11 +1107,156 @@ proc streamResponse*(
   req: CreateResponseReq
 ): OpenAIResponseStream =
   ## Stream a response using the Responses API.
-  var mutableReq = req
+  # Create a deep copy to avoid mutating the input
+  let mutableReq = fromJson(toJson(req), CreateResponseReq)
   mutableReq.stream = option(true)
   let reqBody = toJson(mutableReq)
   let stream = postStream(api, "/responses", reqBody)
   result = OpenAIResponseStream(stream: stream)
+
+proc extractToolCallsFromResponse(resp: OpenAiResponse): seq[ResponseToolCall] =
+  ## Extract all tool calls from a response's output.
+  result = @[]
+  for output in resp.output:
+    if output.`type` == "function_call" and output.call_id.isSome and output.name.isSome and output.arguments.isSome:
+      result.add(ResponseToolCall(
+        `type`: output.`type`,
+        call_id: output.call_id.get,
+        name: output.name.get,
+        arguments: output.arguments.get
+      ))
+    elif output.content.isSome:
+      for content in output.content.get:
+        if content.`type` == "function_call" and content.tool_call.isSome:
+          let toolCall = content.tool_call.get
+          if toolCall.function.isSome:
+            result.add(ResponseToolCall(
+              `type`: toolCall.`type`,
+              call_id: toolCall.id,
+              name: toolCall.function.get.name,
+              arguments: toolCall.function.get.arguments
+            ))
+
+proc waitForResponseCompletion(api: OpenAiApi, resp: OpenAiResponse, maxWaitTime: int = 300): OpenAiResponse =
+  ## Wait for a response to complete, polling if status is "in_progress".
+  ## maxWaitTime is in seconds.
+  result = resp
+  var elapsed = 0
+  while result.status == "in_progress" and elapsed < maxWaitTime:
+    sleep(1000)  # Wait 1 second
+    elapsed += 1
+    result = api.getResponse(result.id)
+
+  if result.status == "in_progress":
+    raise newException(OpenAiError, "Response did not complete within timeout")
+
+proc createToolOutputInput(toolCallId: string, toolResult: string): ResponseInput =
+  ## Create a ResponseInput for a tool call output.
+  result = ResponseInput(
+    `type`: "function_call_output",
+    call_id: option(toolCallId),
+    output: option(sanitizeText(toolResult))
+  )
+
+proc createResponseWithTools*(
+  api: OpenAiApi,
+  req: CreateResponseReq,
+  tools: ResponseToolsTable,
+  callback: ResponseCallback = nil
+): OpenAiResponse =
+  ## Create a response with tool calling, similar to createChatCompletionWithTools.
+  ## Handles tool execution loop automatically with async status polling.
+
+  # Create a deep copy to avoid mutating the input
+  let workingReq = fromJson(toJson(req), CreateResponseReq)
+  workingReq.stream = option(false)
+
+  # Convert ToolsTable to ResponseTool sequence
+  var toolSeq: seq[ResponseTool] = @[]
+  if tools.len > 0:
+    for toolName, (toolFunc, toolImpl) in tools.pairs:
+      let tool = ResponseTool(
+        `type`: "function",
+        name: toolName,
+        description: toolFunc.description,
+        parameters: toolFunc.parameters
+      )
+      toolSeq.add(tool)
+    workingReq.tools = option(toolSeq)
+    if workingReq.tool_choice.isNone:
+      workingReq.tool_choice = option(% "auto")
+    if workingReq.store.isNone or workingReq.store.get == false:
+      workingReq.store = option(true)
+
+  var followUpToolChoice = workingReq.tool_choice
+  if followUpToolChoice.isSome:
+    let choiceNode = followUpToolChoice.get
+    if choiceNode.kind == JObject and choiceNode.hasKey("type"):
+      let typeNode = choiceNode["type"]
+      if typeNode.kind == JString and typeNode.getStr == "function":
+        followUpToolChoice = option(% "auto")
+
+  # Make initial request
+  let reqBody = toJson(workingReq)
+  let resp = post(api, "/responses", reqBody)
+  result = fromJson(resp.body, OpenAiResponse)
+
+  # Wait for completion if async
+  result = waitForResponseCompletion(api, result)
+
+  # Call callback after initial response
+  if callback != nil:
+    callback(workingReq, result)
+
+  # Handle tool calls by iterating until no more tool calls
+  if tools.len > 0:
+    var toolCalls = extractToolCallsFromResponse(result)
+
+    while toolCalls.len > 0:
+      # Build follow-up request with tool outputs
+      var followUpReq = CreateResponseReq()
+      followUpReq.model = workingReq.model
+      followUpReq.previous_response_id = option(result.id)
+      if workingReq.store.isSome and workingReq.store.get:
+        followUpReq.store = option(true)
+      if toolSeq.len > 0:
+        followUpReq.tools = option(toolSeq)
+        followUpReq.tool_choice = followUpToolChoice
+
+      # Add tool outputs as input
+      var toolInputs: seq[ResponseInput] = @[]
+      for toolCall in toolCalls:
+        let toolResult = if not tools.hasKey(toolCall.name):
+          var availableTools: seq[string] = @[]
+          for name in tools.keys:
+            availableTools.add(name)
+          let toolsList = availableTools.join(", ")
+          &"Error: Tool '{toolCall.name}' does not exist. Available tools are: {toolsList}."
+        else:
+          let (_, toolImpl) = tools[toolCall.name]
+          let toolFuncArgs = parseJson(toolCall.arguments)
+          toolImpl(toolFuncArgs)
+
+        toolInputs.add(createToolOutputInput(toolCall.call_id, toolResult))
+
+      followUpReq.input = option(toolInputs)
+
+      # Make follow-up request
+      let followUpReqBody = toJson(followUpReq)
+      let followUpResp = post(api, "/responses", followUpReqBody)
+      result = fromJson(followUpResp.body, OpenAiResponse)
+
+      # Wait for completion
+      result = waitForResponseCompletion(api, result)
+
+      # Call callback
+      if callback != nil:
+        callback(followUpReq, result)
+
+      # Check for more tool calls
+      toolCalls = extractToolCallsFromResponse(result)
+
+  return result
 
 proc nextResponseChunk*(s: OpenAIResponseStream): Option[JsonNode] =
   ## Get the next chunk from a streaming response.
