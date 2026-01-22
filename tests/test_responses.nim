@@ -186,6 +186,38 @@ suite "responses":
       check "15" in args["expression"].getStr
       check "27" in args["expression"].getStr
 
+    test "reasoning summary parsing":
+      let req = CreateResponseReq()
+      req.model = "o4-mini"
+      req.reasoning = option(%*{"summary": "detailed"})
+      req.input = option(@[ResponseInput(
+        `type`: "message",
+        role: option("user"),
+        content: option(@[ResponseInputContent(
+          `type`: "input_text",
+          text: option("Answer 1+1 in one sentence.")
+        )])
+      )])
+
+      let resp = openai.createResponse(req)
+      check resp.model.startsWith("o4-mini")
+      var reasoningSummary = ""
+      var hasReasoningOutput = false
+      for output in resp.output:
+        if output.`type` == "reasoning":
+          hasReasoningOutput = true
+          if output.summary.isSome:
+            for part in output.summary.get:
+              if part.`type` == "summary_text":
+                reasoningSummary = part.text
+
+      if reasoningSummary.len > 0:
+        let markdown = resp.toMarkdown()
+        check markdown.contains(reasoningSummary)
+      else:
+        check resp.reasoning.isSome
+        check resp.reasoning.get.kind != JNull
+
   test "get response":
     # First create a response to get its ID
     let createReq = CreateResponseReq()

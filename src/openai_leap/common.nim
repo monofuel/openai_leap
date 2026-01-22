@@ -324,6 +324,11 @@ type
     call_id*: Option[string]
     name*: Option[string]
     arguments*: Option[string]
+    summary*: Option[seq[ReasoningSummaryPart]]
+
+  ReasoningSummaryPart* = ref object
+    `type`*: string # summary_text
+    text*: string
 
   ResponseUsage* = ref object
     input_tokens*: int

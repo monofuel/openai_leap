@@ -825,6 +825,14 @@ proc toMarkdown*(resp: OpenAiResponse): string =
     result &= &"- **Previous Response ID**: {resp.previous_response_id.get}\n"
   result &= "\n"
 
+  if resp.reasoning.isSome:
+    let reasoningNode = resp.reasoning.get
+    if reasoningNode.kind != JNull:
+      let reasoningText = $reasoningNode
+      if reasoningText.len > 0:
+        result &= "## Reasoning\n\n"
+        result &= "```\n" & reasoningText & "\n```\n\n"
+
   # Outputs
   result &= "## Outputs\n\n"
   for i, output in resp.output:
@@ -841,11 +849,21 @@ proc toMarkdown*(resp: OpenAiResponse): string =
     if output.arguments.isSome:
       result &= &"- **Arguments**: `{output.arguments.get}`\n"
 
+    if output.summary.isSome:
+      result &= "- **Summary**:\n\n"
+      for part in output.summary.get:
+        if part.`type` == "summary_text":
+          result &= "```\n" & part.text & "\n```\n\n"
+        else:
+          result &= &"**Unknown summary type**: {part.`type`}\n\n"
     if output.content.isSome:
       result &= "- **Content**:\n\n"
       for content in output.content.get:
         case content.`type`
         of "output_text":
+          if content.text.isSome:
+            result &= "```\n" & content.text.get & "\n```\n\n"
+        of "reasoning_text":
           if content.text.isSome:
             result &= "```\n" & content.text.get & "\n```\n\n"
         of "tool_call":
