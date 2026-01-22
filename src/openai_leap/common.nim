@@ -1,6 +1,7 @@
 import
-  std/[json, locks, options, tables],
-  curly
+  std/[json, locks, options, os, strformat, tables]
+import curly
+import jsony
 
 # Important: the OpenAI API uses snake_case. request objects must be snake_case this or the fields will be ignored by the API.
 # jsony is flexible in parsing the responses in either camelCase or snake_case but better to use snake_case for consistency.
@@ -392,3 +393,247 @@ type
   OpenAIResponseStream* = ref object
     stream*: ResponseStream
     buffer*: string
+
+template sync*(a: Lock, body: untyped) =
+  acquire(a)
+  try:
+      body
+  finally:
+    release(a)
+
+proc stripEscapeSequences*(input: string): string =
+  ## Remove ANSI escape sequences from a string to ensure valid JSON payloads.
+  result = ""
+  var i = 0
+  while i < input.len:
+    if i < input.len and ord(input[i]) == 0x1B: # ESC character
+      inc i
+      # Skip characters until a letter (end of ANSI sequence)
+      while i < input.len and ord(input[i]) in 32..126:
+        let c = input[i]
+        inc i
+        if c in {'A'..'Z', 'a'..'z'}:
+          break
+    else:
+      result.add(input[i])
+      inc i
+
+proc sanitizeText*(s: string): string =
+  ## Strip ANSI escape sequences from plain text.
+  stripEscapeSequences(s)
+
+proc sanitizeMessageContentPart(part: var MessageContentPart) =
+  ## Sanitize a single content part.
+  if part.`type` == "text" and part.text.isSome:
+    let cleaned = sanitizeText(part.text.get)
+    part.text = option(cleaned)
+
+proc sanitizeMessage(msg: var Message) =
+  ## Sanitize all text content in a message.
+  if msg.content.isSome:
+    var cleanedParts: seq[MessageContentPart] = @[]
+    for p in msg.content.get:
+      var part = p
+      sanitizeMessageContentPart(part)
+      cleanedParts.add(part)
+    msg.content = option(cleanedParts)
+
+proc sanitizeChatReq*(req: var CreateChatCompletionReq) =
+  ## Sanitize a chat request prior to JSON serialization.
+  if req.messages.len > 0:
+    for i in 0..req.messages.high:
+      var m = req.messages[i]
+      sanitizeMessage(m)
+      req.messages[i] = m
+
+
+proc newOpenAiApi*(
+    baseUrl: string = "https://api.openai.com/v1",
+    apiKey: string = "",
+    organization: string = "",
+    maxInFlight: int = 16,
+    curlTimeout: int = 60 * 5 # 5 minutes
+): OpenAiApi =
+  ## Initialize a new OpenAI API client.
+  ## Will use the provided apiKey,
+  ## or look for the OPENAI_API_KEY environment variable.
+  ## apiKey may also be provided on a per-request basis.
+  var apiKeyVar = apiKey
+  if apiKeyVar == "":
+    apiKeyVar = getEnv("OPENAI_API_KEY", "")
+
+  result = cast[OpenAiApi](allocShared0(sizeof(OpenAiApiObj)))
+  result.curly = newCurly(maxInFlight)
+  initLock(result.lock)
+  result.baseUrl = baseUrl
+  result.curlTimeout = curlTimeout
+  result.apiKey = apiKeyVar
+  result.organization = organization
+
+proc updateApiKey*(api: OpenAiApi, apiKey: string) =
+  ## Update the API key for the OpenAI API client.
+  api.lock.sync:
+    api.apiKey = apiKey
+
+proc close*(api: OpenAiApi) =
+  ## Clean up the OpenAPI API client.
+  api.curly.close()
+  deallocShared(api)
+
+proc get*(
+  api: OpenAiApi,
+  path: string,
+  opts: Opts = Opts(),
+  ): Response =
+  ## Make a GET request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  headers["Content-Type"] = "application/json"
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+
+  var timeout = api.curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
+
+  let resp = api.curly.get(api.baseUrl & path, headers, timeout)
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"API call {path} failed: {resp.code} {resp.body}"
+    )
+  result = resp
+
+proc post*(
+  api: OpenAiApi,
+  path: string,
+  body: string,
+  opts: Opts = Opts(),
+): Response =
+  ## Make a POST request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  headers["Content-Type"] = "application/json"
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+  var timeout = api.curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
+  let resp = api.curly.post(
+    api.baseUrl & path,
+    headers,
+    body,
+    timeout
+  )
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {toJson(body)}"
+    )
+  result = resp
+
+proc postStream*(
+  api: OpenAiApi,
+  path: string,
+  body: string,
+  opts: Opts = Opts()
+): ResponseStream =
+  ## Make a streaming POST request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  headers["Content-Type"] = "application/json"
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+  var timeout = api.curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
+
+  let resp = api.curly.request("POST",
+    api.baseUrl & path,
+    headers,
+    body,
+    timeout
+  )
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"API call {path} failed: {resp.code}\nRequest body: {toJson(body)}"
+    )
+  result = resp
+
+proc getStream*(
+  api: OpenAiApi,
+  path: string,
+  queryParams: seq[(string, string)] = @[],
+  opts: Opts = Opts()
+): ResponseStream =
+  ## Make a streaming GET request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  if opts.bearerToken != "":
+    headers["Authorization"] = "Bearer " & opts.bearerToken
+  else:
+    api.lock.sync:
+      headers["Authorization"] = "Bearer " & api.apiKey
+  if opts.organization != "":
+    headers["Organization"] = opts.organization
+  elif api.organization != "":
+      headers["Organization"] = api.organization
+  var timeout = api.curlTimeout
+  if opts.curlTimeout != 0:
+    timeout = opts.curlTimeout
+
+  # Build query string
+  var queryString = ""
+  if queryParams.len > 0:
+    queryString = "?"
+    for i, (key, value) in queryParams:
+      if i > 0:
+        queryString &= "&"
+      queryString &= key & "=" & value
+
+  let resp = api.curly.request("GET",
+    api.baseUrl & path & queryString,
+    headers,
+    "",
+    timeout
+  )
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"API call {path} failed: {resp.code}"
+    )
+  result = resp
+
+proc delete*(api: OpenAiApi, path: string): Response =
+  ## Make a DELETE request to the OpenAI API.
+  var headers: curly.HttpHeaders
+  headers["Content-Type"] = "application/json"
+  api.lock.sync:
+    headers["Authorization"] = "Bearer " & api.apiKey
+  if api.organization != "":
+    headers["Organization"] = api.organization
+  let resp = api.curly.delete(api.baseUrl & path, headers, api.curlTimeout)
+  if resp.code != 200:
+    raise newException(
+      OpenAiError,
+      &"API call {path} failed: {resp.code} {resp.body}"
+    )
+  result = resp

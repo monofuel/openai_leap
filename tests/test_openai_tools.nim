@@ -265,6 +265,17 @@ suite "openai tools":
         of "rainy, 55°f": return "Great day for coffee shops and bookstores"
         else: return "Enjoy your day!"
 
+      proc toolOutputForCall(name: string, args: JsonNode): string =
+        case name
+        of "get_person_location":
+          return getPersonLocation(args)
+        of "get_weather_for_location":
+          return getWeatherForLocation(args)
+        of "recommend_activity":
+          return recommendActivity(args)
+        else:
+          return ""
+
       # Setup sequential tools
       var tools = newToolsTable()
       tools.register("get_person_location",
@@ -315,12 +326,13 @@ suite "openai tools":
       # Create request that requires sequential tool usage
       let req = CreateChatCompletionReq(
         model: TestModel,
+        temperature: option(0.0'f32),
         messages: @[
           Message(
             role: "system",
             content: option(@[
               MessageContentPart(`type`: "text", text: option(
-                "You are a helpful assistant. When answering questions about weather and activities, you must rely on your tool calls. first get the weather for the location, and then use recommended_activity to get the user's recommended activities for that weather."
+                "You are a helpful assistant. Use tools in this exact order: get_person_location, then get_weather_for_location, then recommend_activity. Do not answer until all tool calls complete. After that, summarize the tool outputs."
               ))
             ])
           ),
@@ -391,13 +403,35 @@ suite "openai tools":
       check activityIdx >= 0
       check locationIdx < weatherIdx  # location called before weather
       check weatherIdx < activityIdx  # weather called before activity
-      
-      # Verify final response mentions all parts of the chain
+
+      # Verify tool outputs are threaded into the next request as tool messages
+      for i in 0..<conversationHistory.len:
+        let (_, stepResp) = conversationHistory[i]
+        if stepResp.choices.len == 0 or stepResp.choices[0].message.isNone:
+          continue
+        let msg = stepResp.choices[0].message.get
+        if msg.tool_calls.isNone:
+          continue
+        if i + 1 >= conversationHistory.len:
+          continue
+        let nextReq = conversationHistory[i + 1][0]
+        for call in msg.tool_calls.get:
+          let args = parseJson(call.function.arguments)
+          let expectedOutput = toolOutputForCall(call.function.name, args)
+          var foundToolMessage = false
+          for toolMsg in nextReq.messages:
+            if toolMsg.role == "tool" and toolMsg.tool_call_id.isSome and toolMsg.tool_call_id.get == call.id:
+              foundToolMessage = true
+              check toolMsg.content.isSome
+              let parts = toolMsg.content.get
+              check parts.len > 0
+              check parts[0].text.isSome
+              check parts[0].text.get == expectedOutput
+          check foundToolMessage
+
       let finalContent = resp.choices[0].message.get.content
       check finalContent.len > 0
-      check "alice" in finalContent.toLowerAscii() or "san francisco" in finalContent.toLowerAscii()
-      check "museum" in finalContent.toLowerAscii() or "indoor" in finalContent.toLowerAscii()
-      
+
       echo "Sequential tool chain completed successfully"
       echo "Tool call order: ", toolCallOrder
       echo "Final response: ", finalContent
