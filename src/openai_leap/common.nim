@@ -600,9 +600,21 @@ proc postStream*(
     timeout
   )
   if resp.code != 200:
+    var errorBody = ""
+    try:
+      var chunk = ""
+      while true:
+        let bytesRead = resp.read(chunk)
+        if bytesRead == 0:
+          break
+        errorBody.add(chunk)
+        chunk.setLen(0)
+      resp.close()
+    except:
+      discard
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code}\nRequest body: {toJson(body)}"
+      &"API call {path} failed: {resp.code} {errorBody}\nRequest body: {toJson(body)}"
     )
   result = resp
 
