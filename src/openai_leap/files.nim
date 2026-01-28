@@ -48,7 +48,7 @@ proc postMultipart(
   if resp.code != 200:
     raise newException(
       OpenAiError,
-      &"API call {path} failed: {resp.code} {resp.body}\nRequest body: {toJson(body)}"
+      &"API call {path} failed: {resp.code} {resp.body}\n"
     )
   result = resp
 
