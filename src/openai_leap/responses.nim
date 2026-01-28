@@ -1,7 +1,6 @@
 import
   std/[json, options, os, strformat, strutils, tables],
-  curly, webby,
-  jsony,
+  curly, webby, jsony,
   openai_leap/common
 
 proc dumpHook(s: var string, v: object) =
@@ -150,6 +149,20 @@ proc createToolOutputInput(toolCallId: string, toolResult: string): ResponseInpu
     output: option(sanitizeText(toolResult))
   )
 
+proc executeToolCall(tools: ResponseToolsTable, toolCall: ResponseToolCall): string =
+  ## Execute a tool call and return the result.
+  ## Handles error cases for missing tools.
+  if not tools.hasKey(toolCall.name):
+    var availableTools: seq[string] = @[]
+    for name in tools.keys:
+      availableTools.add(name)
+    let toolsList = availableTools.join(", ")
+    result = &"Error: Tool '{toolCall.name}' does not exist. Available tools are: {toolsList}."
+  else:
+    let (_, toolImpl) = tools[toolCall.name]
+    let toolFuncArgs = parseJson(toolCall.arguments)
+    result = toolImpl(toolFuncArgs)
+
 proc createResponseWithTools*(
   api: OpenAiApi,
   req: var CreateResponseReq,
@@ -189,13 +202,6 @@ proc createResponseWithTools*(
       if typeNode.kind == JString and typeNode.getStr == "function":
         followUpToolChoice = option(% "auto")
 
-  # TODO we shouldn't need this?
-  # we should just always update the response request? for both cases and reduce differences?
-  # maybe we should mutate the top level `req` with the entire history always, but for previous_response_id, copy the req and not pass the entire history?
-  var conversationHistory: seq[ResponseInput] = @[]
-  if not usePreviousResponseId and req.input.isSome:
-    conversationHistory = req.input.get
-
   # Make initial request
   let reqBody = toJson(req)
   let resp = post(api, "/responses", reqBody)
@@ -213,61 +219,47 @@ proc createResponseWithTools*(
     var toolCalls = extractToolCallsFromResponse(result)
 
     while toolCalls.len > 0:
-      # Build follow-up request with tool outputs
+      # Execute tools and create tool outputs
+      var toolOutputs: seq[ResponseInput] = @[]
+      for toolCall in toolCalls:
+        let toolResult = executeToolCall(tools, toolCall)
+        let toolOutput = createToolOutputInput(toolCall.call_id, toolResult)
+        toolOutputs.add(toolOutput)
+
+      # Always add tool outputs to the top-level request's conversation history
+      if req.input.isNone:
+        req.input = option(toolOutputs)
+      else:
+        var currentHistory = req.input.get
+        for output in toolOutputs:
+          currentHistory.add(output)
+        req.input = option(currentHistory)
+
+      # Build follow-up request
       var followUpReq = CreateResponseReq()
       followUpReq.model = req.model
+      followUpReq.tools = req.tools
+      followUpReq.tool_choice = followUpToolChoice
+      followUpReq.store = req.store
+      followUpReq.parallel_tool_calls = req.parallel_tool_calls
+      followUpReq.temperature = req.temperature
+      followUpReq.max_output_tokens = req.max_output_tokens
+      followUpReq.reasoning = req.reasoning
 
-      # TODO should try to minimize differences between the two cases?
 
       if usePreviousResponseId:
-        # pretty much all providers support previous_response_id
-        # openai, xai, anthropic, etc etc
-        # lm-studio also supports it with their own stateful magic on top of llama.cpp
+        # Use previous_response_id for providers that support it
         followUpReq.previous_response_id = option(result.id)
         if req.store.isSome and req.store.get:
           followUpReq.store = option(true)
 
-        # Add tool outputs as input
-        var toolInputs: seq[ResponseInput] = @[]
-        for toolCall in toolCalls:
-          let toolResult = if not tools.hasKey(toolCall.name):
-            var availableTools: seq[string] = @[]
-            for name in tools.keys:
-              availableTools.add(name)
-            let toolsList = availableTools.join(", ")
-            &"Error: Tool '{toolCall.name}' does not exist. Available tools are: {toolsList}."
-          else:
-            let (_, toolImpl) = tools[toolCall.name]
-            let toolFuncArgs = parseJson(toolCall.arguments)
-            toolImpl(toolFuncArgs)
-
-          toolInputs.add(createToolOutputInput(toolCall.call_id, toolResult))
-
-        followUpReq.input = option(toolInputs)
-
+        # Only send the new tool outputs as input - previous_response_id provides conversation context
+        followUpReq.input = option(toolOutputs)
       else:
-        # llama.cpp does not support previous_response_id to avoid all the stateful magic and complexity
-        # so we instead send the accumulated conversation history + new tool outputs
-
-        # Execute tools and add outputs to conversation history
-        for toolCall in toolCalls:
-          let toolResult = if not tools.hasKey(toolCall.name):
-            var availableTools: seq[string] = @[]
-            for name in tools.keys:
-              availableTools.add(name)
-            let toolsList = availableTools.join(", ")
-            &"Error: Tool '{toolCall.name}' does not exist. Available tools are: {toolsList}."
-          else:
-            let (_, toolImpl) = tools[toolCall.name]
-            let toolFuncArgs = parseJson(toolCall.arguments)
-            toolImpl(toolFuncArgs)
-
-          let toolOutput = createToolOutputInput(toolCall.call_id, toolResult)
-          conversationHistory.add(toolOutput)
-
-        # Update the original request with accumulated conversation history for test inspection
-        req.input = option(conversationHistory)
-        followUpReq.input = option(conversationHistory)
+        # when not using previous_response_id, we need to send the full accumulated conversation history from the top-level req
+        # Send the full accumulated conversation history from the top-level req
+        # (we previously appended the tool output so we can just use the input as-is)
+        followUpReq.input = req.input
 
       # Make follow-up request
       let followUpReqBody = toJson(followUpReq)

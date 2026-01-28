@@ -310,7 +310,7 @@ suite "responses":
       )
 
       # Create request
-      let req = CreateResponseReq()
+      var req = CreateResponseReq()
       req.model = TestModel
       req.temperature = option(0.0'f32)
       req.tool_choice = option(%*{"type": "function", "name": "add_numbers"})
@@ -381,7 +381,7 @@ suite "responses":
       )
 
       # Create request asking for both operations
-      let multiReq = CreateResponseReq()
+      var multiReq = CreateResponseReq()
       multiReq.model = TestModel
       multiReq.temperature = option(0.0'f32)
       multiReq.input = option(@[ResponseInput(
@@ -447,7 +447,7 @@ suite "responses":
 
       # TODO this seems like a silly test? why are we doing this?
       # Create request asking for an operation that doesn't match available tools
-      let errorReq = CreateResponseReq()
+      var errorReq = CreateResponseReq()
       errorReq.model = TestModel
       errorReq.temperature = option(0.0'f32)
       errorReq.input = option(@[ResponseInput(
@@ -505,7 +505,7 @@ suite "responses":
       )
 
       # Create request that requires sequential operations
-      let seqReq = CreateResponseReq()
+      var seqReq = CreateResponseReq()
       seqReq.model = TestModel
       seqReq.temperature = option(0.0'f32)
       seqReq.parallel_tool_calls = option(false)
@@ -515,7 +515,7 @@ suite "responses":
         role: option("user"),
         content: option(@[ResponseInputContent(
           `type`: "input_text",
-          text: option("Call add_numbers first for 3 + 4, then call multiply_result with the sum. Finish with the final number.")
+          text: option("Add 3 and 4 using the add_numbers tool, then multiply the result by 2 using the multiply_result tool. What is the final answer?")
         )])
       )])
 
@@ -575,7 +575,7 @@ suite "responses":
         addNumbersTool
       )
 
-      let callbackReq = CreateResponseReq()
+      var callbackReq = CreateResponseReq()
       callbackReq.model = TestModel
       callbackReq.temperature = option(0.0'f32)
       callbackReq.tool_choice = option(%*{"type": "function", "name": "add_numbers"})
