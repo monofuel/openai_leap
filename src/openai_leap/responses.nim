@@ -202,24 +202,19 @@ proc createResponseWithTools*(
       if typeNode.kind == JString and typeNode.getStr == "function":
         followUpToolChoice = option(% "auto")
 
-  # Make initial request
   let reqBody = toJson(req)
   let resp = post(api, "/responses", reqBody)
   result = fromJson(resp.body, OpenAiResponse)
 
-  # Wait for completion if async
   result = waitForResponseCompletion(api, result)
 
-  # Call callback after initial response
   if callback != nil:
     callback(req, result)
 
-  # Handle tool calls by iterating until no more tool calls
   if tools.len > 0:
     var toolCalls = extractToolCallsFromResponse(result)
 
     while toolCalls.len > 0:
-      # Execute tools and create tool outputs
       var toolOutputs: seq[ResponseInput] = @[]
       for toolCall in toolCalls:
         let toolResult = executeToolCall(tools, toolCall)
@@ -235,7 +230,6 @@ proc createResponseWithTools*(
           currentHistory.add(output)
         req.input = option(currentHistory)
 
-      # Build follow-up request
       var followUpReq = CreateResponseReq()
       followUpReq.model = req.model
       followUpReq.tools = req.tools
@@ -261,19 +255,14 @@ proc createResponseWithTools*(
         # (we previously appended the tool output so we can just use the input as-is)
         followUpReq.input = req.input
 
-      # Make follow-up request
       let followUpReqBody = toJson(followUpReq)
       let followUpResp = post(api, "/responses", followUpReqBody)
       result = fromJson(followUpResp.body, OpenAiResponse)
-
-      # Wait for completion
       result = waitForResponseCompletion(api, result)
 
-      # Call callback
       if callback != nil:
         callback(followUpReq, result)
 
-      # Check for more tool calls
       toolCalls = extractToolCallsFromResponse(result)
 
   return result
