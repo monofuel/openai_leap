@@ -955,6 +955,20 @@ proc toCreateResponseReq*(markdown: string): CreateResponseReq =
     let val = extractValue(line, key)
     return val == "true"
 
+  proc isSectionHeader(line: string): bool =
+    if line.startsWith("### Input "): return true
+    if line.startsWith("## Available Tools"): return true
+    if line.startsWith("## Tool Choice"): return true
+    if line.startsWith("## Response"): return true
+    if line.startsWith("## Outputs"): return true
+    if line.startsWith("## Inputs"): return true
+    if line.startsWith("## Request"): return true
+    if line.startsWith("## Request Settings"): return true
+    if line.startsWith("## Response Details"): return true
+    if line.startsWith("## Usage Statistics"): return true
+    if line.startsWith("## Reasoning"): return true
+    return false
+
   # Parse Request Settings section
   let settingsIdx = findNextSection(0, "Request Settings")
   if settingsIdx >= 0:
@@ -1015,22 +1029,39 @@ proc toCreateResponseReq*(markdown: string): CreateResponseReq =
         var outputBuffer = ""
 
         inc i
-        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+        while i < lines.len:
+          if not inTextBlock and not inOutputBlock and
+             (lines[i].startsWith("### ") or lines[i].startsWith("## ")):
+            break
           let inputLine = lines[i].strip()
 
           if inTextBlock:
             if inputLine == "```":
-              inTextBlock = false
-              contents.add(ResponseInputContent(`type`: "input_text", text: option(textBuffer)))
-              textBuffer = ""
+              var j = i + 1
+              while j < lines.len and lines[j].strip() == "":
+                inc j
+              if j >= lines.len or isSectionHeader(lines[j]):
+                inTextBlock = false
+                contents.add(ResponseInputContent(`type`: "input_text", text: option(textBuffer)))
+                textBuffer = ""
+              else:
+                if textBuffer != "": textBuffer &= "\n"
+                textBuffer &= lines[i]
             else:
               if textBuffer != "": textBuffer &= "\n"
               textBuffer &= lines[i]
           elif inOutputBlock:
             if inputLine == "```":
-              inOutputBlock = false
-              input.output = option(outputBuffer)
-              outputBuffer = ""
+              var j = i + 1
+              while j < lines.len and lines[j].strip() == "":
+                inc j
+              if j >= lines.len or isSectionHeader(lines[j]):
+                inOutputBlock = false
+                input.output = option(outputBuffer)
+                outputBuffer = ""
+              else:
+                if outputBuffer != "": outputBuffer &= "\n"
+                outputBuffer &= lines[i]
             else:
               if outputBuffer != "": outputBuffer &= "\n"
               outputBuffer &= lines[i]
