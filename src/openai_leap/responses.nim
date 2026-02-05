@@ -149,6 +149,21 @@ proc createToolOutputInput(toolCallId: string, toolResult: string): ResponseInpu
     output: option(sanitizeText(toolResult))
   )
 
+proc createToolCallInput(toolCall: ResponseToolCall): ResponseInput =
+  ## Create a ResponseInput for a tool call request.
+  let name = toolCall.name
+  let args = toolCall.arguments
+  let callId = toolCall.call_id
+  let contentText = "Tool call: " & name & "\nCall ID: " & callId & "\nArguments: " & args
+  result = ResponseInput(
+    `type`: "message",
+    role: option("assistant"),
+    content: option(@[ResponseInputContent(
+      `type`: "input_text",
+      text: option(contentText)
+    )])
+  )
+
 proc executeToolCall(tools: ResponseToolsTable, toolCall: ResponseToolCall): string =
   ## Execute a tool call and return the result.
   ## Handles error cases for missing tools.
@@ -215,6 +230,19 @@ proc createResponseWithTools*(
     var toolCalls = extractToolCallsFromResponse(result)
 
     while toolCalls.len > 0:
+      var toolCallInputs: seq[ResponseInput] = @[]
+      for toolCall in toolCalls:
+        toolCallInputs.add(createToolCallInput(toolCall))
+
+      if toolCallInputs.len > 0:
+        if req.input.isNone:
+          req.input = option(toolCallInputs)
+        else:
+          var currentHistory = req.input.get
+          for toolCallInput in toolCallInputs:
+            currentHistory.add(toolCallInput)
+          req.input = option(currentHistory)
+
       var toolOutputs: seq[ResponseInput] = @[]
       for toolCall in toolCalls:
         let toolResult = executeToolCall(tools, toolCall)

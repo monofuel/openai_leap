@@ -1082,6 +1082,71 @@ proc toCreateResponseReq*(markdown: string): CreateResponseReq =
   if inputs.len > 0:
     result.input = option(inputs)
 
+  # Parse Available Tools section
+  let toolsIdx = findNextSection(0, "Available Tools")
+  if toolsIdx >= 0:
+    i = toolsIdx + 1
+    var tools: seq[ResponseTool] = @[]
+
+    while i < lines.len and not lines[i].startsWith("## "):
+      let line = lines[i].strip()
+
+      if line.startsWith("### Tool ") and line.contains(": "):
+        var tool = ResponseTool()
+
+        let nameStart = line.find(": ") + 2
+        tool.name = line[nameStart..^1]
+
+        inc i
+        var inParamsBlock = false
+        var paramsJson = ""
+
+        while i < lines.len and not lines[i].startsWith("### ") and not lines[i].startsWith("## "):
+          let toolLine = lines[i].strip()
+
+          if inParamsBlock:
+            if toolLine == "```":
+              inParamsBlock = false
+              try:
+                tool.parameters = option(parseJson(paramsJson))
+              except:
+                discard
+              paramsJson = ""
+            else:
+              paramsJson &= lines[i] & "\n"
+          elif toolLine.startsWith("- **"):
+            let toolType = extractValue(toolLine, "Type")
+            if toolType != "": tool.`type` = toolType
+
+            let description = extractValue(toolLine, "Description")
+            if description != "": tool.description = option(description)
+
+            if toolLine.startsWith("- **Parameters**:"):
+              inc i
+              while i < lines.len and lines[i].strip() == "":
+                inc i
+              if i < lines.len and lines[i].strip().startsWith("```"):
+                inParamsBlock = true
+                paramsJson = ""
+              else:
+                dec i
+          elif toolLine.startsWith("```") and toolLine.len > 3:
+            let jsonStr = toolLine[3..^3]
+            try:
+              tool.parameters = option(parseJson(jsonStr))
+            except:
+              discard
+
+          inc i
+
+        tools.add(tool)
+        dec i
+
+      inc i
+
+    if tools.len > 0:
+      result.tools = option(tools)
+
   # Parse Tool Choice section
   let toolChoiceIdx = findNextSection(0, "Tool Choice")
   if toolChoiceIdx >= 0:
