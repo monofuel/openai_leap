@@ -222,29 +222,41 @@ proc nextMessageEvent*(s: OpenAIStream): Option[JsonNode] =
 
 # --- Tool calling ---
 
-proc newAnthropicToolsTable*(): AnthropicToolsTable =
-  ## Create a new empty Anthropic tools table.
-  result = AnthropicToolsTable(data: initTable[string, (AnthropicTool, AnthropicToolImpl)]())
-
-proc register*(table: var AnthropicToolsTable, name: string, tool: AnthropicTool, impl: AnthropicToolImpl) =
-  ## Register a tool in the Anthropic tools table.
-  table[name] = (tool, impl)
+proc toAnthropicTool(name: string, toolFunc: ToolFunction): AnthropicTool =
+  ## Convert a ToolFunction (Responses API format) to an AnthropicTool (Messages API format).
+  var inputSchema = AnthropicToolInputSchema(`type`: "object")
+  if toolFunc.parameters.isSome:
+    let params = toolFunc.parameters.get
+    if params.hasKey("properties"):
+      inputSchema.properties = option(params["properties"])
+    if params.hasKey("required"):
+      var reqSeq: seq[string] = @[]
+      for item in params["required"]:
+        reqSeq.add(item.getStr)
+      inputSchema.required = option(reqSeq)
+  result = AnthropicTool(
+    name: name,
+    input_schema: inputSchema,
+    description: toolFunc.description
+  )
 
 proc createMessageWithTools*(
   api: OpenAiApi,
   req: var CreateMessageReq,
-  tools: AnthropicToolsTable,
+  tools: ResponseToolsTable,
   callback: proc() = nil
 ): CreateMessageResp =
   ## Create a message with tool calling loop.
   ## Automatically handles tool execution until the model stops requesting tools.
+  ## Accepts ResponseToolsTable (same table used by Responses API) and converts
+  ## ToolFunction entries to AnthropicTool format for the request.
   req.stream = option(false)
 
   # Add tools to the request
   if tools.len > 0:
     var toolSeq: seq[AnthropicTool] = @[]
-    for toolName, (tool, impl) in tools.pairs:
-      toolSeq.add(tool)
+    for toolName, (toolFunc, impl) in tools.pairs:
+      toolSeq.add(toAnthropicTool(toolName, toolFunc))
     req.tools = option(toolSeq)
     if req.tool_choice.isNone:
       req.tool_choice = option(ToolChoiceConfig(`type`: "auto"))

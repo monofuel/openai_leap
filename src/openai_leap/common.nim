@@ -558,30 +558,6 @@ type
     delta*: Option[JsonNode]
     usage*: Option[AnthropicUsage]
 
-  AnthropicToolImpl* = proc(args: JsonNode): string
-  AnthropicToolsTable* = object
-    data*: Table[string, (AnthropicTool, AnthropicToolImpl)]
-
-proc len*(table: AnthropicToolsTable): int =
-  table.data.len
-
-iterator pairs*(table: AnthropicToolsTable): (string, (AnthropicTool, AnthropicToolImpl)) =
-  for pair in table.data.pairs:
-    yield pair
-
-iterator keys*(table: AnthropicToolsTable): string =
-  for key in table.data.keys:
-    yield key
-
-proc hasKey*(table: AnthropicToolsTable, key: string): bool =
-  table.data.hasKey(key)
-
-proc `[]`*(table: AnthropicToolsTable, key: string): (AnthropicTool, AnthropicToolImpl) =
-  table.data[key]
-
-proc `[]=`*(table: var AnthropicToolsTable, key: string, value: (AnthropicTool, AnthropicToolImpl)) =
-  table.data[key] = value
-
 proc len*(table: ResponseToolsTable): int =
   table.data.len
 

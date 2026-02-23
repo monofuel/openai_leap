@@ -40,22 +40,22 @@ suite "anthropic messages api":
     check messageText(resp).len > 0
 
   test "tool use":
-    var tools = newAnthropicToolsTable()
-    let weatherTool = AnthropicTool(
+    var tools = newResponseToolsTable()
+    let weatherFunc = ToolFunction(
       name: "get_weather",
       description: option("Get the current weather for a location"),
-      input_schema: AnthropicToolInputSchema(
-        `type`: "object",
-        properties: option(%* {
+      parameters: option(%* {
+        "type": "object",
+        "properties": {
           "location": {
             "type": "string",
             "description": "The city and state, e.g. San Francisco, CA"
           }
-        }),
-        required: option(@["location"])
-      )
+        },
+        "required": ["location"]
+      })
     )
-    tools.register("get_weather", weatherTool, proc(args: JsonNode): string =
+    tools.register("get_weather", weatherFunc, proc(args: JsonNode): string =
       let location = args["location"].getStr
       return "The weather in " & location & " is 72°F and sunny."
     )
