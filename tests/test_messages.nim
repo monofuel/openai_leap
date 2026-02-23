@@ -5,6 +5,150 @@ const
   TestModel = "claude-haiku-4-5"
   BaseUrl = "https://api.anthropic.com/v1"
 
+suite "toMessageReq converter":
+  test "converts CreateResponseReq to CreateMessageReq":
+    let req = CreateResponseReq()
+    req.model = "claude-opus-4-6"
+    req.instructions = option("You are a helpful assistant.")
+    req.temperature = option(0.7'f32)
+    req.top_p = option(0.9'f32)
+    req.max_output_tokens = option(2048)
+    req.input = option(@[
+      ResponseInput(
+        `type`: "message",
+        role: option("user"),
+        content: option(@[ResponseInputContent(
+          `type`: "input_text",
+          text: option("Hello")
+        )])
+      ),
+      ResponseInput(
+        `type`: "message",
+        role: option("assistant"),
+        content: option(@[ResponseInputContent(
+          `type`: "output_text",
+          text: option("Hi there!")
+        )])
+      ),
+      ResponseInput(
+        `type`: "message",
+        role: option("user"),
+        content: option(@[ResponseInputContent(
+          `type`: "input_text",
+          text: option("How are you?")
+        )])
+      )
+    ])
+
+    let msgReq = toMessageReq(req)
+    check msgReq.model == "claude-opus-4-6"
+    check msgReq.max_tokens == 2048
+    check msgReq.temperature.isSome
+    check msgReq.temperature.get == 0.7'f32
+    check msgReq.top_p.isSome
+    check msgReq.top_p.get == 0.9'f32
+    check msgReq.system.isSome
+    check msgReq.system.get.getStr == "You are a helpful assistant."
+    check msgReq.messages.len == 3
+    check msgReq.messages[0].role == "user"
+    check msgReq.messages[0].content.getStr == "Hello"
+    check msgReq.messages[1].role == "assistant"
+    check msgReq.messages[1].content.getStr == "Hi there!"
+    check msgReq.messages[2].role == "user"
+    check msgReq.messages[2].content.getStr == "How are you?"
+
+  test "defaults max_tokens to 4096 when not set":
+    let req = CreateResponseReq()
+    req.model = "claude-haiku-4-5"
+    req.input = option(@[
+      ResponseInput(
+        `type`: "message",
+        role: option("user"),
+        content: option(@[ResponseInputContent(
+          `type`: "input_text",
+          text: option("Hi")
+        )])
+      )
+    ])
+
+    let msgReq = toMessageReq(req)
+    check msgReq.max_tokens == 4096
+
+  test "maps system and developer roles to user":
+    let req = CreateResponseReq()
+    req.model = "claude-haiku-4-5"
+    req.input = option(@[
+      ResponseInput(
+        `type`: "message",
+        role: option("system"),
+        content: option(@[ResponseInputContent(
+          `type`: "input_text",
+          text: option("System message")
+        )])
+      ),
+      ResponseInput(
+        `type`: "message",
+        role: option("developer"),
+        content: option(@[ResponseInputContent(
+          `type`: "input_text",
+          text: option("Developer message")
+        )])
+      )
+    ])
+
+    let msgReq = toMessageReq(req)
+    check msgReq.messages.len == 2
+    check msgReq.messages[0].role == "user"
+    check msgReq.messages[1].role == "user"
+
+suite "toOpenAiResponse converter":
+  test "converts CreateMessageResp to OpenAiResponse":
+    let resp = CreateMessageResp()
+    resp.id = "msg_abc123"
+    resp.`type` = "message"
+    resp.role = "assistant"
+    resp.model = "claude-haiku-4-5"
+    resp.stop_reason = option("end_turn")
+    resp.content = @[
+      %* {"type": "text", "text": "Hello, world!"}
+    ]
+    resp.usage = AnthropicUsage(
+      input_tokens: 10,
+      output_tokens: 5
+    )
+
+    let oaiResp = toOpenAiResponse(resp)
+    check oaiResp.id == "msg_abc123"
+    check oaiResp.`object` == "response"
+    check oaiResp.model == "claude-haiku-4-5"
+    check oaiResp.status == "completed"
+    check oaiResp.output_text.isSome
+    check oaiResp.output_text.get == "Hello, world!"
+    check oaiResp.output.len == 1
+    check oaiResp.output[0].`type` == "message"
+    check oaiResp.output[0].role.isSome
+    check oaiResp.output[0].role.get == "assistant"
+    check oaiResp.output[0].content.isSome
+    check oaiResp.output[0].content.get[0].`type` == "output_text"
+    check oaiResp.output[0].content.get[0].text.get == "Hello, world!"
+    check oaiResp.usage.isSome
+    check oaiResp.usage.get.input_tokens == 10
+    check oaiResp.usage.get.output_tokens == 5
+    check oaiResp.usage.get.total_tokens == 15
+
+  test "handles empty content":
+    let resp = CreateMessageResp()
+    resp.id = "msg_empty"
+    resp.`type` = "message"
+    resp.role = "assistant"
+    resp.model = "claude-haiku-4-5"
+    resp.content = @[]
+    resp.usage = AnthropicUsage(input_tokens: 0, output_tokens: 0)
+
+    let oaiResp = toOpenAiResponse(resp)
+    check oaiResp.output_text.isNone
+    check oaiResp.usage.isNone
+
 suite "anthropic messages api":
   var api: OpenAiApi
 

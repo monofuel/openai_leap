@@ -127,6 +127,74 @@ proc messageThinking*(resp: CreateMessageResp): seq[ThinkingContentBlock] =
         signature: item["signature"].getStr
       ))
 
+# --- Format converters ---
+
+proc toMessageReq*(req: CreateResponseReq): CreateMessageReq =
+  ## Convert a Responses API request into an Anthropic Messages API request.
+  result = CreateMessageReq()
+  result.model = req.model
+  result.max_tokens = if req.max_output_tokens.isSome: req.max_output_tokens.get else: 4096
+  if req.temperature.isSome:
+    result.temperature = req.temperature
+  if req.top_p.isSome:
+    result.top_p = req.top_p
+  if req.instructions.isSome:
+    result.system = option(% req.instructions.get)
+
+  # Convert ResponseInput messages to AnthropicMessage sequence
+  var messages: seq[AnthropicMessage] = @[]
+  if req.input.isSome:
+    for input in req.input.get:
+      if input.`type` == "message" and input.role.isSome:
+        let role = input.role.get
+        # Anthropic only supports "user" and "assistant" roles; map system/developer to user
+        let anthropicRole = if role == "user" or role == "system" or role == "developer": "user" else: "assistant"
+        if input.content.isSome:
+          var textParts: seq[string] = @[]
+          for part in input.content.get:
+            if part.text.isSome:
+              textParts.add(part.text.get)
+          if textParts.len > 0:
+            messages.add(AnthropicMessage(
+              role: anthropicRole,
+              content: % textParts.join("\n")
+            ))
+  result.messages = messages
+
+proc toOpenAiResponse*(resp: CreateMessageResp): OpenAiResponse =
+  ## Wrap an Anthropic Messages API response into an OpenAiResponse shape
+  ## so callers using Responses API types can consume it unchanged.
+  result = OpenAiResponse()
+  result.id = resp.id
+  result.`object` = "response"
+  result.model = resp.model
+  result.status = "completed"
+
+  let text = messageText(resp)
+  if text.len > 0:
+    result.output_text = option(text)
+
+  # Build output sequence with a message output containing output_text content
+  var outputContent: seq[ResponseOutputContent] = @[]
+  outputContent.add(ResponseOutputContent(
+    `type`: "output_text",
+    text: option(text)
+  ))
+  result.output = @[ResponseOutput(
+    id: resp.id & "_msg",
+    `type`: "message",
+    status: option("completed"),
+    role: option("assistant"),
+    content: option(outputContent)
+  )]
+
+  if resp.usage.output_tokens > 0 or resp.usage.input_tokens > 0:
+    result.usage = option(ResponseUsage(
+      input_tokens: resp.usage.input_tokens,
+      output_tokens: resp.usage.output_tokens,
+      total_tokens: resp.usage.input_tokens + resp.usage.output_tokens
+    ))
+
 # --- Core procs ---
 
 proc createMessage*(api: OpenAiApi, req: CreateMessageReq): CreateMessageResp =
