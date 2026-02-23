@@ -1,5 +1,5 @@
 import
-  openai_leap/[chat, common, embeddings, files, markdown, models, responses]
+  openai_leap/[chat, common, embeddings, files, markdown, messages, models, responses]
 
 export
   chat,
@@ -7,6 +7,7 @@ export
   embeddings,
   files,
   markdown,
+  messages,
   models,
   responses
 

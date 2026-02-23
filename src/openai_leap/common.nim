@@ -401,6 +401,187 @@ type
     stream*: ResponseStream
     buffer*: string
 
+# --- Messages API types (Anthropic) ---
+
+type
+  AnthropicMetadata* = ref object
+    user_id*: Option[string]
+
+  ThinkingConfig* = ref object
+    `type`*: string  # "enabled", "disabled", "adaptive"
+    budget_tokens*: Option[int]
+
+  ToolChoiceConfig* = ref object
+    `type`*: string  # "auto", "any", "tool", "none"
+    name*: Option[string]
+    disable_parallel_tool_use*: Option[bool]
+
+  CacheControl* = ref object
+    `type`*: string  # "ephemeral"
+    ttl*: Option[string]  # "5m" or "1h"
+
+  TextBlock* = ref object
+    `type`*: string  # "text"
+    text*: string
+    cache_control*: Option[CacheControl]
+
+  ImageSource* = ref object
+    `type`*: string  # "base64" or "url"
+    media_type*: Option[string]
+    data*: Option[string]
+    url*: Option[string]
+
+  ImageBlock* = ref object
+    `type`*: string  # "image"
+    source*: ImageSource
+    cache_control*: Option[CacheControl]
+
+  DocumentSource* = ref object
+    `type`*: string  # "base64", "text", "url"
+    media_type*: Option[string]
+    data*: Option[string]
+    url*: Option[string]
+
+  DocumentBlock* = ref object
+    `type`*: string  # "document"
+    source*: DocumentSource
+    cache_control*: Option[CacheControl]
+    title*: Option[string]
+    context*: Option[string]
+
+  ToolUseBlock* = ref object
+    `type`*: string  # "tool_use"
+    id*: string
+    name*: string
+    input*: JsonNode
+    cache_control*: Option[CacheControl]
+
+  ToolResultContent* = ref object
+    `type`*: string  # "text" or "image"
+    text*: Option[string]
+    source*: Option[ImageSource]
+
+  ToolResultBlock* = ref object
+    `type`*: string  # "tool_result"
+    tool_use_id*: string
+    content*: Option[seq[ToolResultContent]]
+    is_error*: Option[bool]
+    cache_control*: Option[CacheControl]
+
+  ThinkingBlock* = ref object
+    `type`*: string  # "thinking"
+    thinking*: string
+    signature*: string
+
+  RedactedThinkingBlock* = ref object
+    `type`*: string  # "redacted_thinking"
+    data*: string
+
+  AnthropicMessage* = ref object
+    role*: string  # "user" or "assistant"
+    content*: JsonNode  # string or array of content blocks
+
+  AnthropicToolInputSchema* = ref object
+    `type`*: string  # "object"
+    properties*: Option[JsonNode]
+    required*: Option[seq[string]]
+
+  AnthropicTool* = ref object
+    name*: string
+    input_schema*: AnthropicToolInputSchema
+    description*: Option[string]
+    cache_control*: Option[CacheControl]
+    `type`*: Option[string]  # "custom" (optional)
+
+  OutputConfig* = ref object
+    effort*: Option[string]  # "low", "medium", "high", "max"
+    format*: Option[JsonNode]
+
+  CreateMessageReq* = ref object
+    model*: string
+    max_tokens*: int
+    messages*: seq[AnthropicMessage]
+    system*: Option[JsonNode]  # string or array of TextBlock
+    metadata*: Option[AnthropicMetadata]
+    stop_sequences*: Option[seq[string]]
+    stream*: Option[bool]
+    temperature*: Option[float32]
+    thinking*: Option[ThinkingConfig]
+    tool_choice*: Option[ToolChoiceConfig]
+    tools*: Option[seq[AnthropicTool]]
+    top_k*: Option[int]
+    top_p*: Option[float32]
+    output_config*: Option[OutputConfig]
+    service_tier*: Option[string]
+
+  AnthropicUsage* = ref object
+    input_tokens*: int
+    output_tokens*: int
+    cache_creation_input_tokens*: Option[int]
+    cache_read_input_tokens*: Option[int]
+
+  TextContentBlock* = ref object
+    `type`*: string  # "text"
+    text*: string
+    citations*: Option[JsonNode]
+
+  ThinkingContentBlock* = ref object
+    `type`*: string  # "thinking"
+    thinking*: string
+    signature*: string
+
+  RedactedThinkingContentBlock* = ref object
+    `type`*: string  # "redacted_thinking"
+    data*: string
+
+  ToolUseContentBlock* = ref object
+    `type`*: string  # "tool_use"
+    id*: string
+    name*: string
+    input*: JsonNode
+
+  CreateMessageResp* = ref object
+    id*: string
+    `type`*: string  # "message"
+    role*: string  # "assistant"
+    content*: seq[JsonNode]  # array of content blocks
+    model*: string
+    stop_reason*: Option[string]  # "end_turn", "max_tokens", "stop_sequence", "tool_use"
+    stop_sequence*: Option[string]
+    usage*: AnthropicUsage
+
+  MessageStreamEvent* = ref object
+    `type`*: string
+    message*: Option[CreateMessageResp]
+    index*: Option[int]
+    content_block*: Option[JsonNode]
+    delta*: Option[JsonNode]
+    usage*: Option[AnthropicUsage]
+
+  AnthropicToolImpl* = proc(args: JsonNode): string
+  AnthropicToolsTable* = object
+    data*: Table[string, (AnthropicTool, AnthropicToolImpl)]
+
+proc len*(table: AnthropicToolsTable): int =
+  table.data.len
+
+iterator pairs*(table: AnthropicToolsTable): (string, (AnthropicTool, AnthropicToolImpl)) =
+  for pair in table.data.pairs:
+    yield pair
+
+iterator keys*(table: AnthropicToolsTable): string =
+  for key in table.data.keys:
+    yield key
+
+proc hasKey*(table: AnthropicToolsTable, key: string): bool =
+  table.data.hasKey(key)
+
+proc `[]`*(table: AnthropicToolsTable, key: string): (AnthropicTool, AnthropicToolImpl) =
+  table.data[key]
+
+proc `[]=`*(table: var AnthropicToolsTable, key: string, value: (AnthropicTool, AnthropicToolImpl)) =
+  table.data[key] = value
+
 proc len*(table: ResponseToolsTable): int =
   table.data.len
 
