@@ -1,17 +1,9 @@
 # Manual interactive voice test for the OpenAI Realtime API.
 # Requires ALSA audio device (Linux).
-# Run with: nix develop -c nim r -d:ssl --threads:on --path:../../nim-alsa/src tests/manual_realtime_voice.nim
-
-# TODO this runs really, really poorly.
-# interruptions are not working at all right now
-# sometimes AI responses just drop out randomly?
-# the realtime model is shockingly bad? why are we using gpt-4o-mini it's awful.
-# the assitant reponse gets printed before the user's message gets printed?  the logs are confusing we log the user's message after assistant response.
-# I think the assistant response lands before the user's initial message is asyncronously sent.
-
+# Run with: nix develop -c nim r -d:ssl --threads:on --path:../nim-alsa/src tests/manual_realtime_voice.nim
 
 import
-  std/[base64, json, options, osproc, strutils],
+  std/[atomics, base64, json, options, os, osproc, strutils],
   openai_leap,
   alsa
 
@@ -20,12 +12,17 @@ const
   SampleRate = 24000'u32
   Channels = 1'u32
   ChunkFrames = 4800'u64
-  KernelBuffer = 19200'u64
+  CaptureKernelBuffer = 19200'u64
+  PlaybackKernelBuffer = 48000'u64  # 2 seconds for jitter tolerance
   AlsaDevice = "default"
 
 type
   CaptureArgs = object
     chan: ptr Channel[string]
+
+  PlaybackArgs = object
+    chan: ptr Channel[string]
+    flush: ptr Atomic[bool]
 
 var running = true
 
@@ -50,7 +47,7 @@ proc getDefaultAudioDevice(kind: string): string =
       return stripped[len("Description: ")..^1]
   return name
 
-proc openAlsaDevice(stream: streamModes): snd_pcm_ref =
+proc openAlsaDevice(stream: streamModes, bufferSize: uint64 = CaptureKernelBuffer): snd_pcm_ref =
   ## Open and configure an ALSA PCM device for 24kHz 16-bit mono.
   var
     handle: snd_pcm_ref
@@ -64,7 +61,7 @@ proc openAlsaDevice(stream: streamModes): snd_pcm_ref =
   discard snd_pcm_hw_params_set_format_nim(handle, hwParams, SND_PCM_FORMAT_S16_LE)
   discard snd_pcm_hw_params_set_channels_nim(handle, hwParams, Channels)
   discard snd_pcm_hw_params_set_rate_nim(handle, hwParams, SampleRate, 0)
-  discard snd_pcm_hw_params_set_buffer_size_nim(handle, hwParams, KernelBuffer)
+  discard snd_pcm_hw_params_set_buffer_size_nim(handle, hwParams, bufferSize.culong)
   if snd_pcm_hw_params_nim(handle, hwParams) < 0:
     raise newException(IOError, "Failed to set ALSA hw params")
   snd_pcm_hw_params_free_nim(hwParams)
@@ -72,7 +69,7 @@ proc openAlsaDevice(stream: streamModes): snd_pcm_ref =
 
 proc captureThread(args: CaptureArgs) {.thread.} =
   ## Continuously capture audio from microphone and send to channel.
-  let capture = openAlsaDevice(SND_PCM_STREAM_CAPTURE)
+  let capture = openAlsaDevice(SND_PCM_STREAM_CAPTURE, CaptureKernelBuffer)
   var buf: array[ChunkFrames, int16]
   while running:
     let frames = snd_pcm_readi_nim(capture, addr buf[0], ChunkFrames)
@@ -87,6 +84,34 @@ proc captureThread(args: CaptureArgs) {.thread.} =
       let encoded = base64.encode(str)
       args.chan[].send(encoded)
   discard snd_pcm_close_nim(capture)
+
+proc playbackThread(args: PlaybackArgs) {.thread.} =
+  ## Continuously play audio from channel to speakers.
+  let playback = openAlsaDevice(SND_PCM_STREAM_PLAYBACK, PlaybackKernelBuffer)
+  while running:
+    # Check flush flag (interruption).
+    if args.flush[].load(moRelaxed):
+      args.flush[].store(false, moRelaxed)
+      discard snd_pcm_drop_nim(playback)
+      discard snd_pcm_prepare_nim(playback)
+      # Drain stale audio from channel.
+      while true:
+        let tried = args.chan[].tryRecv()
+        if not tried.dataAvailable: break
+
+    let tried = args.chan[].tryRecv()
+    if not tried.dataAvailable:
+      sleep(1)
+      continue
+
+    let pcmData = tried.msg
+    let frames = pcmData.len div sizeof(int16)
+    if frames > 0:
+      let written = snd_pcm_writei_nim(playback, unsafeAddr pcmData[0], frames.culong)
+      if written < 0:
+        discard snd_pcm_prepare_nim(playback)
+        discard snd_pcm_writei_nim(playback, unsafeAddr pcmData[0], frames.culong)
+  discard snd_pcm_close_nim(playback)
 
 proc main() =
   ## Run an interactive voice chat over the Realtime API.
@@ -126,107 +151,110 @@ proc main() =
   echo "Use headphones for best interruption support (avoids echo feedback)."
   echo "Press Ctrl+C to exit."
   echo "---"
-
-  let playback = openAlsaDevice(SND_PCM_STREAM_PLAYBACK)
   echo "Audio input: " & getDefaultAudioDevice("source")
   echo "Audio output: " & getDefaultAudioDevice("sink")
 
-  # Channel for passing audio data from capture thread to main thread.
+  # Capture thread: mic → channel → main thread sends over WebSocket.
   var audioChan: Channel[string]
   audioChan.open()
-
   var capThread: Thread[CaptureArgs]
   createThread(capThread, captureThread, CaptureArgs(chan: addr audioChan))
+
+  # Playback thread: main thread decodes audio → channel → ALSA playback.
+  var playbackChan: Channel[string]
+  playbackChan.open()
+  var flushFlag: Atomic[bool]
+  flushFlag.store(false, moRelaxed)
+  var pbThread: Thread[PlaybackArgs]
+  createThread(pbThread, playbackThread, PlaybackArgs(
+    chan: addr playbackChan,
+    flush: addr flushFlag,
+  ))
 
   var
     pendingUserTranscript = ""
     inAssistantResponse = false
-    audioEventsReceived = 0
     eventsReceived = 0
 
   while running:
-    # Drain any queued audio chunks and send them over the WebSocket.
+    # PHASE 1: Greedily process ALL available events.
+    var eventsThisRound = 0
+    while true:
+      let timeoutMs = if eventsThisRound == 0: 10 else: 0
+      let event = session.nextEventWithTimeout(timeoutMs)
+      if event.isNone:
+        if not session.connected:
+          echo "\n[connection closed]"
+          running = false
+        break
+      inc eventsThisRound
+      inc eventsReceived
+
+      case event.get.`type`
+      of "input_audio_buffer.speech_started":
+        if inAssistantResponse:
+          echo ""
+          inAssistantResponse = false
+        # Signal playback thread to flush.
+        flushFlag.store(true, moRelaxed)
+        echo "[listening...]"
+      of "input_audio_buffer.speech_stopped":
+        echo "[processing...]"
+      of "response.audio.delta":
+        if event.get.delta.isSome:
+          let decoded = base64.decode(event.get.delta.get)
+          if decoded.len > 0:
+            playbackChan.send(decoded)
+      of "response.audio.done":
+        discard
+      of "response.audio_transcript.delta":
+        if event.get.delta.isSome:
+          if not inAssistantResponse:
+            stdout.write "Assistant: "
+            inAssistantResponse = true
+          stdout.write(event.get.delta.get)
+          stdout.flushFile()
+      of "response.audio_transcript.done":
+        if inAssistantResponse:
+          echo ""
+          inAssistantResponse = false
+      of "conversation.item.input_audio_transcription.delta":
+        if event.get.delta.isSome:
+          pendingUserTranscript &= event.get.delta.get
+      of "conversation.item.input_audio_transcription.completed":
+        if event.get.transcript.isSome:
+          pendingUserTranscript = event.get.transcript.get
+      of "response.done":
+        if pendingUserTranscript.len > 0:
+          echo "You: " & pendingUserTranscript
+          pendingUserTranscript = ""
+      of "error":
+        if event.get.error.isSome:
+          echo "[error] " & event.get.error.get.message
+      of "input_audio_buffer.committed",
+         "conversation.item.created",
+         "response.created",
+         "response.output_item.added",
+         "response.output_item.done",
+         "response.content_part.added",
+         "response.content_part.done",
+         "rate_limits.updated":
+        discard
+      else:
+        stderr.writeLine "[debug] unhandled event: " & event.get.`type`
+
+    # PHASE 2: Send queued capture audio.
     while true:
       let tried = audioChan.tryRecv()
       if not tried.dataAvailable:
         break
       session.appendAudio(tried.msg)
 
-    # Receive the next event with a short timeout so we can loop back to send audio.
-    let event = session.nextEventWithTimeout(50)
-    if event.isNone:
-      if not session.connected:
-        echo "\n[connection closed]"
-        break
-      continue
-    inc eventsReceived
-    case event.get.`type`
-    of "input_audio_buffer.speech_started":
-      if inAssistantResponse:
-        echo ""
-        inAssistantResponse = false
-      # Stop any audio still playing from a previous response.
-      discard snd_pcm_drop_nim(playback)
-      discard snd_pcm_prepare_nim(playback)
-      echo "[listening...]"
-    of "input_audio_buffer.speech_stopped":
-      echo "[processing...]"
-    of "response.audio.delta":
-      if event.get.delta.isSome:
-        let decoded = base64.decode(event.get.delta.get)
-        let frames = decoded.len div sizeof(int16)
-        if frames > 0:
-          let written = snd_pcm_writei_nim(playback, unsafeAddr decoded[0], frames.culong)
-          if written < 0:
-            discard snd_pcm_prepare_nim(playback)
-            discard snd_pcm_writei_nim(playback, unsafeAddr decoded[0], frames.culong)
-          inc audioEventsReceived
-    of "response.audio.done":
-      stderr.writeLine "[debug] audio playback events: " & $audioEventsReceived
-      audioEventsReceived = 0
-    of "response.audio_transcript.delta":
-      if event.get.delta.isSome:
-        if not inAssistantResponse:
-          stdout.write "Assistant: "
-          inAssistantResponse = true
-        stdout.write(event.get.delta.get)
-        stdout.flushFile()
-    of "response.audio_transcript.done":
-      if inAssistantResponse:
-        echo ""
-        inAssistantResponse = false
-    of "conversation.item.input_audio_transcription.delta":
-      if event.get.delta.isSome:
-        pendingUserTranscript &= event.get.delta.get
-    of "conversation.item.input_audio_transcription.completed":
-      if event.get.transcript.isSome:
-        pendingUserTranscript = event.get.transcript.get
-      # Don't print yet — wait until after the assistant response finishes.
-    of "response.done":
-      # Print the buffered user transcript before the response summary.
-      if pendingUserTranscript.len > 0:
-        echo "You: " & pendingUserTranscript
-        pendingUserTranscript = ""
-      stderr.writeLine "[debug] response complete (total events received: " & $eventsReceived & ")"
-    of "error":
-      if event.get.error.isSome:
-        echo "[error] " & event.get.error.get.message
-    of "input_audio_buffer.committed",
-       "conversation.item.created",
-       "response.created",
-       "response.output_item.added",
-       "response.output_item.done",
-       "response.content_part.added",
-       "response.content_part.done",
-       "rate_limits.updated":
-      discard
-    else:
-      stderr.writeLine "[debug] unhandled event: " & event.get.`type`
-
   running = false
   joinThread(capThread)
+  joinThread(pbThread)
   audioChan.close()
-  discard snd_pcm_close_nim(playback)
+  playbackChan.close()
   session.close()
   openai.close()
   echo "Bye."
