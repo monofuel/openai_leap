@@ -1,5 +1,5 @@
 # Test the OpenAI Realtime API (WebSocket)
-import openai_leap, std/[unittest, options]
+import openai_leap, std/[json, unittest, options]
 
 const
   TestModel = "gpt-4o-mini-realtime-preview"
@@ -66,4 +66,28 @@ suite "realtime":
     check gotTextDelta
     check gotResponseDone
     check fullText.len > 0
+    session.close()
+
+  test "configure audio session with server VAD":
+    let session = openai.connectRealtime(TestModel)
+    discard session.nextEvent() # session.created
+
+    let config = RealtimeSessionConfig()
+    config.modalities = option(@["text", "audio"])
+    config.voice = option("alloy")
+    config.input_audio_format = option("pcm16")
+    config.output_audio_format = option("pcm16")
+    config.input_audio_transcription = option(RealtimeTranscriptionConfig(
+      model: option("whisper-1"),
+    ))
+    config.turn_detection = option(%*{
+      "type": "server_vad",
+      "threshold": 0.5,
+      "silence_duration_ms": 500,
+    })
+    session.updateSession(config)
+
+    let event = session.nextEvent()
+    check event.isSome
+    check event.get.`type` == "session.updated"
     session.close()

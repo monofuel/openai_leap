@@ -28,6 +28,12 @@ proc dumpHook(s: var string, v: object) =
 # --- Types ---
 
 type
+  RealtimeTranscriptionConfig* = ref object
+    ## Configuration for input audio transcription.
+    model*: Option[string]
+    language*: Option[string]
+    prompt*: Option[string]
+
   RealtimeSessionConfig* = ref object
     ## Configuration for a realtime session.
     model*: Option[string]
@@ -35,14 +41,20 @@ type
     modalities*: Option[seq[string]]
     temperature*: Option[float32]
     max_response_output_tokens*: Option[JsonNode]
-    # NOT YET IMPLEMENTED: voice, input_audio_format, output_audio_format,
-    # input_audio_transcription, turn_detection, tools, tool_choice, speed
+    voice*: Option[string]
+    input_audio_format*: Option[string]
+    output_audio_format*: Option[string]
+    input_audio_transcription*: Option[RealtimeTranscriptionConfig]
+    turn_detection*: Option[JsonNode]
+    # NOT YET IMPLEMENTED: tools, tool_choice
 
   RealtimeContentPart* = ref object
     ## A content part within a realtime conversation item.
     `type`*: string
     text*: Option[string]
-    # NOT YET IMPLEMENTED: audio, transcript, image_url
+    audio*: Option[string]
+    transcript*: Option[string]
+    # NOT YET IMPLEMENTED: image_url
 
   RealtimeConversationItem* = ref object
     ## A conversation item in the realtime session.
@@ -72,7 +84,7 @@ type
     content_index*: Option[int]
     audio_end_ms*: Option[int]
     response*: Option[RealtimeResponseConfig]
-    # NOT YET IMPLEMENTED: input_audio_buffer.append (delta field), input_audio_buffer.clear, input_audio_buffer.commit
+    audio*: Option[string]
 
   RealtimeRateLimit* = ref object
     ## Rate limit information from the server.
@@ -115,11 +127,16 @@ type
     item_id*: Option[string]
     error*: Option[RealtimeError]
     rate_limits*: Option[seq[RealtimeRateLimit]]
+    audio_start_ms*: Option[int]
+    audio_end_ms*: Option[int]
+    transcript*: Option[string]
+    previous_item_id*: Option[string]
 
   RealtimeSession* = ref object
     ## An active realtime session wrapping a WebSocket connection.
     socket*: WebSocket
     connected*: bool
+    pendingRecv*: Future[string]
 
 # --- WebSocket connection with custom headers ---
 
@@ -205,12 +222,42 @@ proc nextEvent*(session: RealtimeSession): Option[RealtimeServerEvent] =
   ## Receive the next server event from the realtime API.
   ## Returns none if the connection is closed.
   ## This call blocks until an event is available.
+  while true:
+    try:
+      let packet = waitFor session.socket.receiveStrPacket()
+      if packet.len == 0:
+        continue
+      let event = fromJson(packet, RealtimeServerEvent)
+      return option(event)
+    except WebSocketClosedError:
+      session.connected = false
+      return none(RealtimeServerEvent)
+
+proc nextEventWithTimeout*(session: RealtimeSession, timeoutMs: int): Option[RealtimeServerEvent] =
+  ## Receive the next server event, or return none if timeout expires.
+  ## Useful when you need to interleave sending and receiving.
+  ## Reuses a pending receive future across calls to avoid corrupting the stream.
+  if session.pendingRecv.isNil:
+    session.pendingRecv = session.socket.receiveStrPacket()
   try:
-    let packet = waitFor session.socket.receiveStrPacket()
-    let event = fromJson(packet, RealtimeServerEvent)
-    return option(event)
+    # If the future already completed (e.g. during a send), read it immediately.
+    if session.pendingRecv.finished:
+      let packet = session.pendingRecv.read()
+      session.pendingRecv = nil
+      if packet.len == 0:
+        return none(RealtimeServerEvent)
+      return option(fromJson(packet, RealtimeServerEvent))
+    # Otherwise wait with a timeout.
+    if not waitFor withTimeout(session.pendingRecv, timeoutMs):
+      return none(RealtimeServerEvent)
+    let packet = session.pendingRecv.read()
+    session.pendingRecv = nil
+    if packet.len == 0:
+      return none(RealtimeServerEvent)
+    return option(fromJson(packet, RealtimeServerEvent))
   except WebSocketClosedError:
     session.connected = false
+    session.pendingRecv = nil
     return none(RealtimeServerEvent)
 
 # --- Convenience procs ---
@@ -249,6 +296,24 @@ proc createResponse*(session: RealtimeSession, config: RealtimeResponseConfig = 
 proc cancelResponse*(session: RealtimeSession) =
   ## Send a response.cancel event to stop in-progress generation.
   let event = RealtimeClientEvent(`type`: "response.cancel")
+  session.sendEvent(event)
+
+proc appendAudio*(session: RealtimeSession, audioBase64: string) =
+  ## Send an input_audio_buffer.append event with base64-encoded audio.
+  let event = RealtimeClientEvent(
+    `type`: "input_audio_buffer.append",
+    audio: option(audioBase64),
+  )
+  session.sendEvent(event)
+
+proc clearAudioBuffer*(session: RealtimeSession) =
+  ## Send an input_audio_buffer.clear event.
+  let event = RealtimeClientEvent(`type`: "input_audio_buffer.clear")
+  session.sendEvent(event)
+
+proc commitAudioBuffer*(session: RealtimeSession) =
+  ## Send an input_audio_buffer.commit event.
+  let event = RealtimeClientEvent(`type`: "input_audio_buffer.commit")
   session.sendEvent(event)
 
 proc close*(session: RealtimeSession) =
