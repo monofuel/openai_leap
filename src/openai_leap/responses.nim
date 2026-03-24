@@ -26,18 +26,6 @@ proc dumpHook(s: var string, v: object) =
       inc i
   s.add '}'
 
-proc newResponseToolsTable*(): ResponseToolsTable =
-  ## Create a new empty response tools table
-  result = ResponseToolsTable(data: initTable[string, (ToolFunction, ToolImpl)]())
-
-proc register*(table: var ResponseToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
-  ## Add a tool to the response tools table
-  table[name] = (toolFunc, impl)
-
-proc registerResponseTool*(table: var ResponseToolsTable, name: string, toolFunc: ToolFunction, impl: ToolImpl) =
-  ## Add a tool to the response tools table (deprecated; use register)
-  table.register(name, toolFunc, impl)
-
 proc createResponse*(
   api: OpenAiApi,
   req: CreateResponseReq

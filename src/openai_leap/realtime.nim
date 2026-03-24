@@ -46,7 +46,8 @@ type
     output_audio_format*: Option[string]
     input_audio_transcription*: Option[RealtimeTranscriptionConfig]
     turn_detection*: Option[JsonNode]
-    # NOT YET IMPLEMENTED: tools, tool_choice
+    tools*: Option[seq[ResponseTool]]
+    tool_choice*: Option[JsonNode]
 
   RealtimeContentPart* = ref object
     ## A content part within a realtime conversation item.
@@ -64,7 +65,10 @@ type
     status*: Option[string]
     role*: Option[string]
     content*: Option[seq[RealtimeContentPart]]
-    # NOT YET IMPLEMENTED: call_id, name, arguments, output (for function_call items)
+    call_id*: Option[string]
+    name*: Option[string]
+    arguments*: Option[string]
+    output*: Option[string]
 
   RealtimeResponseConfig* = ref object
     ## Configuration for triggering a response.
@@ -72,7 +76,9 @@ type
     instructions*: Option[string]
     temperature*: Option[float32]
     max_output_tokens*: Option[JsonNode]
-    # NOT YET IMPLEMENTED: voice, tools, tool_choice, conversation, input
+    voice*: Option[string]
+    tools*: Option[seq[ResponseTool]]
+    tool_choice*: Option[JsonNode]
 
   RealtimeClientEvent* = ref object
     ## A client event sent to the realtime API.
@@ -131,6 +137,9 @@ type
     audio_end_ms*: Option[int]
     transcript*: Option[string]
     previous_item_id*: Option[string]
+    name*: Option[string]
+    call_id*: Option[string]
+    arguments*: Option[string]
 
   RealtimeSession* = ref object
     ## An active realtime session wrapping a WebSocket connection.
@@ -335,3 +344,102 @@ proc newTextItem*(role: string, text: string): RealtimeConversationItem =
     role: option(role),
     content: option(@[contentPart]),
   )
+
+proc newFunctionCallOutputItem*(callId: string, output: string): RealtimeConversationItem =
+  ## Create a function_call_output conversation item.
+  ## Used to send tool results back to the model.
+  result = RealtimeConversationItem(
+    `type`: option("function_call_output"),
+    call_id: option(callId),
+    output: option(output),
+  )
+
+# --- Tool support ---
+
+proc updateSessionWithTools*(session: RealtimeSession, config: RealtimeSessionConfig, tools: ResponseToolsTable) =
+  ## Send a session.update event that includes tools from a ResponseToolsTable.
+  var toolSeq: seq[ResponseTool] = @[]
+  for toolName, (toolFunc, toolImpl) in tools.pairs:
+    toolSeq.add(ResponseTool(
+      `type`: "function",
+      name: toolName,
+      description: toolFunc.description,
+      parameters: toolFunc.parameters,
+    ))
+  config.tools = option(toolSeq)
+  if config.tool_choice.isNone:
+    config.tool_choice = option(%"auto")
+  session.updateSession(config)
+
+proc sendToolResult*(session: RealtimeSession, callId: string, output: string) =
+  ## Send a function_call_output item and trigger a response continuation.
+  session.addItem(newFunctionCallOutputItem(callId, output))
+  session.createResponse()
+
+type
+  RealtimeToolCallback* = proc(name: string, args: JsonNode, result: string)
+
+proc handleToolCalls*(
+  session: RealtimeSession,
+  tools: ResponseToolsTable,
+  timeoutMs: int = 30000,
+  callback: RealtimeToolCallback = nil,
+): seq[RealtimeServerEvent] =
+  ## Process events from the realtime session, automatically executing tool calls.
+  ## Returns all collected events.
+  ##
+  ## When a function_call item is received, the tool is executed via the
+  ## ResponseToolsTable and the result is sent back. After all tool calls in
+  ## a response are handled, a new response.create is sent to continue.
+  ## The loop exits when a response.done arrives with no tool calls,
+  ## or on error/timeout.
+  result = @[]
+  var pendingToolCalls = 0
+
+  while true:
+    let eventOpt = session.nextEventWithTimeout(timeoutMs)
+    if eventOpt.isNone:
+      break
+    let event = eventOpt.get
+    result.add(event)
+
+    case event.`type`
+    of "response.output_item.done":
+      if event.item.isSome and event.item.get.`type`.isSome and
+         event.item.get.`type`.get == "function_call":
+        let item = event.item.get
+        if item.call_id.isSome and item.name.isSome and item.arguments.isSome:
+          inc pendingToolCalls
+          let callId = item.call_id.get
+          let funcName = item.name.get
+          let argsStr = item.arguments.get
+          let toolResult = if tools.hasKey(funcName):
+            let (_, toolImpl) = tools[funcName]
+            let parsedArgs = parseJson(argsStr)
+            let res = toolImpl(parsedArgs)
+            if callback != nil:
+              callback(funcName, parsedArgs, res)
+            res
+          else:
+            var available: seq[string] = @[]
+            for name in tools.keys:
+              available.add(name)
+            "Error: Tool '" & funcName & "' not found. Available: " & available.join(", ")
+          session.addItem(newFunctionCallOutputItem(callId, toolResult))
+    of "response.done":
+      if pendingToolCalls > 0:
+        session.createResponse()
+        pendingToolCalls = 0
+      else:
+        break
+    of "error":
+      break
+    else:
+      discard
+
+proc extractText*(events: seq[RealtimeServerEvent]): string =
+  ## Extract all text deltas from a sequence of realtime events.
+  result = ""
+  for event in events:
+    if event.`type` == "response.text.delta" and event.delta.isSome:
+      result &= event.delta.get

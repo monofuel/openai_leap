@@ -3,7 +3,7 @@
 # Run with: nix develop -c nim r -d:ssl --threads:on --path:../nim-alsa/src tests/manual_realtime_voice.nim
 
 import
-  std/[atomics, base64, json, options, os, osproc, strutils],
+  std/[atomics, base64, json, options, os, osproc, strutils, tables],
   openai_leap,
   alsa
 
@@ -25,6 +25,20 @@ type
     flush: ptr Atomic[bool]
 
 var running = true
+
+proc getFlightTimes(departure: string, arrival: string): string =
+  var flights = initTable[string, JsonNode]()
+  flights["JFK-LAX"] = %* {"departure": "08:00 AM", "arrival": "11:30 AM", "duration": "5h 30m"}
+  flights["LAX-JFK"] = %* {"departure": "02:00 PM", "arrival": "10:30 PM", "duration": "5h 30m"}
+  flights["LHR-JFK"] = %* {"departure": "10:00 AM", "arrival": "01:00 PM", "duration": "8h 00m"}
+  flights["JFK-LHR"] = %* {"departure": "09:00 PM", "arrival": "09:00 AM", "duration": "7h 00m"}
+  flights["CDG-DXB"] = %* {"departure": "11:00 AM", "arrival": "08:00 PM", "duration": "6h 00m"}
+  flights["DXB-CDG"] = %* {"departure": "03:00 AM", "arrival": "07:30 AM", "duration": "7h 30m"}
+  let key = (departure & "-" & arrival).toUpperAscii()
+  if flights.contains(key):
+    return $flights[key]
+  else:
+    return "No flight found for " & key
 
 proc getDefaultAudioDevice(kind: string): string =
   ## Get the human-readable name of the default PulseAudio/PipeWire device.
@@ -127,6 +141,24 @@ proc main() =
     return
   echo "Session created."
 
+  var tools = newResponseToolsTable()
+  tools.register("get_flight_times",
+    ToolFunction(
+      name: "get_flight_times",
+      description: option("Get flight times between two cities. Available routes: JFK-LAX, LAX-JFK, LHR-JFK, JFK-LHR, CDG-DXB, DXB-CDG."),
+      parameters: option(%*{
+        "type": "object",
+        "properties": {
+          "departure": {"type": "string", "description": "Departure airport code (e.g. JFK, LAX, LHR, CDG, DXB)"},
+          "arrival": {"type": "string", "description": "Arrival airport code (e.g. JFK, LAX, LHR, CDG, DXB)"}
+        },
+        "required": ["departure", "arrival"]
+      })
+    ),
+    proc(args: JsonNode): string =
+      return getFlightTimes(args["departure"].getStr(), args["arrival"].getStr())
+  )
+
   let config = RealtimeSessionConfig()
   config.modalities = option(@["text", "audio"])
   config.voice = option("alloy")
@@ -141,13 +173,14 @@ proc main() =
     "silence_duration_ms": 500,
     "prefix_padding_ms": 300,
   })
-  session.updateSession(config)
+  session.updateSessionWithTools(config, tools)
 
   let updated = session.nextEvent()
   if updated.isSome and updated.get.`type` == "session.updated":
     echo "Session configured for voice (PCM16 24kHz mono, server VAD)."
   echo ""
   echo "Speak into your microphone. The assistant will respond with audio."
+  echo "Try asking about flights: JFK-LAX, LAX-JFK, LHR-JFK, JFK-LHR, CDG-DXB, DXB-CDG"
   echo "Use headphones for best interruption support (avoids echo feedback)."
   echo "Press Ctrl+C to exit."
   echo "---"
@@ -175,6 +208,7 @@ proc main() =
     pendingUserTranscript = ""
     inAssistantResponse = false
     eventsReceived = 0
+    pendingToolCalls = 0
 
   while running:
     # PHASE 1: Greedily process ALL available events.
@@ -224,7 +258,27 @@ proc main() =
       of "conversation.item.input_audio_transcription.completed":
         if event.get.transcript.isSome:
           pendingUserTranscript = event.get.transcript.get
+      of "response.output_item.done":
+        if event.get.item.isSome and event.get.item.get.`type`.isSome and
+           event.get.item.get.`type`.get == "function_call":
+          let item = event.get.item.get
+          if item.call_id.isSome and item.name.isSome and item.arguments.isSome:
+            let funcName = item.name.get
+            let argsStr = item.arguments.get
+            let callId = item.call_id.get
+            echo "[tool call] " & funcName & "(" & argsStr & ")"
+            let toolResult = if tools.hasKey(funcName):
+              let (_, toolImpl) = tools[funcName]
+              toolImpl(parseJson(argsStr))
+            else:
+              "Error: Tool '" & funcName & "' not found"
+            echo "[tool result] " & toolResult
+            session.addItem(newFunctionCallOutputItem(callId, toolResult))
+            inc pendingToolCalls
       of "response.done":
+        if pendingToolCalls > 0:
+          session.createResponse()
+          pendingToolCalls = 0
         if pendingUserTranscript.len > 0:
           echo "You: " & pendingUserTranscript
           pendingUserTranscript = ""
@@ -235,7 +289,8 @@ proc main() =
          "conversation.item.created",
          "response.created",
          "response.output_item.added",
-         "response.output_item.done",
+         "response.function_call_arguments.delta",
+         "response.function_call_arguments.done",
          "response.content_part.added",
          "response.content_part.done",
          "rate_limits.updated":
