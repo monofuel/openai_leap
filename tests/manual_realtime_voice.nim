@@ -2,6 +2,14 @@
 # Requires ALSA audio device (Linux).
 # Run with: nix develop -c nim r -d:ssl --threads:on --path:../../nim-alsa/src tests/manual_realtime_voice.nim
 
+# TODO this runs really, really poorly.
+# interruptions are not working at all right now
+# sometimes AI responses just drop out randomly?
+# the realtime model is shockingly bad? why are we using gpt-4o-mini it's awful.
+# the assitant reponse gets printed before the user's message gets printed?  the logs are confusing we log the user's message after assistant response.
+# I think the assistant response lands before the user's initial message is asyncronously sent.
+
+
 import
   std/[base64, json, options, osproc, strutils],
   openai_leap,
