@@ -16,7 +16,7 @@ import
   alsa
 
 const
-  Model = "gpt-4o-mini-realtime-preview"
+  Model = "gpt-realtime"
   SampleRate = 24000'u32
   Channels = 1'u32
   ChunkFrames = 4800'u64
