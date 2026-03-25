@@ -17,11 +17,11 @@
             nimble
             curlFull
             openssl
-            alsa-lib
+            openal
           ];
 
           shellHook = ''
-            export LD_LIBRARY_PATH=${pkgs.curl.out}/lib:${pkgs.openssl.out}/lib:${pkgs.alsa-lib.out}/lib:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=${pkgs.curl.out}/lib:${pkgs.openssl.out}/lib:${pkgs.openal.out}/lib:$LD_LIBRARY_PATH
           '';
         };
     };
