@@ -150,15 +150,46 @@ proc toMessageReq*(req: CreateResponseReq): CreateMessageReq =
         # Anthropic only supports "user" and "assistant" roles; map system/developer to user
         let anthropicRole = if role == "user" or role == "system" or role == "developer": "user" else: "assistant"
         if input.content.isSome:
-          var textParts: seq[string] = @[]
+          var contentBlocks: seq[JsonNode] = @[]
+          var hasImages = false
           for part in input.content.get:
             if part.text.isSome:
-              textParts.add(part.text.get)
-          if textParts.len > 0:
-            messages.add(AnthropicMessage(
-              role: anthropicRole,
-              content: % textParts.join("\n")
-            ))
+              contentBlocks.add(% TextBlock(`type`: "text", text: part.text.get))
+            elif part.image_url.isSome:
+              hasImages = true
+              let url = part.image_url.get.url
+              if url.startsWith("data:"):
+                let headerEnd = url.find(",")
+                if headerEnd > 0:
+                  let header = url[5 ..< headerEnd]
+                  let mediaType = header.split(";")[0]
+                  let b64data = url[headerEnd + 1 .. ^1]
+                  contentBlocks.add(% ImageBlock(
+                    `type`: "image",
+                    source: ImageSource(`type`: "base64", media_type: option(mediaType), data: option(b64data))
+                  ))
+              else:
+                contentBlocks.add(% ImageBlock(
+                  `type`: "image",
+                  source: ImageSource(`type`: "url", url: option(url))
+                ))
+          if contentBlocks.len > 0:
+            if hasImages:
+              let contentArray = newJArray()
+              for cb in contentBlocks:
+                contentArray.add(cb)
+              messages.add(AnthropicMessage(
+                role: anthropicRole,
+                content: contentArray
+              ))
+            else:
+              var texts: seq[string] = @[]
+              for cb in contentBlocks:
+                texts.add(cb["text"].getStr)
+              messages.add(AnthropicMessage(
+                role: anthropicRole,
+                content: % texts.join("\n")
+              ))
   result.messages = messages
 
 proc toOpenAiResponse*(resp: CreateMessageResp): OpenAiResponse =
