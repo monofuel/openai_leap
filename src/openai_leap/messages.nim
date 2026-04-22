@@ -164,15 +164,15 @@ proc toMessageReq*(req: CreateResponseReq): CreateMessageReq =
                   let header = url[5 ..< headerEnd]
                   let mediaType = header.split(";")[0]
                   let b64data = url[headerEnd + 1 .. ^1]
-                  contentBlocks.add(% ImageBlock(
+                  contentBlocks.add(parseJson(toJson(ImageBlock(
                     `type`: "image",
                     source: ImageSource(`type`: "base64", media_type: option(mediaType), data: option(b64data))
-                  ))
+                  ))))
               else:
-                contentBlocks.add(% ImageBlock(
+                contentBlocks.add(parseJson(toJson(ImageBlock(
                   `type`: "image",
                   source: ImageSource(`type`: "url", url: option(url))
-                ))
+                ))))
           if contentBlocks.len > 0:
             if hasImages:
               let contentArray = newJArray()
