@@ -1,0 +1,32 @@
+nimTitle	realtime	openai_leap/realtime.html	module openai_leap/realtime		0
+nim	RealtimeTranscriptionConfig	openai_leap/realtime.html#RealtimeTranscriptionConfig	type RealtimeTranscriptionConfig		31
+nim	RealtimeSessionConfig	openai_leap/realtime.html#RealtimeSessionConfig	type RealtimeSessionConfig		37
+nim	RealtimeContentPart	openai_leap/realtime.html#RealtimeContentPart	type RealtimeContentPart		52
+nim	RealtimeConversationItem	openai_leap/realtime.html#RealtimeConversationItem	type RealtimeConversationItem		60
+nim	RealtimeResponseConfig	openai_leap/realtime.html#RealtimeResponseConfig	type RealtimeResponseConfig		73
+nim	RealtimeClientEvent	openai_leap/realtime.html#RealtimeClientEvent	type RealtimeClientEvent		83
+nim	RealtimeRateLimit	openai_leap/realtime.html#RealtimeRateLimit	type RealtimeRateLimit		95
+nim	RealtimeError	openai_leap/realtime.html#RealtimeError	type RealtimeError		102
+nim	RealtimeResponseObject	openai_leap/realtime.html#RealtimeResponseObject	type RealtimeResponseObject		109
+nim	RealtimeServerEvent	openai_leap/realtime.html#RealtimeServerEvent	type RealtimeServerEvent		118
+nim	RealtimeSession	openai_leap/realtime.html#RealtimeSession	type RealtimeSession		144
+nim	connectRealtime	openai_leap/realtime.html#connectRealtime,OpenAiApi,string	proc connectRealtime(api: OpenAiApi; model: string): RealtimeSession		198
+nim	sendEvent	openai_leap/realtime.html#sendEvent,RealtimeSession,RealtimeClientEvent	proc sendEvent(session: RealtimeSession; event: RealtimeClientEvent)		223
+nim	nextEvent	openai_leap/realtime.html#nextEvent,RealtimeSession	proc nextEvent(session: RealtimeSession): Option[RealtimeServerEvent]		230
+nim	nextEventWithTimeout	openai_leap/realtime.html#nextEventWithTimeout,RealtimeSession,int	proc nextEventWithTimeout(session: RealtimeSession; timeoutMs: int): Option[\n    RealtimeServerEvent]		245
+nim	updateSession	openai_leap/realtime.html#updateSession,RealtimeSession,RealtimeSessionConfig	proc updateSession(session: RealtimeSession; config: RealtimeSessionConfig)		274
+nim	addItem	openai_leap/realtime.html#addItem,RealtimeSession,RealtimeConversationItem	proc addItem(session: RealtimeSession; item: RealtimeConversationItem)		282
+nim	deleteItem	openai_leap/realtime.html#deleteItem,RealtimeSession,string	proc deleteItem(session: RealtimeSession; itemId: string)		290
+nim	createResponse	openai_leap/realtime.html#createResponse,RealtimeSession,RealtimeResponseConfig	proc createResponse(session: RealtimeSession; config: RealtimeResponseConfig = nil)		298
+nim	cancelResponse	openai_leap/realtime.html#cancelResponse,RealtimeSession	proc cancelResponse(session: RealtimeSession)		305
+nim	appendAudio	openai_leap/realtime.html#appendAudio,RealtimeSession,string	proc appendAudio(session: RealtimeSession; audioBase64: string)		310
+nim	clearAudioBuffer	openai_leap/realtime.html#clearAudioBuffer,RealtimeSession	proc clearAudioBuffer(session: RealtimeSession)		318
+nim	commitAudioBuffer	openai_leap/realtime.html#commitAudioBuffer,RealtimeSession	proc commitAudioBuffer(session: RealtimeSession)		323
+nim	close	openai_leap/realtime.html#close,RealtimeSession	proc close(session: RealtimeSession)		328
+nim	newTextItem	openai_leap/realtime.html#newTextItem,string,string	proc newTextItem(role: string; text: string): RealtimeConversationItem		335
+nim	newFunctionCallOutputItem	openai_leap/realtime.html#newFunctionCallOutputItem,string,string	proc newFunctionCallOutputItem(callId: string; output: string): RealtimeConversationItem		348
+nim	updateSessionWithTools	openai_leap/realtime.html#updateSessionWithTools,RealtimeSession,RealtimeSessionConfig,ResponseToolsTable	proc updateSessionWithTools(session: RealtimeSession; config: RealtimeSessionConfig;\n                       tools: ResponseToolsTable)		359
+nim	sendToolResult	openai_leap/realtime.html#sendToolResult,RealtimeSession,string,string	proc sendToolResult(session: RealtimeSession; callId: string; output: string)		374
+nim	RealtimeToolCallback	openai_leap/realtime.html#RealtimeToolCallback	type RealtimeToolCallback		380
+nim	handleToolCalls	openai_leap/realtime.html#handleToolCalls,RealtimeSession,ResponseToolsTable,int,RealtimeToolCallback	proc handleToolCalls(session: RealtimeSession; tools: ResponseToolsTable;\n                timeoutMs: int = 30000; callback: RealtimeToolCallback = nil): seq[\n    RealtimeServerEvent]		382
+nim	extractText	openai_leap/realtime.html#extractText,seq[RealtimeServerEvent]	proc extractText(events: seq[RealtimeServerEvent]): string		440

@@ -16,499 +16,864 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.2.6">
+<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.2.10">
 
 <!-- JS -->
-<script type="text/javascript" src="dochack.js?v=2.2.6"></script>
+<script type="text/javascript" src="dochack.js?v=2.2.10"></script>
 </head>
 <body>
   <div class="document" id="documentId">
+    <input type="checkbox" id="nav-toggle" hidden>
+    <label for="nav-toggle" id="nav-burger">&#9776;</label>
+    <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="openai_leap.html">openai_leap</a>.<br/><p /><h2>API symbols</h2>
-<dl><dt><a name="AudioTranscription" href="#AudioTranscription"><span>AudioTranscription:</span></a></dt><dd><ul class="simple">
+      Modules: <a href="openai_leap.html">openai_leap</a>, <a href="openai_leap/chat.html">openai_leap/chat</a>, <a href="openai_leap/common.html">openai_leap/common</a>, <a href="openai_leap/embeddings.html">openai_leap/embeddings</a>, <a href="openai_leap/files.html">openai_leap/files</a>, <a href="openai_leap/markdown.html">openai_leap/markdown</a>, <a href="openai_leap/messages.html">openai_leap/messages</a>, <a href="openai_leap/models.html">openai_leap/models</a>, <a href="openai_leap/realtime.html">openai_leap/realtime</a>, <a href="openai_leap/responses.html">openai_leap/responses</a>.<br/><p /><h2>API symbols</h2>
+<dl><dt><a name="%60%5B%5D%3D%60" href="#%60%5B%5D%3D%60"><span>`[]=`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: object AudioTranscription" href="openai_leap.html#AudioTranscription">openai_leap: object AudioTranscription</a></li>
+          data-doc-search-tag="common: proc `[]=`(table: var ResponseToolsTable; key: string;
+      value: (ToolFunction, ToolImpl))" href="openai_leap/common.html#%5B%5D%3D%2CResponseToolsTable%2Cstring%2C">common: proc `[]=`(table: var ResponseToolsTable; key: string;
+      value: (ToolFunction, ToolImpl))</a></li>
+          </ul></dd>
+<dt><a name="%60%5B%5D%60" href="#%60%5B%5D%60"><span>`[]`:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc `[]`(table: ResponseToolsTable; key: string): (ToolFunction, ToolImpl)" href="openai_leap/common.html#%5B%5D%2CResponseToolsTable%2Cstring">common: proc `[]`(table: ResponseToolsTable; key: string): (ToolFunction, ToolImpl)</a></li>
+          </ul></dd>
+<dt><a name="addItem" href="#addItem"><span>addItem:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc addItem(session: RealtimeSession; item: RealtimeConversationItem)" href="openai_leap/realtime.html#addItem%2CRealtimeSession%2CRealtimeConversationItem">realtime: proc addItem(session: RealtimeSession; item: RealtimeConversationItem)</a></li>
+          </ul></dd>
+<dt><a name="AnthropicMessage" href="#AnthropicMessage"><span>AnthropicMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type AnthropicMessage" href="openai_leap/common.html#AnthropicMessage">common: type AnthropicMessage</a></li>
+          </ul></dd>
+<dt><a name="AnthropicMetadata" href="#AnthropicMetadata"><span>AnthropicMetadata:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type AnthropicMetadata" href="openai_leap/common.html#AnthropicMetadata">common: type AnthropicMetadata</a></li>
+          </ul></dd>
+<dt><a name="AnthropicTool" href="#AnthropicTool"><span>AnthropicTool:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type AnthropicTool" href="openai_leap/common.html#AnthropicTool">common: type AnthropicTool</a></li>
+          </ul></dd>
+<dt><a name="AnthropicToolInputSchema" href="#AnthropicToolInputSchema"><span>AnthropicToolInputSchema:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type AnthropicToolInputSchema" href="openai_leap/common.html#AnthropicToolInputSchema">common: type AnthropicToolInputSchema</a></li>
+          </ul></dd>
+<dt><a name="AnthropicUsage" href="#AnthropicUsage"><span>AnthropicUsage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type AnthropicUsage" href="openai_leap/common.html#AnthropicUsage">common: type AnthropicUsage</a></li>
+          </ul></dd>
+<dt><a name="appendAudio" href="#appendAudio"><span>appendAudio:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc appendAudio(session: RealtimeSession; audioBase64: string)" href="openai_leap/realtime.html#appendAudio%2CRealtimeSession%2Cstring">realtime: proc appendAudio(session: RealtimeSession; audioBase64: string)</a></li>
+          </ul></dd>
+<dt><a name="AudioTranscription" href="#AudioTranscription"><span>AudioTranscription:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: object AudioTranscription" href="openai_leap/common.html#AudioTranscription">common: object AudioTranscription</a></li>
           </ul></dd>
 <dt><a name="audioTranscriptions" href="#audioTranscriptions"><span>audioTranscriptions:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription" href="openai_leap.html#audioTranscriptions%2COpenAiApi%2Cstring%2Cstring">openai_leap: proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription</a></li>
+          data-doc-search-tag="files: proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription" href="openai_leap/files.html#audioTranscriptions%2COpenAiApi%2Cstring%2Cstring">files: proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription</a></li>
+          </ul></dd>
+<dt><a name="CacheControl" href="#CacheControl"><span>CacheControl:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type CacheControl" href="openai_leap/common.html#CacheControl">common: type CacheControl</a></li>
           </ul></dd>
 <dt><a name="cancelFineTuneModel" href="#cancelFineTuneModel"><span>cancelFineTuneModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap.html#cancelFineTuneModel%2COpenAiApi%2Cstring">openai_leap: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
+          data-doc-search-tag="files: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap/files.html#cancelFineTuneModel%2COpenAiApi%2Cstring">files: proc cancelFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
+          </ul></dd>
+<dt><a name="cancelResponse" href="#cancelResponse"><span>cancelResponse:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc cancelResponse(session: RealtimeSession)" href="openai_leap/realtime.html#cancelResponse%2CRealtimeSession">realtime: proc cancelResponse(session: RealtimeSession)</a></li>
           </ul></dd>
 <dt><a name="ChatCompletionCallback" href="#ChatCompletionCallback"><span>ChatCompletionCallback:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ChatCompletionCallback" href="openai_leap.html#ChatCompletionCallback">openai_leap: type ChatCompletionCallback</a></li>
+          data-doc-search-tag="common: type ChatCompletionCallback" href="openai_leap/common.html#ChatCompletionCallback">common: type ChatCompletionCallback</a></li>
           </ul></dd>
 <dt><a name="ChatCompletionChunk" href="#ChatCompletionChunk"><span>ChatCompletionChunk:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: object ChatCompletionChunk" href="openai_leap.html#ChatCompletionChunk">openai_leap: object ChatCompletionChunk</a></li>
+          data-doc-search-tag="common: object ChatCompletionChunk" href="openai_leap/common.html#ChatCompletionChunk">common: object ChatCompletionChunk</a></li>
           </ul></dd>
 <dt><a name="Classification" href="#Classification"><span>Classification:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.Classification" href="openai_leap.html#Classification">openai_leap: EmbeddingTask.Classification</a></li>
+          data-doc-search-tag="common: EmbeddingTask.Classification" href="openai_leap/common.html#Classification">common: EmbeddingTask.Classification</a></li>
+          </ul></dd>
+<dt><a name="clearAudioBuffer" href="#clearAudioBuffer"><span>clearAudioBuffer:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc clearAudioBuffer(session: RealtimeSession)" href="openai_leap/realtime.html#clearAudioBuffer%2CRealtimeSession">realtime: proc clearAudioBuffer(session: RealtimeSession)</a></li>
           </ul></dd>
 <dt><a name="close" href="#close"><span>close:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc close(api: OpenAiApi)" href="openai_leap.html#close%2COpenAiApi">openai_leap: proc close(api: OpenAiApi)</a></li>
+          data-doc-search-tag="common: proc close(api: OpenAiApi)" href="openai_leap/common.html#close%2COpenAiApi">common: proc close(api: OpenAiApi)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="realtime: proc close(session: RealtimeSession)" href="openai_leap/realtime.html#close%2CRealtimeSession">realtime: proc close(session: RealtimeSession)</a></li>
           </ul></dd>
 <dt><a name="Clustering" href="#Clustering"><span>Clustering:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.Clustering" href="openai_leap.html#Clustering">openai_leap: EmbeddingTask.Clustering</a></li>
+          data-doc-search-tag="common: EmbeddingTask.Clustering" href="openai_leap/common.html#Clustering">common: EmbeddingTask.Clustering</a></li>
           </ul></dd>
 <dt><a name="CodeRetrieval" href="#CodeRetrieval"><span>CodeRetrieval:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.CodeRetrieval" href="openai_leap.html#CodeRetrieval">openai_leap: EmbeddingTask.CodeRetrieval</a></li>
+          data-doc-search-tag="common: EmbeddingTask.CodeRetrieval" href="openai_leap/common.html#CodeRetrieval">common: EmbeddingTask.CodeRetrieval</a></li>
+          </ul></dd>
+<dt><a name="commitAudioBuffer" href="#commitAudioBuffer"><span>commitAudioBuffer:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc commitAudioBuffer(session: RealtimeSession)" href="openai_leap/realtime.html#commitAudioBuffer%2CRealtimeSession">realtime: proc commitAudioBuffer(session: RealtimeSession)</a></li>
+          </ul></dd>
+<dt><a name="connectRealtime" href="#connectRealtime"><span>connectRealtime:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc connectRealtime(api: OpenAiApi; model: string): RealtimeSession" href="openai_leap/realtime.html#connectRealtime%2COpenAiApi%2Cstring">realtime: proc connectRealtime(api: OpenAiApi; model: string): RealtimeSession</a></li>
           </ul></dd>
 <dt><a name="createChatCompletion" href="#createChatCompletion"><span>createChatCompletion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp" href="openai_leap.html#createChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">openai_leap: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp</a></li>
+          data-doc-search-tag="chat: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp" href="openai_leap/chat.html#createChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">chat: proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
-                     input: string; responseFormat: JsonNode = nil): string" href="openai_leap.html#createChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring%2CJsonNode">openai_leap: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
+          data-doc-search-tag="chat: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
+                     input: string; responseFormat: JsonNode = nil): string" href="openai_leap/chat.html#createChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring%2CJsonNode">chat: proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string; responseFormat: JsonNode = nil): string</a></li>
           </ul></dd>
 <dt><a name="CreateChatCompletionReq" href="#CreateChatCompletionReq"><span>CreateChatCompletionReq:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type CreateChatCompletionReq" href="openai_leap.html#CreateChatCompletionReq">openai_leap: type CreateChatCompletionReq</a></li>
+          data-doc-search-tag="common: type CreateChatCompletionReq" href="openai_leap/common.html#CreateChatCompletionReq">common: type CreateChatCompletionReq</a></li>
           </ul></dd>
 <dt><a name="CreateChatCompletionResp" href="#CreateChatCompletionResp"><span>CreateChatCompletionResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type CreateChatCompletionResp" href="openai_leap.html#CreateChatCompletionResp">openai_leap: type CreateChatCompletionResp</a></li>
+          data-doc-search-tag="common: type CreateChatCompletionResp" href="openai_leap/common.html#CreateChatCompletionResp">common: type CreateChatCompletionResp</a></li>
           </ul></dd>
 <dt><a name="createChatCompletionWithTools" href="#createChatCompletionWithTools"><span>createChatCompletionWithTools:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;
+          data-doc-search-tag="chat: proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;
                               tools: ToolsTable;
-                              callback: ChatCompletionCallback = nil): CreateChatCompletionResp" href="openai_leap.html#createChatCompletionWithTools%2COpenAiApi%2CCreateChatCompletionReq%2CToolsTable%2CChatCompletionCallback">openai_leap: proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;
+                              callback: ChatCompletionCallback = nil): CreateChatCompletionResp" href="openai_leap/chat.html#createChatCompletionWithTools%2COpenAiApi%2CCreateChatCompletionReq%2CToolsTable%2CChatCompletionCallback">chat: proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;
                               tools: ToolsTable;
                               callback: ChatCompletionCallback = nil): CreateChatCompletionResp</a></li>
           </ul></dd>
 <dt><a name="CreateChatMessage" href="#CreateChatMessage"><span>CreateChatMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type CreateChatMessage" href="openai_leap.html#CreateChatMessage">openai_leap: type CreateChatMessage</a></li>
+          data-doc-search-tag="common: type CreateChatMessage" href="openai_leap/common.html#CreateChatMessage">common: type CreateChatMessage</a></li>
           </ul></dd>
 <dt><a name="CreateEmbeddingReq" href="#CreateEmbeddingReq"><span>CreateEmbeddingReq:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type CreateEmbeddingReq" href="openai_leap.html#CreateEmbeddingReq">openai_leap: type CreateEmbeddingReq</a></li>
+          data-doc-search-tag="common: type CreateEmbeddingReq" href="openai_leap/common.html#CreateEmbeddingReq">common: type CreateEmbeddingReq</a></li>
           </ul></dd>
 <dt><a name="CreateEmbeddingResp" href="#CreateEmbeddingResp"><span>CreateEmbeddingResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type CreateEmbeddingResp" href="openai_leap.html#CreateEmbeddingResp">openai_leap: type CreateEmbeddingResp</a></li>
+          data-doc-search-tag="common: type CreateEmbeddingResp" href="openai_leap/common.html#CreateEmbeddingResp">common: type CreateEmbeddingResp</a></li>
           </ul></dd>
 <dt><a name="CreateEmbeddingRespObj" href="#CreateEmbeddingRespObj"><span>CreateEmbeddingRespObj:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type CreateEmbeddingRespObj" href="openai_leap.html#CreateEmbeddingRespObj">openai_leap: type CreateEmbeddingRespObj</a></li>
+          data-doc-search-tag="common: type CreateEmbeddingRespObj" href="openai_leap/common.html#CreateEmbeddingRespObj">common: type CreateEmbeddingRespObj</a></li>
           </ul></dd>
 <dt><a name="createFineTuneDataset" href="#createFineTuneDataset"><span>createFineTuneDataset:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createFineTuneDataset(api: OpenAiApi; filepath: string): OpenAIFile" href="openai_leap.html#createFineTuneDataset%2COpenAiApi%2Cstring">openai_leap: proc createFineTuneDataset(api: OpenAiApi; filepath: string): OpenAIFile</a></li>
+          data-doc-search-tag="files: proc createFineTuneDataset(api: OpenAiApi; filepath: string): OpenAIFile" href="openai_leap/files.html#createFineTuneDataset%2COpenAiApi%2Cstring">files: proc createFineTuneDataset(api: OpenAiApi; filepath: string): OpenAIFile</a></li>
           </ul></dd>
 <dt><a name="createFineTuneJob" href="#createFineTuneJob"><span>createFineTuneJob:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createFineTuneJob(api: OpenAiApi; req: OpenAIFinetuneRequest): OpenAIFinetuneJob" href="openai_leap.html#createFineTuneJob%2COpenAiApi%2COpenAIFinetuneRequest">openai_leap: proc createFineTuneJob(api: OpenAiApi; req: OpenAIFinetuneRequest): OpenAIFinetuneJob</a></li>
+          data-doc-search-tag="files: proc createFineTuneJob(api: OpenAiApi; req: OpenAIFinetuneRequest): OpenAIFinetuneJob" href="openai_leap/files.html#createFineTuneJob%2COpenAiApi%2COpenAIFinetuneRequest">files: proc createFineTuneJob(api: OpenAiApi; req: OpenAIFinetuneRequest): OpenAIFinetuneJob</a></li>
+          </ul></dd>
+<dt><a name="createMessage" href="#createMessage"><span>createMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc createMessage(api: OpenAiApi; req: CreateMessageReq): CreateMessageResp" href="openai_leap/messages.html#createMessage%2COpenAiApi%2CCreateMessageReq">messages: proc createMessage(api: OpenAiApi; req: CreateMessageReq): CreateMessageResp</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="messages: proc createMessage(api: OpenAiApi; model: string; maxTokens: int; prompt: string;
+              system: string = &quot;&quot;): CreateMessageResp" href="openai_leap/messages.html#createMessage%2COpenAiApi%2Cstring%2Cint%2Cstring%2Cstring">messages: proc createMessage(api: OpenAiApi; model: string; maxTokens: int; prompt: string;
+              system: string = &quot;&quot;): CreateMessageResp</a></li>
+          </ul></dd>
+<dt><a name="CreateMessageReq" href="#CreateMessageReq"><span>CreateMessageReq:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type CreateMessageReq" href="openai_leap/common.html#CreateMessageReq">common: type CreateMessageReq</a></li>
+          </ul></dd>
+<dt><a name="CreateMessageResp" href="#CreateMessageResp"><span>CreateMessageResp:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type CreateMessageResp" href="openai_leap/common.html#CreateMessageResp">common: type CreateMessageResp</a></li>
+          </ul></dd>
+<dt><a name="createMessageWithTools" href="#createMessageWithTools"><span>createMessageWithTools:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc createMessageWithTools(api: OpenAiApi; req: var CreateMessageReq;
+                       tools: ResponseToolsTable; callback: proc () = nil): CreateMessageResp" href="openai_leap/messages.html#createMessageWithTools%2COpenAiApi%2CCreateMessageReq%2CResponseToolsTable%2Cproc%29">messages: proc createMessageWithTools(api: OpenAiApi; req: var CreateMessageReq;
+                       tools: ResponseToolsTable; callback: proc () = nil): CreateMessageResp</a></li>
           </ul></dd>
 <dt><a name="createResponse" href="#createResponse"><span>createResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createResponse(api: OpenAiApi; req: CreateResponseReq): OpenAiResponse" href="openai_leap.html#createResponse%2COpenAiApi%2CCreateResponseReq">openai_leap: proc createResponse(api: OpenAiApi; req: CreateResponseReq): OpenAiResponse</a></li>
+          data-doc-search-tag="realtime: proc createResponse(session: RealtimeSession; config: RealtimeResponseConfig = nil)" href="openai_leap/realtime.html#createResponse%2CRealtimeSession%2CRealtimeResponseConfig">realtime: proc createResponse(session: RealtimeSession; config: RealtimeResponseConfig = nil)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc createResponse(api: OpenAiApi; model: string; input: string;
-               instructions: string = &quot;&quot;): OpenAiResponse" href="openai_leap.html#createResponse%2COpenAiApi%2Cstring%2Cstring%2Cstring">openai_leap: proc createResponse(api: OpenAiApi; model: string; input: string;
+          data-doc-search-tag="responses: proc createResponse(api: OpenAiApi; req: CreateResponseReq): OpenAiResponse" href="openai_leap/responses.html#createResponse%2COpenAiApi%2CCreateResponseReq">responses: proc createResponse(api: OpenAiApi; req: CreateResponseReq): OpenAiResponse</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="responses: proc createResponse(api: OpenAiApi; model: string; input: string;
+               instructions: string = &quot;&quot;): OpenAiResponse" href="openai_leap/responses.html#createResponse%2COpenAiApi%2Cstring%2Cstring%2Cstring">responses: proc createResponse(api: OpenAiApi; model: string; input: string;
                instructions: string = &quot;&quot;): OpenAiResponse</a></li>
           </ul></dd>
 <dt><a name="CreateResponseReq" href="#CreateResponseReq"><span>CreateResponseReq:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type CreateResponseReq" href="openai_leap.html#CreateResponseReq">openai_leap: type CreateResponseReq</a></li>
+          data-doc-search-tag="common: type CreateResponseReq" href="openai_leap/common.html#CreateResponseReq">common: type CreateResponseReq</a></li>
+          </ul></dd>
+<dt><a name="createResponseWithTools" href="#createResponseWithTools"><span>createResponseWithTools:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="responses: proc createResponseWithTools(api: OpenAiApi; req: var CreateResponseReq;
+                        tools: ResponseToolsTable;
+                        callback: ResponseCallback = nil;
+                        usePreviousResponseId: bool = true): OpenAiResponse" href="openai_leap/responses.html#createResponseWithTools%2COpenAiApi%2CCreateResponseReq%2CResponseToolsTable%2CResponseCallback%2Cbool">responses: proc createResponseWithTools(api: OpenAiApi; req: var CreateResponseReq;
+                        tools: ResponseToolsTable;
+                        callback: ResponseCallback = nil;
+                        usePreviousResponseId: bool = true): OpenAiResponse</a></li>
+          </ul></dd>
+<dt><a name="delete" href="#delete"><span>delete:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc delete(api: OpenAiApi; path: string): Response" href="openai_leap/common.html#delete%2COpenAiApi%2Cstring">common: proc delete(api: OpenAiApi; path: string): Response</a></li>
           </ul></dd>
 <dt><a name="deleteFile" href="#deleteFile"><span>deleteFile:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc deleteFile(api: OpenAiApi; fileId: string)" href="openai_leap.html#deleteFile%2COpenAiApi%2Cstring">openai_leap: proc deleteFile(api: OpenAiApi; fileId: string)</a></li>
+          data-doc-search-tag="files: proc deleteFile(api: OpenAiApi; fileId: string)" href="openai_leap/files.html#deleteFile%2COpenAiApi%2Cstring">files: proc deleteFile(api: OpenAiApi; fileId: string)</a></li>
           </ul></dd>
 <dt><a name="deleteFineTuneModel" href="#deleteFineTuneModel"><span>deleteFineTuneModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc deleteFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap.html#deleteFineTuneModel%2COpenAiApi%2Cstring">openai_leap: proc deleteFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
+          data-doc-search-tag="files: proc deleteFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap/files.html#deleteFineTuneModel%2COpenAiApi%2Cstring">files: proc deleteFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
+          </ul></dd>
+<dt><a name="deleteItem" href="#deleteItem"><span>deleteItem:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc deleteItem(session: RealtimeSession; itemId: string)" href="openai_leap/realtime.html#deleteItem%2CRealtimeSession%2Cstring">realtime: proc deleteItem(session: RealtimeSession; itemId: string)</a></li>
           </ul></dd>
 <dt><a name="deleteModel" href="#deleteModel"><span>deleteModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse" href="openai_leap.html#deleteModel%2COpenAiApi%2Cstring">openai_leap: proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse</a></li>
+          data-doc-search-tag="models: proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse" href="openai_leap/models.html#deleteModel%2COpenAiApi%2Cstring">models: proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse</a></li>
           </ul></dd>
 <dt><a name="DeleteModelResponse" href="#DeleteModelResponse"><span>DeleteModelResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type DeleteModelResponse" href="openai_leap.html#DeleteModelResponse">openai_leap: type DeleteModelResponse</a></li>
+          data-doc-search-tag="common: type DeleteModelResponse" href="openai_leap/common.html#DeleteModelResponse">common: type DeleteModelResponse</a></li>
           </ul></dd>
 <dt><a name="DeleteResponse" href="#DeleteResponse"><span>DeleteResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type DeleteResponse" href="openai_leap.html#DeleteResponse">openai_leap: type DeleteResponse</a></li>
+          data-doc-search-tag="common: type DeleteResponse" href="openai_leap/common.html#DeleteResponse">common: type DeleteResponse</a></li>
           </ul></dd>
 <dt><a name="deleteResponse" href="#deleteResponse"><span>deleteResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc deleteResponse(api: OpenAiApi; responseId: string): DeleteResponse" href="openai_leap.html#deleteResponse%2COpenAiApi%2Cstring">openai_leap: proc deleteResponse(api: OpenAiApi; responseId: string): DeleteResponse</a></li>
+          data-doc-search-tag="responses: proc deleteResponse(api: OpenAiApi; responseId: string): DeleteResponse" href="openai_leap/responses.html#deleteResponse%2COpenAiApi%2Cstring">responses: proc deleteResponse(api: OpenAiApi; responseId: string): DeleteResponse</a></li>
+          </ul></dd>
+<dt><a name="DocumentBlock" href="#DocumentBlock"><span>DocumentBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type DocumentBlock" href="openai_leap/common.html#DocumentBlock">common: type DocumentBlock</a></li>
+          </ul></dd>
+<dt><a name="DocumentSource" href="#DocumentSource"><span>DocumentSource:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type DocumentSource" href="openai_leap/common.html#DocumentSource">common: type DocumentSource</a></li>
           </ul></dd>
 <dt><a name="EmbeddingTask" href="#EmbeddingTask"><span>EmbeddingTask:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: enum EmbeddingTask" href="openai_leap.html#EmbeddingTask">openai_leap: enum EmbeddingTask</a></li>
+          data-doc-search-tag="common: enum EmbeddingTask" href="openai_leap/common.html#EmbeddingTask">common: enum EmbeddingTask</a></li>
+          </ul></dd>
+<dt><a name="extractText" href="#extractText"><span>extractText:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc extractText(events: seq[RealtimeServerEvent]): string" href="openai_leap/realtime.html#extractText%2Cseq%5BRealtimeServerEvent%5D">realtime: proc extractText(events: seq[RealtimeServerEvent]): string</a></li>
           </ul></dd>
 <dt><a name="FactVerification" href="#FactVerification"><span>FactVerification:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.FactVerification" href="openai_leap.html#FactVerification">openai_leap: EmbeddingTask.FactVerification</a></li>
+          data-doc-search-tag="common: EmbeddingTask.FactVerification" href="openai_leap/common.html#FactVerification">common: EmbeddingTask.FactVerification</a></li>
           </ul></dd>
 <dt><a name="FineTuneError" href="#FineTuneError"><span>FineTuneError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type FineTuneError" href="openai_leap.html#FineTuneError">openai_leap: type FineTuneError</a></li>
+          data-doc-search-tag="common: type FineTuneError" href="openai_leap/common.html#FineTuneError">common: type FineTuneError</a></li>
           </ul></dd>
 <dt><a name="generateEmbeddings" href="#generateEmbeddings"><span>generateEmbeddings:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc generateEmbeddings(api: OpenAiApi; model: string; input: string;
-                   dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp" href="openai_leap.html#generateEmbeddings%2COpenAiApi%2Cstring%2Cstring%2COption%5Bint%5D%2Cstring">openai_leap: proc generateEmbeddings(api: OpenAiApi; model: string; input: string;
+          data-doc-search-tag="embeddings: proc generateEmbeddings(api: OpenAiApi; model: string; input: string;
+                   dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp" href="openai_leap/embeddings.html#generateEmbeddings%2COpenAiApi%2Cstring%2Cstring%2COption%5Bint%5D%2Cstring">embeddings: proc generateEmbeddings(api: OpenAiApi; model: string; input: string;
                    dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp</a></li>
           </ul></dd>
 <dt><a name="generateEmbeddingWithTask" href="#generateEmbeddingWithTask"><span>generateEmbeddingWithTask:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc generateEmbeddingWithTask(api: OpenAiApi; model: string; input: string;
+          data-doc-search-tag="embeddings: proc generateEmbeddingWithTask(api: OpenAiApi; model: string; input: string;
                           task: EmbeddingTask; title: string = &quot;none&quot;;
-                          dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp" href="openai_leap.html#generateEmbeddingWithTask%2COpenAiApi%2Cstring%2Cstring%2CEmbeddingTask%2Cstring%2COption%5Bint%5D%2Cstring">openai_leap: proc generateEmbeddingWithTask(api: OpenAiApi; model: string; input: string;
+                          dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp" href="openai_leap/embeddings.html#generateEmbeddingWithTask%2COpenAiApi%2Cstring%2Cstring%2CEmbeddingTask%2Cstring%2COption%5Bint%5D%2Cstring">embeddings: proc generateEmbeddingWithTask(api: OpenAiApi; model: string; input: string;
                           task: EmbeddingTask; title: string = &quot;none&quot;;
                           dimensions: Option[int] = none(int); user: string = &quot;&quot;): CreateEmbeddingResp</a></li>
           </ul></dd>
 <dt><a name="get" href="#get"><span>get:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response" href="openai_leap.html#get%2COpenAiApi%2Cstring%2COpts">openai_leap: proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response</a></li>
+          data-doc-search-tag="common: proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response" href="openai_leap/common.html#get%2COpenAiApi%2Cstring%2COpts">common: proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response</a></li>
           </ul></dd>
 <dt><a name="getFileDetails" href="#getFileDetails"><span>getFileDetails:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile" href="openai_leap.html#getFileDetails%2COpenAiApi%2Cstring">openai_leap: proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile</a></li>
+          data-doc-search-tag="files: proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile" href="openai_leap/files.html#getFileDetails%2COpenAiApi%2Cstring">files: proc getFileDetails(api: OpenAiApi; fileId: string): OpenAIFile</a></li>
           </ul></dd>
 <dt><a name="getFineTuneModel" href="#getFineTuneModel"><span>getFineTuneModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc getFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap.html#getFineTuneModel%2COpenAiApi%2Cstring">openai_leap: proc getFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
+          data-doc-search-tag="files: proc getFineTuneModel(api: OpenAiApi; modelId: string)" href="openai_leap/files.html#getFineTuneModel%2COpenAiApi%2Cstring">files: proc getFineTuneModel(api: OpenAiApi; modelId: string)</a></li>
           </ul></dd>
 <dt><a name="getModel" href="#getModel"><span>getModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc getModel(api: OpenAiApi; modelId: string): OpenAiModel" href="openai_leap.html#getModel%2COpenAiApi%2Cstring">openai_leap: proc getModel(api: OpenAiApi; modelId: string): OpenAiModel</a></li>
+          data-doc-search-tag="models: proc getModel(api: OpenAiApi; modelId: string): OpenAiModel" href="openai_leap/models.html#getModel%2COpenAiApi%2Cstring">models: proc getModel(api: OpenAiApi; modelId: string): OpenAiModel</a></li>
           </ul></dd>
 <dt><a name="getResponse" href="#getResponse"><span>getResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc getResponse(api: OpenAiApi; responseId: string): OpenAiResponse" href="openai_leap.html#getResponse%2COpenAiApi%2Cstring">openai_leap: proc getResponse(api: OpenAiApi; responseId: string): OpenAiResponse</a></li>
+          data-doc-search-tag="responses: proc getResponse(api: OpenAiApi; responseId: string): OpenAiResponse" href="openai_leap/responses.html#getResponse%2COpenAiApi%2Cstring">responses: proc getResponse(api: OpenAiApi; responseId: string): OpenAiResponse</a></li>
+          </ul></dd>
+<dt><a name="getStream" href="#getStream"><span>getStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc getStream(api: OpenAiApi; path: string;
+          queryParams: seq[(string, string)] = @[]; opts: Opts = Opts()): ResponseStream" href="openai_leap/common.html#getStream%2COpenAiApi%2Cstring%2Cseq%5B%5D%2COpts">common: proc getStream(api: OpenAiApi; path: string;
+          queryParams: seq[(string, string)] = @[]; opts: Opts = Opts()): ResponseStream</a></li>
+          </ul></dd>
+<dt><a name="handleToolCalls" href="#handleToolCalls"><span>handleToolCalls:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc handleToolCalls(session: RealtimeSession; tools: ResponseToolsTable;
+                timeoutMs: int = 30000; callback: RealtimeToolCallback = nil): seq[
+    RealtimeServerEvent]" href="openai_leap/realtime.html#handleToolCalls%2CRealtimeSession%2CResponseToolsTable%2Cint%2CRealtimeToolCallback">realtime: proc handleToolCalls(session: RealtimeSession; tools: ResponseToolsTable;
+                timeoutMs: int = 30000; callback: RealtimeToolCallback = nil): seq[
+    RealtimeServerEvent]</a></li>
+          </ul></dd>
+<dt><a name="hasKey" href="#hasKey"><span>hasKey:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc hasKey(table: ResponseToolsTable; key: string): bool" href="openai_leap/common.html#hasKey%2CResponseToolsTable%2Cstring">common: proc hasKey(table: ResponseToolsTable; key: string): bool</a></li>
+          </ul></dd>
+<dt><a name="ImageBlock" href="#ImageBlock"><span>ImageBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ImageBlock" href="openai_leap/common.html#ImageBlock">common: type ImageBlock</a></li>
+          </ul></dd>
+<dt><a name="ImageSource" href="#ImageSource"><span>ImageSource:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ImageSource" href="openai_leap/common.html#ImageSource">common: type ImageSource</a></li>
           </ul></dd>
 <dt><a name="ImageUrlPart" href="#ImageUrlPart"><span>ImageUrlPart:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ImageUrlPart" href="openai_leap.html#ImageUrlPart">openai_leap: type ImageUrlPart</a></li>
+          data-doc-search-tag="common: type ImageUrlPart" href="openai_leap/common.html#ImageUrlPart">common: type ImageUrlPart</a></li>
+          </ul></dd>
+<dt><a name="keys" href="#keys"><span>keys:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: iterator keys(table: ResponseToolsTable): string" href="openai_leap/common.html#keys.i%2CResponseToolsTable">common: iterator keys(table: ResponseToolsTable): string</a></li>
+          </ul></dd>
+<dt><a name="len" href="#len"><span>len:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc len(table: ResponseToolsTable): int" href="openai_leap/common.html#len%2CResponseToolsTable">common: proc len(table: ResponseToolsTable): int</a></li>
           </ul></dd>
 <dt><a name="listFiles" href="#listFiles"><span>listFiles:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc listFiles(api: OpenAiApi): OpenAIListFiles" href="openai_leap.html#listFiles%2COpenAiApi">openai_leap: proc listFiles(api: OpenAiApi): OpenAIListFiles</a></li>
+          data-doc-search-tag="files: proc listFiles(api: OpenAiApi): OpenAIListFiles" href="openai_leap/files.html#listFiles%2COpenAiApi">files: proc listFiles(api: OpenAiApi): OpenAIListFiles</a></li>
           </ul></dd>
 <dt><a name="listFineTuneCheckpoints" href="#listFineTuneCheckpoints"><span>listFineTuneCheckpoints:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc listFineTuneCheckpoints(api: OpenAiApi; modelId: string)" href="openai_leap.html#listFineTuneCheckpoints%2COpenAiApi%2Cstring">openai_leap: proc listFineTuneCheckpoints(api: OpenAiApi; modelId: string)</a></li>
+          data-doc-search-tag="files: proc listFineTuneCheckpoints(api: OpenAiApi; modelId: string)" href="openai_leap/files.html#listFineTuneCheckpoints%2COpenAiApi%2Cstring">files: proc listFineTuneCheckpoints(api: OpenAiApi; modelId: string)</a></li>
           </ul></dd>
 <dt><a name="listFineTuneJobs" href="#listFineTuneJobs"><span>listFineTuneJobs:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc listFineTuneJobs(api: OpenAiApi): OpenAIFinetuneList" href="openai_leap.html#listFineTuneJobs%2COpenAiApi">openai_leap: proc listFineTuneJobs(api: OpenAiApi): OpenAIFinetuneList</a></li>
+          data-doc-search-tag="files: proc listFineTuneJobs(api: OpenAiApi): OpenAIFinetuneList" href="openai_leap/files.html#listFineTuneJobs%2COpenAiApi">files: proc listFineTuneJobs(api: OpenAiApi): OpenAIFinetuneList</a></li>
           </ul></dd>
 <dt><a name="listFineTuneModelEvents" href="#listFineTuneModelEvents"><span>listFineTuneModelEvents:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc listFineTuneModelEvents(api: OpenAiApi; modelId: string)" href="openai_leap.html#listFineTuneModelEvents%2COpenAiApi%2Cstring">openai_leap: proc listFineTuneModelEvents(api: OpenAiApi; modelId: string)</a></li>
+          data-doc-search-tag="files: proc listFineTuneModelEvents(api: OpenAiApi; modelId: string)" href="openai_leap/files.html#listFineTuneModelEvents%2COpenAiApi%2Cstring">files: proc listFineTuneModelEvents(api: OpenAiApi; modelId: string)</a></li>
           </ul></dd>
 <dt><a name="ListModelResponse" href="#ListModelResponse"><span>ListModelResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ListModelResponse" href="openai_leap.html#ListModelResponse">openai_leap: type ListModelResponse</a></li>
+          data-doc-search-tag="common: type ListModelResponse" href="openai_leap/common.html#ListModelResponse">common: type ListModelResponse</a></li>
           </ul></dd>
 <dt><a name="listModels" href="#listModels"><span>listModels:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc listModels(api: OpenAiApi): seq[OpenAiModel]" href="openai_leap.html#listModels%2COpenAiApi">openai_leap: proc listModels(api: OpenAiApi): seq[OpenAiModel]</a></li>
+          data-doc-search-tag="models: proc listModels(api: OpenAiApi): seq[OpenAiModel]" href="openai_leap/models.html#listModels%2COpenAiApi">models: proc listModels(api: OpenAiApi): seq[OpenAiModel]</a></li>
           </ul></dd>
 <dt><a name="Message" href="#Message"><span>Message:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type Message" href="openai_leap.html#Message">openai_leap: type Message</a></li>
+          data-doc-search-tag="common: type Message" href="openai_leap/common.html#Message">common: type Message</a></li>
           </ul></dd>
 <dt><a name="MessageContentPart" href="#MessageContentPart"><span>MessageContentPart:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type MessageContentPart" href="openai_leap.html#MessageContentPart">openai_leap: type MessageContentPart</a></li>
+          data-doc-search-tag="common: type MessageContentPart" href="openai_leap/common.html#MessageContentPart">common: type MessageContentPart</a></li>
+          </ul></dd>
+<dt><a name="MessageStreamEvent" href="#MessageStreamEvent"><span>MessageStreamEvent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type MessageStreamEvent" href="openai_leap/common.html#MessageStreamEvent">common: type MessageStreamEvent</a></li>
+          </ul></dd>
+<dt><a name="messageText" href="#messageText"><span>messageText:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc messageText(resp: CreateMessageResp): string" href="openai_leap/messages.html#messageText%2CCreateMessageResp">messages: proc messageText(resp: CreateMessageResp): string</a></li>
+          </ul></dd>
+<dt><a name="messageThinking" href="#messageThinking"><span>messageThinking:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc messageThinking(resp: CreateMessageResp): seq[ThinkingContentBlock]" href="openai_leap/messages.html#messageThinking%2CCreateMessageResp">messages: proc messageThinking(resp: CreateMessageResp): seq[ThinkingContentBlock]</a></li>
+          </ul></dd>
+<dt><a name="messageToolUses" href="#messageToolUses"><span>messageToolUses:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]" href="openai_leap/messages.html#messageToolUses%2CCreateMessageResp">messages: proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]</a></li>
+          </ul></dd>
+<dt><a name="newFunctionCallOutputItem" href="#newFunctionCallOutputItem"><span>newFunctionCallOutputItem:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc newFunctionCallOutputItem(callId: string; output: string): RealtimeConversationItem" href="openai_leap/realtime.html#newFunctionCallOutputItem%2Cstring%2Cstring">realtime: proc newFunctionCallOutputItem(callId: string; output: string): RealtimeConversationItem</a></li>
           </ul></dd>
 <dt><a name="newOpenAiApi" href="#newOpenAiApi"><span>newOpenAiApi:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
+          data-doc-search-tag="common: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
              organization: string = &quot;&quot;; maxInFlight: int = 16;
-             curlTimeout: int = 60 * 5): OpenAiApi" href="openai_leap.html#newOpenAiApi%2Cstring%2Cstring%2Cstring%2Cint%2Cint">openai_leap: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
+             curlTimeout: int = 60 * 5): OpenAiApi" href="openai_leap/common.html#newOpenAiApi%2Cstring%2Cstring%2Cstring%2Cint%2Cint">common: proc newOpenAiApi(baseUrl: string = &quot;https://api.openai.com/v1&quot;; apiKey: string = &quot;&quot;;
              organization: string = &quot;&quot;; maxInFlight: int = 16;
              curlTimeout: int = 60 * 5): OpenAiApi</a></li>
           </ul></dd>
+<dt><a name="newResponseToolsTable" href="#newResponseToolsTable"><span>newResponseToolsTable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc newResponseToolsTable(): ResponseToolsTable" href="openai_leap/common.html#newResponseToolsTable">common: proc newResponseToolsTable(): ResponseToolsTable</a></li>
+          </ul></dd>
+<dt><a name="newTextItem" href="#newTextItem"><span>newTextItem:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc newTextItem(role: string; text: string): RealtimeConversationItem" href="openai_leap/realtime.html#newTextItem%2Cstring%2Cstring">realtime: proc newTextItem(role: string; text: string): RealtimeConversationItem</a></li>
+          </ul></dd>
 <dt><a name="newToolsTable" href="#newToolsTable"><span>newToolsTable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc newToolsTable(): ToolsTable" href="openai_leap.html#newToolsTable">openai_leap: proc newToolsTable(): ToolsTable</a></li>
+          data-doc-search-tag="chat: proc newToolsTable(): ToolsTable" href="openai_leap/chat.html#newToolsTable">chat: proc newToolsTable(): ToolsTable</a></li>
           </ul></dd>
 <dt><a name="next" href="#next"><span>next:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc next(s: OpenAIStream): Option[ChatCompletionChunk]" href="openai_leap.html#next%2COpenAIStream">openai_leap: proc next(s: OpenAIStream): Option[ChatCompletionChunk]</a></li>
+          data-doc-search-tag="chat: proc next(s: OpenAIStream): Option[ChatCompletionChunk]" href="openai_leap/chat.html#next%2COpenAIStream">chat: proc next(s: OpenAIStream): Option[ChatCompletionChunk]</a></li>
+          </ul></dd>
+<dt><a name="nextEvent" href="#nextEvent"><span>nextEvent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc nextEvent(session: RealtimeSession): Option[RealtimeServerEvent]" href="openai_leap/realtime.html#nextEvent%2CRealtimeSession">realtime: proc nextEvent(session: RealtimeSession): Option[RealtimeServerEvent]</a></li>
+          </ul></dd>
+<dt><a name="nextEventWithTimeout" href="#nextEventWithTimeout"><span>nextEventWithTimeout:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc nextEventWithTimeout(session: RealtimeSession; timeoutMs: int): Option[
+    RealtimeServerEvent]" href="openai_leap/realtime.html#nextEventWithTimeout%2CRealtimeSession%2Cint">realtime: proc nextEventWithTimeout(session: RealtimeSession; timeoutMs: int): Option[
+    RealtimeServerEvent]</a></li>
+          </ul></dd>
+<dt><a name="nextMessageEvent" href="#nextMessageEvent"><span>nextMessageEvent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc nextMessageEvent(s: OpenAIStream): Option[JsonNode]" href="openai_leap/messages.html#nextMessageEvent%2COpenAIStream">messages: proc nextMessageEvent(s: OpenAIStream): Option[JsonNode]</a></li>
           </ul></dd>
 <dt><a name="nextResponseChunk" href="#nextResponseChunk"><span>nextResponseChunk:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]" href="openai_leap.html#nextResponseChunk%2COpenAIResponseStream">openai_leap: proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]</a></li>
+          data-doc-search-tag="responses: proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]" href="openai_leap/responses.html#nextResponseChunk%2COpenAIResponseStream">responses: proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]</a></li>
           </ul></dd>
 <dt><a name="OpenAiApi" href="#OpenAiApi"><span>OpenAiApi:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAiApi" href="openai_leap.html#OpenAiApi">openai_leap: type OpenAiApi</a></li>
+          data-doc-search-tag="common: type OpenAiApi" href="openai_leap/common.html#OpenAiApi">common: type OpenAiApi</a></li>
           </ul></dd>
 <dt><a name="OpenAiApiObj" href="#OpenAiApiObj"><span>OpenAiApiObj:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: object OpenAiApiObj" href="openai_leap.html#OpenAiApiObj">openai_leap: object OpenAiApiObj</a></li>
+          data-doc-search-tag="common: object OpenAiApiObj" href="openai_leap/common.html#OpenAiApiObj">common: object OpenAiApiObj</a></li>
           </ul></dd>
 <dt><a name="OpenAiError" href="#OpenAiError"><span>OpenAiError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: object OpenAiError" href="openai_leap.html#OpenAiError">openai_leap: object OpenAiError</a></li>
+          data-doc-search-tag="common: object OpenAiError" href="openai_leap/common.html#OpenAiError">common: object OpenAiError</a></li>
           </ul></dd>
 <dt><a name="OpenAIFile" href="#OpenAIFile"><span>OpenAIFile:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIFile" href="openai_leap.html#OpenAIFile">openai_leap: type OpenAIFile</a></li>
+          data-doc-search-tag="common: type OpenAIFile" href="openai_leap/common.html#OpenAIFile">common: type OpenAIFile</a></li>
           </ul></dd>
 <dt><a name="OpenAIFineTuneChat" href="#OpenAIFineTuneChat"><span>OpenAIFineTuneChat:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIFineTuneChat" href="openai_leap.html#OpenAIFineTuneChat">openai_leap: type OpenAIFineTuneChat</a></li>
+          data-doc-search-tag="common: type OpenAIFineTuneChat" href="openai_leap/common.html#OpenAIFineTuneChat">common: type OpenAIFineTuneChat</a></li>
           </ul></dd>
 <dt><a name="OpenAIFinetuneJob" href="#OpenAIFinetuneJob"><span>OpenAIFinetuneJob:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIFinetuneJob" href="openai_leap.html#OpenAIFinetuneJob">openai_leap: type OpenAIFinetuneJob</a></li>
+          data-doc-search-tag="common: type OpenAIFinetuneJob" href="openai_leap/common.html#OpenAIFinetuneJob">common: type OpenAIFinetuneJob</a></li>
           </ul></dd>
 <dt><a name="OpenAIFinetuneList" href="#OpenAIFinetuneList"><span>OpenAIFinetuneList:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIFinetuneList" href="openai_leap.html#OpenAIFinetuneList">openai_leap: type OpenAIFinetuneList</a></li>
+          data-doc-search-tag="common: type OpenAIFinetuneList" href="openai_leap/common.html#OpenAIFinetuneList">common: type OpenAIFinetuneList</a></li>
           </ul></dd>
 <dt><a name="OpenAIFineTuneMessage" href="#OpenAIFineTuneMessage"><span>OpenAIFineTuneMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIFineTuneMessage" href="openai_leap.html#OpenAIFineTuneMessage">openai_leap: type OpenAIFineTuneMessage</a></li>
+          data-doc-search-tag="common: type OpenAIFineTuneMessage" href="openai_leap/common.html#OpenAIFineTuneMessage">common: type OpenAIFineTuneMessage</a></li>
           </ul></dd>
 <dt><a name="OpenAIFinetuneRequest" href="#OpenAIFinetuneRequest"><span>OpenAIFinetuneRequest:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIFinetuneRequest" href="openai_leap.html#OpenAIFinetuneRequest">openai_leap: type OpenAIFinetuneRequest</a></li>
+          data-doc-search-tag="common: type OpenAIFinetuneRequest" href="openai_leap/common.html#OpenAIFinetuneRequest">common: type OpenAIFinetuneRequest</a></li>
           </ul></dd>
 <dt><a name="OpenAIHyperParameters" href="#OpenAIHyperParameters"><span>OpenAIHyperParameters:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIHyperParameters" href="openai_leap.html#OpenAIHyperParameters">openai_leap: type OpenAIHyperParameters</a></li>
+          data-doc-search-tag="common: type OpenAIHyperParameters" href="openai_leap/common.html#OpenAIHyperParameters">common: type OpenAIHyperParameters</a></li>
           </ul></dd>
 <dt><a name="OpenAIListFiles" href="#OpenAIListFiles"><span>OpenAIListFiles:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIListFiles" href="openai_leap.html#OpenAIListFiles">openai_leap: type OpenAIListFiles</a></li>
+          data-doc-search-tag="common: type OpenAIListFiles" href="openai_leap/common.html#OpenAIListFiles">common: type OpenAIListFiles</a></li>
           </ul></dd>
 <dt><a name="OpenAiModel" href="#OpenAiModel"><span>OpenAiModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAiModel" href="openai_leap.html#OpenAiModel">openai_leap: type OpenAiModel</a></li>
+          data-doc-search-tag="common: type OpenAiModel" href="openai_leap/common.html#OpenAiModel">common: type OpenAiModel</a></li>
           </ul></dd>
 <dt><a name="OpenAiResponse" href="#OpenAiResponse"><span>OpenAiResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAiResponse" href="openai_leap.html#OpenAiResponse">openai_leap: type OpenAiResponse</a></li>
+          data-doc-search-tag="common: type OpenAiResponse" href="openai_leap/common.html#OpenAiResponse">common: type OpenAiResponse</a></li>
           </ul></dd>
 <dt><a name="OpenAIResponseStream" href="#OpenAIResponseStream"><span>OpenAIResponseStream:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIResponseStream" href="openai_leap.html#OpenAIResponseStream">openai_leap: type OpenAIResponseStream</a></li>
+          data-doc-search-tag="common: type OpenAIResponseStream" href="openai_leap/common.html#OpenAIResponseStream">common: type OpenAIResponseStream</a></li>
           </ul></dd>
 <dt><a name="OpenAIStream" href="#OpenAIStream"><span>OpenAIStream:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type OpenAIStream" href="openai_leap.html#OpenAIStream">openai_leap: type OpenAIStream</a></li>
+          data-doc-search-tag="common: type OpenAIStream" href="openai_leap/common.html#OpenAIStream">common: type OpenAIStream</a></li>
           </ul></dd>
 <dt><a name="Opts" href="#Opts"><span>Opts:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: object Opts" href="openai_leap.html#Opts">openai_leap: object Opts</a></li>
+          data-doc-search-tag="common: object Opts" href="openai_leap/common.html#Opts">common: object Opts</a></li>
+          </ul></dd>
+<dt><a name="OutputConfig" href="#OutputConfig"><span>OutputConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type OutputConfig" href="openai_leap/common.html#OutputConfig">common: type OutputConfig</a></li>
+          </ul></dd>
+<dt><a name="pairs" href="#pairs"><span>pairs:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: iterator pairs(table: ResponseToolsTable): (string, (ToolFunction, ToolImpl))" href="openai_leap/common.html#pairs.i%2CResponseToolsTable">common: iterator pairs(table: ResponseToolsTable): (string, (ToolFunction, ToolImpl))</a></li>
           </ul></dd>
 <dt><a name="post" href="#post"><span>post:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response" href="openai_leap.html#post%2COpenAiApi%2Cstring%2Cstring%2COpts">openai_leap: proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response</a></li>
+          data-doc-search-tag="common: proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response" href="openai_leap/common.html#post%2COpenAiApi%2Cstring%2Cstring%2COpts">common: proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response</a></li>
+          </ul></dd>
+<dt><a name="postStream" href="#postStream"><span>postStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream" href="openai_leap/common.html#postStream%2COpenAiApi%2Cstring%2Cstring%2COpts">common: proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream</a></li>
           </ul></dd>
 <dt><a name="pullModel" href="#pullModel"><span>pullModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)" href="openai_leap.html#pullModel%2COpenAiApi%2Cstring%2Cint">openai_leap: proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)</a></li>
+          data-doc-search-tag="files: proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)" href="openai_leap/files.html#pullModel%2COpenAiApi%2Cstring%2Cint">files: proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)</a></li>
           </ul></dd>
 <dt><a name="QuestionAnswering" href="#QuestionAnswering"><span>QuestionAnswering:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.QuestionAnswering" href="openai_leap.html#QuestionAnswering">openai_leap: EmbeddingTask.QuestionAnswering</a></li>
+          data-doc-search-tag="common: EmbeddingTask.QuestionAnswering" href="openai_leap/common.html#QuestionAnswering">common: EmbeddingTask.QuestionAnswering</a></li>
+          </ul></dd>
+<dt><a name="RealtimeClientEvent" href="#RealtimeClientEvent"><span>RealtimeClientEvent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeClientEvent" href="openai_leap/realtime.html#RealtimeClientEvent">realtime: type RealtimeClientEvent</a></li>
+          </ul></dd>
+<dt><a name="RealtimeContentPart" href="#RealtimeContentPart"><span>RealtimeContentPart:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeContentPart" href="openai_leap/realtime.html#RealtimeContentPart">realtime: type RealtimeContentPart</a></li>
+          </ul></dd>
+<dt><a name="RealtimeConversationItem" href="#RealtimeConversationItem"><span>RealtimeConversationItem:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeConversationItem" href="openai_leap/realtime.html#RealtimeConversationItem">realtime: type RealtimeConversationItem</a></li>
+          </ul></dd>
+<dt><a name="RealtimeError" href="#RealtimeError"><span>RealtimeError:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeError" href="openai_leap/realtime.html#RealtimeError">realtime: type RealtimeError</a></li>
+          </ul></dd>
+<dt><a name="RealtimeRateLimit" href="#RealtimeRateLimit"><span>RealtimeRateLimit:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeRateLimit" href="openai_leap/realtime.html#RealtimeRateLimit">realtime: type RealtimeRateLimit</a></li>
+          </ul></dd>
+<dt><a name="RealtimeResponseConfig" href="#RealtimeResponseConfig"><span>RealtimeResponseConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeResponseConfig" href="openai_leap/realtime.html#RealtimeResponseConfig">realtime: type RealtimeResponseConfig</a></li>
+          </ul></dd>
+<dt><a name="RealtimeResponseObject" href="#RealtimeResponseObject"><span>RealtimeResponseObject:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeResponseObject" href="openai_leap/realtime.html#RealtimeResponseObject">realtime: type RealtimeResponseObject</a></li>
+          </ul></dd>
+<dt><a name="RealtimeServerEvent" href="#RealtimeServerEvent"><span>RealtimeServerEvent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeServerEvent" href="openai_leap/realtime.html#RealtimeServerEvent">realtime: type RealtimeServerEvent</a></li>
+          </ul></dd>
+<dt><a name="RealtimeSession" href="#RealtimeSession"><span>RealtimeSession:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeSession" href="openai_leap/realtime.html#RealtimeSession">realtime: type RealtimeSession</a></li>
+          </ul></dd>
+<dt><a name="RealtimeSessionConfig" href="#RealtimeSessionConfig"><span>RealtimeSessionConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeSessionConfig" href="openai_leap/realtime.html#RealtimeSessionConfig">realtime: type RealtimeSessionConfig</a></li>
+          </ul></dd>
+<dt><a name="RealtimeToolCallback" href="#RealtimeToolCallback"><span>RealtimeToolCallback:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeToolCallback" href="openai_leap/realtime.html#RealtimeToolCallback">realtime: type RealtimeToolCallback</a></li>
+          </ul></dd>
+<dt><a name="RealtimeTranscriptionConfig" href="#RealtimeTranscriptionConfig"><span>RealtimeTranscriptionConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: type RealtimeTranscriptionConfig" href="openai_leap/realtime.html#RealtimeTranscriptionConfig">realtime: type RealtimeTranscriptionConfig</a></li>
+          </ul></dd>
+<dt><a name="ReasoningSummaryPart" href="#ReasoningSummaryPart"><span>ReasoningSummaryPart:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ReasoningSummaryPart" href="openai_leap/common.html#ReasoningSummaryPart">common: type ReasoningSummaryPart</a></li>
+          </ul></dd>
+<dt><a name="RedactedThinkingBlock" href="#RedactedThinkingBlock"><span>RedactedThinkingBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type RedactedThinkingBlock" href="openai_leap/common.html#RedactedThinkingBlock">common: type RedactedThinkingBlock</a></li>
+          </ul></dd>
+<dt><a name="RedactedThinkingContentBlock" href="#RedactedThinkingContentBlock"><span>RedactedThinkingContentBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type RedactedThinkingContentBlock" href="openai_leap/common.html#RedactedThinkingContentBlock">common: type RedactedThinkingContentBlock</a></li>
           </ul></dd>
 <dt><a name="register" href="#register"><span>register:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;
-         impl: ToolImpl)" href="openai_leap.html#register%2CToolsTable%2Cstring%2CToolFunction%2CToolImpl">openai_leap: proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;
+          data-doc-search-tag="chat: proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;
+         impl: ToolImpl)" href="openai_leap/chat.html#register%2CToolsTable%2Cstring%2CToolFunction%2CToolImpl">chat: proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;
          impl: ToolImpl)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="common: proc register(table: var ResponseToolsTable; name: string; toolFunc: ToolFunction;
+         impl: ToolImpl)" href="openai_leap/common.html#register%2CResponseToolsTable%2Cstring%2CToolFunction%2CToolImpl">common: proc register(table: var ResponseToolsTable; name: string; toolFunc: ToolFunction;
+         impl: ToolImpl)</a></li>
+          </ul></dd>
+<dt><a name="registerResponseTool" href="#registerResponseTool"><span>registerResponseTool:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc registerResponseTool(table: var ResponseToolsTable; name: string;
+                     toolFunc: ToolFunction; impl: ToolImpl)" href="openai_leap/common.html#registerResponseTool%2CResponseToolsTable%2Cstring%2CToolFunction%2CToolImpl">common: proc registerResponseTool(table: var ResponseToolsTable; name: string;
+                     toolFunc: ToolFunction; impl: ToolImpl)</a></li>
           </ul></dd>
 <dt><a name="RespMessage" href="#RespMessage"><span>RespMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type RespMessage" href="openai_leap.html#RespMessage">openai_leap: type RespMessage</a></li>
+          data-doc-search-tag="common: type RespMessage" href="openai_leap/common.html#RespMessage">common: type RespMessage</a></li>
+          </ul></dd>
+<dt><a name="ResponseCallback" href="#ResponseCallback"><span>ResponseCallback:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ResponseCallback" href="openai_leap/common.html#ResponseCallback">common: type ResponseCallback</a></li>
           </ul></dd>
 <dt><a name="ResponseFormatObj" href="#ResponseFormatObj"><span>ResponseFormatObj:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseFormatObj" href="openai_leap.html#ResponseFormatObj">openai_leap: type ResponseFormatObj</a></li>
+          data-doc-search-tag="common: type ResponseFormatObj" href="openai_leap/common.html#ResponseFormatObj">common: type ResponseFormatObj</a></li>
           </ul></dd>
 <dt><a name="ResponseInput" href="#ResponseInput"><span>ResponseInput:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseInput" href="openai_leap.html#ResponseInput">openai_leap: type ResponseInput</a></li>
+          data-doc-search-tag="common: type ResponseInput" href="openai_leap/common.html#ResponseInput">common: type ResponseInput</a></li>
           </ul></dd>
 <dt><a name="ResponseInputContent" href="#ResponseInputContent"><span>ResponseInputContent:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseInputContent" href="openai_leap.html#ResponseInputContent">openai_leap: type ResponseInputContent</a></li>
+          data-doc-search-tag="common: type ResponseInputContent" href="openai_leap/common.html#ResponseInputContent">common: type ResponseInputContent</a></li>
           </ul></dd>
 <dt><a name="ResponseInputFile" href="#ResponseInputFile"><span>ResponseInputFile:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseInputFile" href="openai_leap.html#ResponseInputFile">openai_leap: type ResponseInputFile</a></li>
+          data-doc-search-tag="common: type ResponseInputFile" href="openai_leap/common.html#ResponseInputFile">common: type ResponseInputFile</a></li>
           </ul></dd>
 <dt><a name="ResponseInputImage" href="#ResponseInputImage"><span>ResponseInputImage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseInputImage" href="openai_leap.html#ResponseInputImage">openai_leap: type ResponseInputImage</a></li>
+          data-doc-search-tag="common: type ResponseInputImage" href="openai_leap/common.html#ResponseInputImage">common: type ResponseInputImage</a></li>
           </ul></dd>
 <dt><a name="ResponseInputText" href="#ResponseInputText"><span>ResponseInputText:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseInputText" href="openai_leap.html#ResponseInputText">openai_leap: type ResponseInputText</a></li>
+          data-doc-search-tag="common: type ResponseInputText" href="openai_leap/common.html#ResponseInputText">common: type ResponseInputText</a></li>
           </ul></dd>
 <dt><a name="ResponseOutput" href="#ResponseOutput"><span>ResponseOutput:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseOutput" href="openai_leap.html#ResponseOutput">openai_leap: type ResponseOutput</a></li>
+          data-doc-search-tag="common: type ResponseOutput" href="openai_leap/common.html#ResponseOutput">common: type ResponseOutput</a></li>
           </ul></dd>
 <dt><a name="ResponseOutputContent" href="#ResponseOutputContent"><span>ResponseOutputContent:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseOutputContent" href="openai_leap.html#ResponseOutputContent">openai_leap: type ResponseOutputContent</a></li>
+          data-doc-search-tag="common: type ResponseOutputContent" href="openai_leap/common.html#ResponseOutputContent">common: type ResponseOutputContent</a></li>
           </ul></dd>
 <dt><a name="ResponseOutputImage" href="#ResponseOutputImage"><span>ResponseOutputImage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseOutputImage" href="openai_leap.html#ResponseOutputImage">openai_leap: type ResponseOutputImage</a></li>
+          data-doc-search-tag="common: type ResponseOutputImage" href="openai_leap/common.html#ResponseOutputImage">common: type ResponseOutputImage</a></li>
           </ul></dd>
 <dt><a name="ResponseOutputText" href="#ResponseOutputText"><span>ResponseOutputText:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseOutputText" href="openai_leap.html#ResponseOutputText">openai_leap: type ResponseOutputText</a></li>
+          data-doc-search-tag="common: type ResponseOutputText" href="openai_leap/common.html#ResponseOutputText">common: type ResponseOutputText</a></li>
           </ul></dd>
 <dt><a name="ResponseOutputToolCall" href="#ResponseOutputToolCall"><span>ResponseOutputToolCall:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseOutputToolCall" href="openai_leap.html#ResponseOutputToolCall">openai_leap: type ResponseOutputToolCall</a></li>
+          data-doc-search-tag="common: type ResponseOutputToolCall" href="openai_leap/common.html#ResponseOutputToolCall">common: type ResponseOutputToolCall</a></li>
           </ul></dd>
 <dt><a name="ResponseTool" href="#ResponseTool"><span>ResponseTool:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseTool" href="openai_leap.html#ResponseTool">openai_leap: type ResponseTool</a></li>
+          data-doc-search-tag="common: type ResponseTool" href="openai_leap/common.html#ResponseTool">common: type ResponseTool</a></li>
           </ul></dd>
 <dt><a name="ResponseToolCall" href="#ResponseToolCall"><span>ResponseToolCall:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseToolCall" href="openai_leap.html#ResponseToolCall">openai_leap: type ResponseToolCall</a></li>
+          data-doc-search-tag="common: type ResponseToolCall" href="openai_leap/common.html#ResponseToolCall">common: type ResponseToolCall</a></li>
           </ul></dd>
 <dt><a name="ResponseToolCallOutput" href="#ResponseToolCallOutput"><span>ResponseToolCallOutput:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseToolCallOutput" href="openai_leap.html#ResponseToolCallOutput">openai_leap: type ResponseToolCallOutput</a></li>
-          </ul></dd>
-<dt><a name="ResponseToolImpl" href="#ResponseToolImpl"><span>ResponseToolImpl:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseToolImpl" href="openai_leap.html#ResponseToolImpl">openai_leap: type ResponseToolImpl</a></li>
+          data-doc-search-tag="common: type ResponseToolCallOutput" href="openai_leap/common.html#ResponseToolCallOutput">common: type ResponseToolCallOutput</a></li>
           </ul></dd>
 <dt><a name="ResponseToolsTable" href="#ResponseToolsTable"><span>ResponseToolsTable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseToolsTable" href="openai_leap.html#ResponseToolsTable">openai_leap: type ResponseToolsTable</a></li>
+          data-doc-search-tag="common: object ResponseToolsTable" href="openai_leap/common.html#ResponseToolsTable">common: object ResponseToolsTable</a></li>
           </ul></dd>
 <dt><a name="ResponseUsage" href="#ResponseUsage"><span>ResponseUsage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ResponseUsage" href="openai_leap.html#ResponseUsage">openai_leap: type ResponseUsage</a></li>
+          data-doc-search-tag="common: type ResponseUsage" href="openai_leap/common.html#ResponseUsage">common: type ResponseUsage</a></li>
           </ul></dd>
 <dt><a name="RetrievalDocument" href="#RetrievalDocument"><span>RetrievalDocument:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.RetrievalDocument" href="openai_leap.html#RetrievalDocument">openai_leap: EmbeddingTask.RetrievalDocument</a></li>
+          data-doc-search-tag="common: EmbeddingTask.RetrievalDocument" href="openai_leap/common.html#RetrievalDocument">common: EmbeddingTask.RetrievalDocument</a></li>
           </ul></dd>
 <dt><a name="RetrievalQuery" href="#RetrievalQuery"><span>RetrievalQuery:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.RetrievalQuery" href="openai_leap.html#RetrievalQuery">openai_leap: EmbeddingTask.RetrievalQuery</a></li>
+          data-doc-search-tag="common: EmbeddingTask.RetrievalQuery" href="openai_leap/common.html#RetrievalQuery">common: EmbeddingTask.RetrievalQuery</a></li>
           </ul></dd>
 <dt><a name="sanitizeChatReq" href="#sanitizeChatReq"><span>sanitizeChatReq:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc sanitizeChatReq(req: var CreateChatCompletionReq)" href="openai_leap.html#sanitizeChatReq%2CCreateChatCompletionReq">openai_leap: proc sanitizeChatReq(req: var CreateChatCompletionReq)</a></li>
+          data-doc-search-tag="common: proc sanitizeChatReq(req: var CreateChatCompletionReq)" href="openai_leap/common.html#sanitizeChatReq%2CCreateChatCompletionReq">common: proc sanitizeChatReq(req: var CreateChatCompletionReq)</a></li>
           </ul></dd>
 <dt><a name="sanitizeText" href="#sanitizeText"><span>sanitizeText:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc sanitizeText(s: string): string" href="openai_leap.html#sanitizeText%2Cstring">openai_leap: proc sanitizeText(s: string): string</a></li>
+          data-doc-search-tag="common: proc sanitizeText(s: string): string" href="openai_leap/common.html#sanitizeText%2Cstring">common: proc sanitizeText(s: string): string</a></li>
           </ul></dd>
 <dt><a name="SemanticSimilarity" href="#SemanticSimilarity"><span>SemanticSimilarity:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: EmbeddingTask.SemanticSimilarity" href="openai_leap.html#SemanticSimilarity">openai_leap: EmbeddingTask.SemanticSimilarity</a></li>
+          data-doc-search-tag="common: EmbeddingTask.SemanticSimilarity" href="openai_leap/common.html#SemanticSimilarity">common: EmbeddingTask.SemanticSimilarity</a></li>
+          </ul></dd>
+<dt><a name="sendEvent" href="#sendEvent"><span>sendEvent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc sendEvent(session: RealtimeSession; event: RealtimeClientEvent)" href="openai_leap/realtime.html#sendEvent%2CRealtimeSession%2CRealtimeClientEvent">realtime: proc sendEvent(session: RealtimeSession; event: RealtimeClientEvent)</a></li>
+          </ul></dd>
+<dt><a name="sendToolResult" href="#sendToolResult"><span>sendToolResult:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc sendToolResult(session: RealtimeSession; callId: string; output: string)" href="openai_leap/realtime.html#sendToolResult%2CRealtimeSession%2Cstring%2Cstring">realtime: proc sendToolResult(session: RealtimeSession; callId: string; output: string)</a></li>
           </ul></dd>
 <dt><a name="streamChatCompletion" href="#streamChatCompletion"><span>streamChatCompletion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">openai_leap: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream</a></li>
+          data-doc-search-tag="chat: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream" href="openai_leap/chat.html#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">chat: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
-                     input: string): OpenAIStream" href="openai_leap.html#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring">openai_leap: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
+          data-doc-search-tag="chat: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
+                     input: string): OpenAIStream" href="openai_leap/chat.html#streamChatCompletion%2COpenAiApi%2Cstring%2Cstring%2Cstring">chat: proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;
                      input: string): OpenAIStream</a></li>
           </ul></dd>
 <dt><a name="streamGetResponse" href="#streamGetResponse"><span>streamGetResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc streamGetResponse(api: OpenAiApi; responseId: string): OpenAIResponseStream" href="openai_leap.html#streamGetResponse%2COpenAiApi%2Cstring">openai_leap: proc streamGetResponse(api: OpenAiApi; responseId: string): OpenAIResponseStream</a></li>
+          data-doc-search-tag="responses: proc streamGetResponse(api: OpenAiApi; responseId: string): OpenAIResponseStream" href="openai_leap/responses.html#streamGetResponse%2COpenAiApi%2Cstring">responses: proc streamGetResponse(api: OpenAiApi; responseId: string): OpenAIResponseStream</a></li>
+          </ul></dd>
+<dt><a name="streamMessage" href="#streamMessage"><span>streamMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc streamMessage(api: OpenAiApi; req: CreateMessageReq): OpenAIStream" href="openai_leap/messages.html#streamMessage%2COpenAiApi%2CCreateMessageReq">messages: proc streamMessage(api: OpenAiApi; req: CreateMessageReq): OpenAIStream</a></li>
           </ul></dd>
 <dt><a name="streamResponse" href="#streamResponse"><span>streamResponse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc streamResponse(api: OpenAiApi; req: CreateResponseReq): OpenAIResponseStream" href="openai_leap.html#streamResponse%2COpenAiApi%2CCreateResponseReq">openai_leap: proc streamResponse(api: OpenAiApi; req: CreateResponseReq): OpenAIResponseStream</a></li>
+          data-doc-search-tag="responses: proc streamResponse(api: OpenAiApi; req: CreateResponseReq): OpenAIResponseStream" href="openai_leap/responses.html#streamResponse%2COpenAiApi%2CCreateResponseReq">responses: proc streamResponse(api: OpenAiApi; req: CreateResponseReq): OpenAIResponseStream</a></li>
           </ul></dd>
 <dt><a name="stripEscapeSequences" href="#stripEscapeSequences"><span>stripEscapeSequences:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc stripEscapeSequences(input: string): string" href="openai_leap.html#stripEscapeSequences%2Cstring">openai_leap: proc stripEscapeSequences(input: string): string</a></li>
+          data-doc-search-tag="common: proc stripEscapeSequences(input: string): string" href="openai_leap/common.html#stripEscapeSequences%2Cstring">common: proc stripEscapeSequences(input: string): string</a></li>
+          </ul></dd>
+<dt><a name="sync" href="#sync"><span>sync:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: template sync(a: Lock; body: untyped)" href="openai_leap/common.html#sync.t%2CSysLockObj%2Cuntyped">common: template sync(a: Lock; body: untyped)</a></li>
+          </ul></dd>
+<dt><a name="TextBlock" href="#TextBlock"><span>TextBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type TextBlock" href="openai_leap/common.html#TextBlock">common: type TextBlock</a></li>
+          </ul></dd>
+<dt><a name="TextContentBlock" href="#TextContentBlock"><span>TextContentBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type TextContentBlock" href="openai_leap/common.html#TextContentBlock">common: type TextContentBlock</a></li>
+          </ul></dd>
+<dt><a name="ThinkingBlock" href="#ThinkingBlock"><span>ThinkingBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ThinkingBlock" href="openai_leap/common.html#ThinkingBlock">common: type ThinkingBlock</a></li>
+          </ul></dd>
+<dt><a name="ThinkingConfig" href="#ThinkingConfig"><span>ThinkingConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ThinkingConfig" href="openai_leap/common.html#ThinkingConfig">common: type ThinkingConfig</a></li>
+          </ul></dd>
+<dt><a name="ThinkingContentBlock" href="#ThinkingContentBlock"><span>ThinkingContentBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ThinkingContentBlock" href="openai_leap/common.html#ThinkingContentBlock">common: type ThinkingContentBlock</a></li>
           </ul></dd>
 <dt><a name="toCreateChatCompletionReq" href="#toCreateChatCompletionReq"><span>toCreateChatCompletionReq:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq" href="openai_leap.html#toCreateChatCompletionReq%2Cstring">openai_leap: proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq</a></li>
+          data-doc-search-tag="markdown: proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq" href="openai_leap/markdown.html#toCreateChatCompletionReq%2Cstring">markdown: proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq</a></li>
           </ul></dd>
 <dt><a name="toCreateChatCompletionReqAndResp" href="#toCreateChatCompletionReqAndResp"><span>toCreateChatCompletionReqAndResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,
-    CreateChatCompletionResp)" href="openai_leap.html#toCreateChatCompletionReqAndResp%2Cstring">openai_leap: proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,
+          data-doc-search-tag="markdown: proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,
+    CreateChatCompletionResp)" href="openai_leap/markdown.html#toCreateChatCompletionReqAndResp%2Cstring">markdown: proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,
     CreateChatCompletionResp)</a></li>
           </ul></dd>
 <dt><a name="toCreateChatCompletionResp" href="#toCreateChatCompletionResp"><span>toCreateChatCompletionResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp" href="openai_leap.html#toCreateChatCompletionResp%2Cstring">openai_leap: proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp</a></li>
+          data-doc-search-tag="markdown: proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp" href="openai_leap/markdown.html#toCreateChatCompletionResp%2Cstring">markdown: proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp</a></li>
+          </ul></dd>
+<dt><a name="toCreateResponseReq" href="#toCreateResponseReq"><span>toCreateResponseReq:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="markdown: proc toCreateResponseReq(markdown: string): CreateResponseReq" href="openai_leap/markdown.html#toCreateResponseReq%2Cstring">markdown: proc toCreateResponseReq(markdown: string): CreateResponseReq</a></li>
+          </ul></dd>
+<dt><a name="toCreateResponseReqAndResp" href="#toCreateResponseReqAndResp"><span>toCreateResponseReqAndResp:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="markdown: proc toCreateResponseReqAndResp(markdown: string): (CreateResponseReq, OpenAiResponse)" href="openai_leap/markdown.html#toCreateResponseReqAndResp%2Cstring">markdown: proc toCreateResponseReqAndResp(markdown: string): (CreateResponseReq, OpenAiResponse)</a></li>
           </ul></dd>
 <dt><a name="toMarkdown" href="#toMarkdown"><span>toMarkdown:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc toMarkdown(req: CreateChatCompletionReq): string" href="openai_leap.html#toMarkdown%2CCreateChatCompletionReq">openai_leap: proc toMarkdown(req: CreateChatCompletionReq): string</a></li>
+          data-doc-search-tag="markdown: proc toMarkdown(req: CreateChatCompletionReq): string" href="openai_leap/markdown.html#toMarkdown%2CCreateChatCompletionReq">markdown: proc toMarkdown(req: CreateChatCompletionReq): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string" href="openai_leap.html#toMarkdown%2CCreateChatCompletionReq%2CCreateChatCompletionResp">openai_leap: proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string</a></li>
+          data-doc-search-tag="markdown: proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string" href="openai_leap/markdown.html#toMarkdown%2CCreateChatCompletionReq%2CCreateChatCompletionResp">markdown: proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc toMarkdown(resp: CreateChatCompletionResp): string" href="openai_leap.html#toMarkdown%2CCreateChatCompletionResp">openai_leap: proc toMarkdown(resp: CreateChatCompletionResp): string</a></li>
+          data-doc-search-tag="markdown: proc toMarkdown(resp: CreateChatCompletionResp): string" href="openai_leap/markdown.html#toMarkdown%2CCreateChatCompletionResp">markdown: proc toMarkdown(resp: CreateChatCompletionResp): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="markdown: proc toMarkdown(req: CreateResponseReq): string" href="openai_leap/markdown.html#toMarkdown%2CCreateResponseReq">markdown: proc toMarkdown(req: CreateResponseReq): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="markdown: proc toMarkdown(req: CreateResponseReq; resp: OpenAiResponse): string" href="openai_leap/markdown.html#toMarkdown%2CCreateResponseReq%2COpenAiResponse">markdown: proc toMarkdown(req: CreateResponseReq; resp: OpenAiResponse): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="markdown: proc toMarkdown(resp: OpenAiResponse): string" href="openai_leap/markdown.html#toMarkdown%2COpenAiResponse">markdown: proc toMarkdown(resp: OpenAiResponse): string</a></li>
+          </ul></dd>
+<dt><a name="toMessageReq" href="#toMessageReq"><span>toMessageReq:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="messages: proc toMessageReq(req: CreateResponseReq): CreateMessageReq" href="openai_leap/messages.html#toMessageReq%2CCreateResponseReq">messages: proc toMessageReq(req: CreateResponseReq): CreateMessageReq</a></li>
           </ul></dd>
 <dt><a name="Tool" href="#Tool"><span>Tool:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type Tool" href="openai_leap.html#Tool">openai_leap: type Tool</a></li>
+          data-doc-search-tag="common: type Tool" href="openai_leap/common.html#Tool">common: type Tool</a></li>
           </ul></dd>
 <dt><a name="ToolChoice" href="#ToolChoice"><span>ToolChoice:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolChoice" href="openai_leap.html#ToolChoice">openai_leap: type ToolChoice</a></li>
+          data-doc-search-tag="common: type ToolChoice" href="openai_leap/common.html#ToolChoice">common: type ToolChoice</a></li>
+          </ul></dd>
+<dt><a name="ToolChoiceConfig" href="#ToolChoiceConfig"><span>ToolChoiceConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ToolChoiceConfig" href="openai_leap/common.html#ToolChoiceConfig">common: type ToolChoiceConfig</a></li>
           </ul></dd>
 <dt><a name="ToolChoiceFuncion" href="#ToolChoiceFuncion"><span>ToolChoiceFuncion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolChoiceFuncion" href="openai_leap.html#ToolChoiceFuncion">openai_leap: type ToolChoiceFuncion</a></li>
+          data-doc-search-tag="common: type ToolChoiceFuncion" href="openai_leap/common.html#ToolChoiceFuncion">common: type ToolChoiceFuncion</a></li>
           </ul></dd>
 <dt><a name="ToolFunction" href="#ToolFunction"><span>ToolFunction:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolFunction" href="openai_leap.html#ToolFunction">openai_leap: type ToolFunction</a></li>
+          data-doc-search-tag="common: type ToolFunction" href="openai_leap/common.html#ToolFunction">common: type ToolFunction</a></li>
           </ul></dd>
 <dt><a name="ToolFunctionResp" href="#ToolFunctionResp"><span>ToolFunctionResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolFunctionResp" href="openai_leap.html#ToolFunctionResp">openai_leap: type ToolFunctionResp</a></li>
+          data-doc-search-tag="common: type ToolFunctionResp" href="openai_leap/common.html#ToolFunctionResp">common: type ToolFunctionResp</a></li>
           </ul></dd>
 <dt><a name="ToolImpl" href="#ToolImpl"><span>ToolImpl:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolImpl" href="openai_leap.html#ToolImpl">openai_leap: type ToolImpl</a></li>
+          data-doc-search-tag="common: type ToolImpl" href="openai_leap/common.html#ToolImpl">common: type ToolImpl</a></li>
           </ul></dd>
 <dt><a name="ToolResp" href="#ToolResp"><span>ToolResp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolResp" href="openai_leap.html#ToolResp">openai_leap: type ToolResp</a></li>
+          data-doc-search-tag="common: type ToolResp" href="openai_leap/common.html#ToolResp">common: type ToolResp</a></li>
+          </ul></dd>
+<dt><a name="ToolResultBlock" href="#ToolResultBlock"><span>ToolResultBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ToolResultBlock" href="openai_leap/common.html#ToolResultBlock">common: type ToolResultBlock</a></li>
+          </ul></dd>
+<dt><a name="ToolResultContent" href="#ToolResultContent"><span>ToolResultContent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ToolResultContent" href="openai_leap/common.html#ToolResultContent">common: type ToolResultContent</a></li>
           </ul></dd>
 <dt><a name="ToolsTable" href="#ToolsTable"><span>ToolsTable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type ToolsTable" href="openai_leap.html#ToolsTable">openai_leap: type ToolsTable</a></li>
+          data-doc-search-tag="common: type ToolsTable" href="openai_leap/common.html#ToolsTable">common: type ToolsTable</a></li>
+          </ul></dd>
+<dt><a name="ToolUseBlock" href="#ToolUseBlock"><span>ToolUseBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ToolUseBlock" href="openai_leap/common.html#ToolUseBlock">common: type ToolUseBlock</a></li>
+          </ul></dd>
+<dt><a name="ToolUseContentBlock" href="#ToolUseContentBlock"><span>ToolUseContentBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type ToolUseContentBlock" href="openai_leap/common.html#ToolUseContentBlock">common: type ToolUseContentBlock</a></li>
+          </ul></dd>
+<dt><a name="toOpenAiResponse" href="#toOpenAiResponse"><span>toOpenAiResponse:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="markdown: proc toOpenAiResponse(markdown: string): OpenAiResponse" href="openai_leap/markdown.html#toOpenAiResponse%2Cstring">markdown: proc toOpenAiResponse(markdown: string): OpenAiResponse</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="messages: proc toOpenAiResponse(resp: CreateMessageResp): OpenAiResponse" href="openai_leap/messages.html#toOpenAiResponse%2CCreateMessageResp">messages: proc toOpenAiResponse(resp: CreateMessageResp): OpenAiResponse</a></li>
           </ul></dd>
 <dt><a name="updateApiKey" href="#updateApiKey"><span>updateApiKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: proc updateApiKey(api: OpenAiApi; apiKey: string)" href="openai_leap.html#updateApiKey%2COpenAiApi%2Cstring">openai_leap: proc updateApiKey(api: OpenAiApi; apiKey: string)</a></li>
+          data-doc-search-tag="common: proc updateApiKey(api: OpenAiApi; apiKey: string)" href="openai_leap/common.html#updateApiKey%2COpenAiApi%2Cstring">common: proc updateApiKey(api: OpenAiApi; apiKey: string)</a></li>
+          </ul></dd>
+<dt><a name="updateSession" href="#updateSession"><span>updateSession:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc updateSession(session: RealtimeSession; config: RealtimeSessionConfig)" href="openai_leap/realtime.html#updateSession%2CRealtimeSession%2CRealtimeSessionConfig">realtime: proc updateSession(session: RealtimeSession; config: RealtimeSessionConfig)</a></li>
+          </ul></dd>
+<dt><a name="updateSessionWithTools" href="#updateSessionWithTools"><span>updateSessionWithTools:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="realtime: proc updateSessionWithTools(session: RealtimeSession; config: RealtimeSessionConfig;
+                       tools: ResponseToolsTable)" href="openai_leap/realtime.html#updateSessionWithTools%2CRealtimeSession%2CRealtimeSessionConfig%2CResponseToolsTable">realtime: proc updateSessionWithTools(session: RealtimeSession; config: RealtimeSessionConfig;
+                       tools: ResponseToolsTable)</a></li>
           </ul></dd>
 <dt><a name="Usage" href="#Usage"><span>Usage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="openai_leap: type Usage" href="openai_leap.html#Usage">openai_leap: type Usage</a></li>
+          data-doc-search-tag="common: type Usage" href="openai_leap/common.html#Usage">common: type Usage</a></li>
           </ul></dd>
 </dl>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-11-07 05:46:37 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-04-30 06:05:37 UTC</small>
       </div>
     </div>
   </div>

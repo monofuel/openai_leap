@@ -1,0 +1,3 @@
+nimTitle	embeddings	openai_leap/embeddings.html	module openai_leap/embeddings		0
+nim	generateEmbeddings	openai_leap/embeddings.html#generateEmbeddings,OpenAiApi,string,string,Option[int],string	proc generateEmbeddings(api: OpenAiApi; model: string; input: string;\n                   dimensions: Option[int] = none(int); user: string = ""): CreateEmbeddingResp		29
+nim	generateEmbeddingWithTask	openai_leap/embeddings.html#generateEmbeddingWithTask,OpenAiApi,string,string,EmbeddingTask,string,Option[int],string	proc generateEmbeddingWithTask(api: OpenAiApi; model: string; input: string;\n                          task: EmbeddingTask; title: string = "none";\n                          dimensions: Option[int] = none(int); user: string = ""): CreateEmbeddingResp		67

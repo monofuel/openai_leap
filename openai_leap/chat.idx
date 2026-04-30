@@ -1,0 +1,11 @@
+nimTitle	chat	openai_leap/chat.html	module openai_leap/chat		0
+nim	newToolsTable	openai_leap/chat.html#newToolsTable	proc newToolsTable(): ToolsTable		29
+nim	register	openai_leap/chat.html#register,ToolsTable,string,ToolFunction,ToolImpl	proc register(table: var ToolsTable; name: string; toolFunc: ToolFunction;\n         impl: ToolImpl)		33
+nim	createChatCompletion	openai_leap/chat.html#createChatCompletion,OpenAiApi,CreateChatCompletionReq	proc createChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): CreateChatCompletionResp		37
+nim	createChatCompletionWithTools	openai_leap/chat.html#createChatCompletionWithTools,OpenAiApi,CreateChatCompletionReq,ToolsTable,ChatCompletionCallback	proc createChatCompletionWithTools(api: OpenAiApi; req: CreateChatCompletionReq;\n                              tools: ToolsTable;\n                              callback: ChatCompletionCallback = nil): CreateChatCompletionResp		51
+nim	streamChatCompletion	openai_leap/chat.html#streamChatCompletion,OpenAiApi,CreateChatCompletionReq	proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream		151
+nim	createChatCompletion	openai_leap/chat.html#createChatCompletion,OpenAiApi,string,string,string,JsonNode	proc createChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string; responseFormat: JsonNode = nil): string		162
+nim	streamChatCompletion	openai_leap/chat.html#streamChatCompletion,OpenAiApi,string,string,string	proc streamChatCompletion(api: OpenAiApi; model: string; systemPrompt: string;\n                     input: string): OpenAIStream		199
+nim	next	openai_leap/chat.html#next,OpenAIStream	proc next(s: OpenAIStream): Option[ChatCompletionChunk]		224
+nimgrp	createchatcompletion	openai_leap/chat.html#createChatCompletion-procs-all	proc		37
+nimgrp	streamchatcompletion	openai_leap/chat.html#streamChatCompletion-procs-all	proc		151

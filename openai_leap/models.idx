@@ -1,0 +1,4 @@
+nimTitle	models	openai_leap/models.html	module openai_leap/models		0
+nim	listModels	openai_leap/models.html#listModels,OpenAiApi	proc listModels(api: OpenAiApi): seq[OpenAiModel]		5
+nim	getModel	openai_leap/models.html#getModel,OpenAiApi,string	proc getModel(api: OpenAiApi; modelId: string): OpenAiModel		11
+nim	deleteModel	openai_leap/models.html#deleteModel,OpenAiApi,string	proc deleteModel(api: OpenAiApi; modelId: string): DeleteModelResponse		16

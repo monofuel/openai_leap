@@ -1,0 +1,10 @@
+nimTitle	responses	openai_leap/responses.html	module openai_leap/responses		0
+nim	createResponse	openai_leap/responses.html#createResponse,OpenAiApi,CreateResponseReq	proc createResponse(api: OpenAiApi; req: CreateResponseReq): OpenAiResponse		29
+nim	createResponse	openai_leap/responses.html#createResponse,OpenAiApi,string,string,string	proc createResponse(api: OpenAiApi; model: string; input: string;\n               instructions: string = ""): OpenAiResponse		43
+nim	getResponse	openai_leap/responses.html#getResponse,OpenAiApi,string	proc getResponse(api: OpenAiApi; responseId: string): OpenAiResponse		66
+nim	deleteResponse	openai_leap/responses.html#deleteResponse,OpenAiApi,string	proc deleteResponse(api: OpenAiApi; responseId: string): DeleteResponse		71
+nim	streamGetResponse	openai_leap/responses.html#streamGetResponse,OpenAiApi,string	proc streamGetResponse(api: OpenAiApi; responseId: string): OpenAIResponseStream		79
+nim	streamResponse	openai_leap/responses.html#streamResponse,OpenAiApi,CreateResponseReq	proc streamResponse(api: OpenAiApi; req: CreateResponseReq): OpenAIResponseStream		84
+nim	createResponseWithTools	openai_leap/responses.html#createResponseWithTools,OpenAiApi,CreateResponseReq,ResponseToolsTable,ResponseCallback,bool	proc createResponseWithTools(api: OpenAiApi; req: var CreateResponseReq;\n                        tools: ResponseToolsTable;\n                        callback: ResponseCallback = nil;\n                        usePreviousResponseId: bool = true): OpenAiResponse		169
+nim	nextResponseChunk	openai_leap/responses.html#nextResponseChunk,OpenAIResponseStream	proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]		286
+nimgrp	createresponse	openai_leap/responses.html#createResponse-procs-all	proc		29

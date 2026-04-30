@@ -1,0 +1,14 @@
+nimTitle	markdown	openai_leap/markdown.html	module openai_leap/markdown		0
+nim	toMarkdown	openai_leap/markdown.html#toMarkdown,CreateChatCompletionReq	proc toMarkdown(req: CreateChatCompletionReq): string		5
+nim	toMarkdown	openai_leap/markdown.html#toMarkdown,CreateChatCompletionResp	proc toMarkdown(resp: CreateChatCompletionResp): string		104
+nim	toMarkdown	openai_leap/markdown.html#toMarkdown,CreateChatCompletionReq,CreateChatCompletionResp	proc toMarkdown(req: CreateChatCompletionReq; resp: CreateChatCompletionResp): string		164
+nim	toCreateChatCompletionReq	openai_leap/markdown.html#toCreateChatCompletionReq,string	proc toCreateChatCompletionReq(markdown: string): CreateChatCompletionReq		194
+nim	toCreateChatCompletionResp	openai_leap/markdown.html#toCreateChatCompletionResp,string	proc toCreateChatCompletionResp(markdown: string): CreateChatCompletionResp		514
+nim	toCreateChatCompletionReqAndResp	openai_leap/markdown.html#toCreateChatCompletionReqAndResp,string	proc toCreateChatCompletionReqAndResp(markdown: string): (CreateChatCompletionReq,\n    CreateChatCompletionResp)		692
+nim	toMarkdown	openai_leap/markdown.html#toMarkdown,CreateResponseReq	proc toMarkdown(req: CreateResponseReq): string		736
+nim	toMarkdown	openai_leap/markdown.html#toMarkdown,OpenAiResponse	proc toMarkdown(resp: OpenAiResponse): string		813
+nim	toMarkdown	openai_leap/markdown.html#toMarkdown,CreateResponseReq,OpenAiResponse	proc toMarkdown(req: CreateResponseReq; resp: OpenAiResponse): string		891
+nim	toCreateResponseReq	openai_leap/markdown.html#toCreateResponseReq,string	proc toCreateResponseReq(markdown: string): CreateResponseReq		917
+nim	toOpenAiResponse	openai_leap/markdown.html#toOpenAiResponse,string	proc toOpenAiResponse(markdown: string): OpenAiResponse		1208
+nim	toCreateResponseReqAndResp	openai_leap/markdown.html#toCreateResponseReqAndResp,string	proc toCreateResponseReqAndResp(markdown: string): (CreateResponseReq, OpenAiResponse)		1385
+nimgrp	tomarkdown	openai_leap/markdown.html#toMarkdown-procs-all	proc		5
