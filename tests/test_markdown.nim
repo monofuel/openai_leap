@@ -447,6 +447,22 @@ let responseReq = CreateResponseReq(
         `type`: "input_text",
         text: option("Say hello.")
       )])
+    ),
+    ResponseInput(
+      `type`: "message",
+      role: option("assistant"),
+      content: option(@[ResponseInputContent(
+        `type`: "output_text",
+        text: option("Hello there.")
+      )])
+    ),
+    ResponseInput(
+      `type`: "message",
+      role: option("user"),
+      content: option(@[ResponseInputContent(
+        `type`: "input_text",
+        text: option("Say it again.")
+      )])
     )
   ])
 )

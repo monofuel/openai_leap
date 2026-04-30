@@ -780,7 +780,7 @@ proc toMarkdown*(req: CreateResponseReq): string =
         result &= "- **Content**:\n\n"
         for content in input.content.get:
           case content.`type`
-          of "input_text":
+          of "input_text", "output_text":
             if content.text.isSome:
               result &= "```\n" & content.text.get & "\n```\n\n"
           of "input_image":
@@ -1042,7 +1042,10 @@ proc toCreateResponseReq*(markdown: string): CreateResponseReq =
                 inc j
               if j >= lines.len or isSectionHeader(lines[j]):
                 inTextBlock = false
-                contents.add(ResponseInputContent(`type`: "input_text", text: option(textBuffer)))
+                let contentType =
+                  if input.role.isSome and input.role.get == "assistant": "output_text"
+                  else: "input_text"
+                contents.add(ResponseInputContent(`type`: contentType, text: option(textBuffer)))
                 textBuffer = ""
               else:
                 if textBuffer != "": textBuffer &= "\n"

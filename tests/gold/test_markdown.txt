@@ -549,3 +549,161 @@ The weather in San Francisco is 18°C with partly cloudy skies.
 **Tools Request Match:** true
 **Tools Response Match:** true
 
+# Test: Responses API Markdown
+
+# Response Request
+
+## Request Settings
+
+- **Model**: gpt-4o-mini
+- **Instructions**: You are a concise assistant.
+- **Temperature**: 0.2
+- **Max Output Tokens**: 120
+- **Top P**: 0.9
+- **User**: user-123
+- **Store**: true
+- **Previous Response ID**: resp_prev_123
+- **Max Tool Calls**: 2
+- **Parallel Tool Calls**: true
+
+## Inputs
+
+### Input 1 (message)
+
+- **Type**: message
+- **Role**: user
+- **Content**:
+
+```
+Say hello.
+```
+
+
+### Input 2 (message)
+
+- **Type**: message
+- **Role**: assistant
+- **Content**:
+
+```
+Hello there.
+```
+
+
+### Input 3 (message)
+
+- **Type**: message
+- **Role**: user
+- **Content**:
+
+```
+Say it again.
+```
+
+
+## Tool Choice
+
+```json
+"auto"
+```
+
+
+
+# Response
+
+## Response Details
+
+- **ID**: resp_123
+- **Model**: gpt-4o-mini
+- **Created**: 1699565400
+- **Status**: completed
+- **Object**: response
+- **Previous Response ID**: resp_prev_123
+
+## Outputs
+
+### Output 1 (message)
+
+- **Type**: message
+- **Role**: assistant
+- **Content**:
+
+```
+Hello there.
+```
+
+
+### Output 2 (message)
+
+- **Type**: message
+- **Role**: assistant
+- **Content**:
+
+**Tool Call**:
+- **ID**: call_abc
+- **Type**: function
+- **Function**: get_weather
+- **Arguments**: `{"location":"San Francisco"}`
+
+
+## Usage Statistics
+
+- **Input Tokens**: 42
+- **Output Tokens**: 84
+- **Total Tokens**: 126
+
+
+## Response Request Round-trip
+
+**Original JSON:**
+```json
+{"input":[{"type":"message","role":"user","content":[{"type":"input_text","text":"Say hello."}]},{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Hello there."}]},{"type":"message","role":"user","content":[{"type":"input_text","text":"Say it again."}]}],"instructions":"You are a concise assistant.","model":"gpt-4o-mini","max_output_tokens":120,"max_tool_calls":2,"parallel_tool_calls":true,"previous_response_id":"resp_prev_123","store":true,"temperature":0.2,"tool_choice":"auto","top_p":0.9,"user":"user-123"}
+```
+
+**Parsed JSON:**
+```json
+{"input":[{"type":"message","role":"user","content":[{"type":"input_text","text":"Say hello."}]},{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Hello there."}]},{"type":"message","role":"user","content":[{"type":"input_text","text":"Say it again."}]}],"instructions":"You are a concise assistant.","model":"gpt-4o-mini","max_output_tokens":120,"max_tool_calls":2,"parallel_tool_calls":true,"previous_response_id":"resp_prev_123","store":true,"temperature":0.2,"tool_choice":"auto","top_p":0.9,"user":"user-123"}
+```
+
+**Match:** true
+
+## Response Round-trip
+
+**Original JSON:**
+```json
+{"id":"resp_123","object":"response","created_at":1699565400,"model":"gpt-4o-mini","status":"completed","error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"metadata":null,"output":[{"id":"","type":"message","status":null,"role":"assistant","content":[{"type":"output_text","text":"Hello there.","tool_call":null}],"call_id":null,"name":null,"arguments":null,"summary":null},{"id":"","type":"message","status":null,"role":"assistant","content":[{"type":"tool_call","text":null,"tool_call":{"id":"call_abc","type":"function","function":{"name":"get_weather","arguments":"{\"location\":\"San Francisco\"}"}}}],"call_id":null,"name":null,"arguments":null,"summary":null}],"output_text":null,"parallel_tool_calls":null,"previous_response_id":"resp_prev_123","prompt":null,"prompt_cache_key":null,"reasoning":null,"safety_identifier":null,"service_tier":null,"store":null,"temperature":null,"text":null,"tool_choice":null,"tools":null,"top_logprobs":null,"top_p":null,"truncation":null,"usage":{"input_tokens":42,"output_tokens":84,"total_tokens":126},"user":null}
+```
+
+**Parsed JSON:**
+```json
+{"id":"resp_123","object":"response","created_at":1699565400,"model":"gpt-4o-mini","status":"completed","error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"metadata":null,"output":[{"id":"","type":"message","status":null,"role":"assistant","content":[{"type":"output_text","text":"Hello there.","tool_call":null}],"call_id":null,"name":null,"arguments":null,"summary":null},{"id":"","type":"function","status":null,"role":"assistant","content":[{"type":"tool_call","text":null,"tool_call":{"id":"call_abc","type":"","function":{"name":"get_weather","arguments":""}}}],"call_id":null,"name":null,"arguments":"{\"location\":\"San Francisco\"}","summary":null}],"output_text":null,"parallel_tool_calls":null,"previous_response_id":"resp_prev_123","prompt":null,"prompt_cache_key":null,"reasoning":null,"safety_identifier":null,"service_tier":null,"store":null,"temperature":null,"text":null,"tool_choice":null,"tools":null,"top_logprobs":null,"top_p":null,"truncation":null,"usage":{"input_tokens":42,"output_tokens":84,"total_tokens":126},"user":null}
+```
+
+**Match:** false
+
+## Combined Response Request+Response Round-trip
+
+**Request Original JSON:**
+```json
+{"input":[{"type":"message","role":"user","content":[{"type":"input_text","text":"Say hello."}]},{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Hello there."}]},{"type":"message","role":"user","content":[{"type":"input_text","text":"Say it again."}]}],"instructions":"You are a concise assistant.","model":"gpt-4o-mini","max_output_tokens":120,"max_tool_calls":2,"parallel_tool_calls":true,"previous_response_id":"resp_prev_123","store":true,"temperature":0.2,"tool_choice":"auto","top_p":0.9,"user":"user-123"}
+```
+
+**Request Parsed JSON:**
+```json
+{"input":[{"type":"message","role":"user","content":[{"type":"input_text","text":"Say hello."}]},{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Hello there."}]},{"type":"message","role":"user","content":[{"type":"input_text","text":"Say it again."}]}],"instructions":"You are a concise assistant.","model":"gpt-4o-mini","max_output_tokens":120,"max_tool_calls":2,"parallel_tool_calls":true,"previous_response_id":"resp_prev_123","store":true,"temperature":0.2,"tool_choice":"auto","top_p":0.9,"user":"user-123"}
+```
+
+**Request Match:** true
+
+**Response Original JSON:**
+```json
+{"id":"resp_123","object":"response","created_at":1699565400,"model":"gpt-4o-mini","status":"completed","error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"metadata":null,"output":[{"id":"","type":"message","status":null,"role":"assistant","content":[{"type":"output_text","text":"Hello there.","tool_call":null}],"call_id":null,"name":null,"arguments":null,"summary":null},{"id":"","type":"message","status":null,"role":"assistant","content":[{"type":"tool_call","text":null,"tool_call":{"id":"call_abc","type":"function","function":{"name":"get_weather","arguments":"{\"location\":\"San Francisco\"}"}}}],"call_id":null,"name":null,"arguments":null,"summary":null}],"output_text":null,"parallel_tool_calls":null,"previous_response_id":"resp_prev_123","prompt":null,"prompt_cache_key":null,"reasoning":null,"safety_identifier":null,"service_tier":null,"store":null,"temperature":null,"text":null,"tool_choice":null,"tools":null,"top_logprobs":null,"top_p":null,"truncation":null,"usage":{"input_tokens":42,"output_tokens":84,"total_tokens":126},"user":null}
+```
+
+**Response Parsed JSON:**
+```json
+{"id":"resp_123","object":"response","created_at":1699565400,"model":"gpt-4o-mini","status":"completed","error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"metadata":null,"output":[{"id":"","type":"message","status":null,"role":"assistant","content":[{"type":"output_text","text":"Hello there.","tool_call":null}],"call_id":null,"name":null,"arguments":null,"summary":null},{"id":"","type":"function","status":null,"role":"assistant","content":[{"type":"tool_call","text":null,"tool_call":{"id":"call_abc","type":"","function":{"name":"get_weather","arguments":""}}}],"call_id":null,"name":null,"arguments":"{\"location\":\"San Francisco\"}","summary":null}],"output_text":null,"parallel_tool_calls":null,"previous_response_id":"resp_prev_123","prompt":null,"prompt_cache_key":null,"reasoning":null,"safety_identifier":null,"service_tier":null,"store":null,"temperature":null,"text":null,"tool_choice":null,"tools":null,"top_logprobs":null,"top_p":null,"truncation":null,"usage":{"input_tokens":42,"output_tokens":84,"total_tokens":126},"user":null}
+```
+
+**Response Match:** false
+
