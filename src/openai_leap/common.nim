@@ -559,6 +559,10 @@ type
     delta*: Option[JsonNode]
     usage*: Option[AnthropicUsage]
 
+  BedrockConfig* = object
+    region*: string
+    profile*: string
+
 proc len*(table: ResponseToolsTable): int =
   table.data.len
 

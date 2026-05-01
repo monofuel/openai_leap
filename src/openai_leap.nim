@@ -1,7 +1,8 @@
 import
-  openai_leap/[chat, common, embeddings, files, markdown, messages, models, realtime, responses]
+  openai_leap/[bedrock, chat, common, embeddings, files, markdown, messages, models, realtime, responses]
 
 export
+  bedrock,
   chat,
   common,
   embeddings,
