@@ -1,0 +1,6 @@
+nimTitle	eventstream	openai_leap/eventstream.html	module openai_leap/eventstream		0
+nim	EventStreamMessage	openai_leap/eventstream.html#EventStreamMessage	object EventStreamMessage		6
+nim	EventStreamParser	openai_leap/eventstream.html#EventStreamParser	type EventStreamParser		10
+nim	newEventStreamParser	openai_leap/eventstream.html#newEventStreamParser	proc newEventStreamParser(): EventStreamParser		13
+nim	feed	openai_leap/eventstream.html#feed,EventStreamParser,string	proc feed(parser: EventStreamParser; data: string)		16
+nim	next	openai_leap/eventstream.html#next,EventStreamParser	proc next(parser: EventStreamParser): Option[EventStreamMessage]		29

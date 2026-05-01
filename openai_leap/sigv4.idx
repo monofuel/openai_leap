@@ -1,0 +1,3 @@
+nimTitle	sigv4	openai_leap/sigv4.html	module openai_leap/sigv4		0
+nim	AwsCredentials	openai_leap/sigv4.html#AwsCredentials	object AwsCredentials		6
+nim	signRequest	openai_leap/sigv4.html#signRequest,AwsCredentials,string,string,string,string,,string,DateTime	proc signRequest(creds: AwsCredentials; verb, url, region, service: string;\n            headers: var curly.HttpHeaders; body: string;\n            timestamp: DateTime = now().utc)		34

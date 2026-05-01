@@ -28,7 +28,7 @@
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="openai_leap.html">openai_leap</a>, <a href="openai_leap/chat.html">openai_leap/chat</a>, <a href="openai_leap/common.html">openai_leap/common</a>, <a href="openai_leap/embeddings.html">openai_leap/embeddings</a>, <a href="openai_leap/files.html">openai_leap/files</a>, <a href="openai_leap/markdown.html">openai_leap/markdown</a>, <a href="openai_leap/messages.html">openai_leap/messages</a>, <a href="openai_leap/models.html">openai_leap/models</a>, <a href="openai_leap/realtime.html">openai_leap/realtime</a>, <a href="openai_leap/responses.html">openai_leap/responses</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="openai_leap.html">openai_leap</a>, <a href="openai_leap/aws_credentials.html">openai_leap/aws_credentials</a>, <a href="openai_leap/bedrock.html">openai_leap/bedrock</a>, <a href="openai_leap/chat.html">openai_leap/chat</a>, <a href="openai_leap/common.html">openai_leap/common</a>, <a href="openai_leap/embeddings.html">openai_leap/embeddings</a>, <a href="openai_leap/eventstream.html">openai_leap/eventstream</a>, <a href="openai_leap/files.html">openai_leap/files</a>, <a href="openai_leap/markdown.html">openai_leap/markdown</a>, <a href="openai_leap/messages.html">openai_leap/messages</a>, <a href="openai_leap/models.html">openai_leap/models</a>, <a href="openai_leap/realtime.html">openai_leap/realtime</a>, <a href="openai_leap/responses.html">openai_leap/responses</a>, <a href="openai_leap/sigv4.html">openai_leap/sigv4</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%5B%5D%3D%60" href="#%60%5B%5D%3D%60"><span>`[]=`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc `[]=`(table: var ResponseToolsTable; key: string;
@@ -74,6 +74,18 @@
 <dt><a name="audioTranscriptions" href="#audioTranscriptions"><span>audioTranscriptions:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="files: proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription" href="openai_leap/files.html#audioTranscriptions%2COpenAiApi%2Cstring%2Cstring">files: proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription</a></li>
+          </ul></dd>
+<dt><a name="AwsCredentials" href="#AwsCredentials"><span>AwsCredentials:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="sigv4: object AwsCredentials" href="openai_leap/sigv4.html#AwsCredentials">sigv4: object AwsCredentials</a></li>
+          </ul></dd>
+<dt><a name="BedrockConfig" href="#BedrockConfig"><span>BedrockConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: object BedrockConfig" href="openai_leap/common.html#BedrockConfig">common: object BedrockConfig</a></li>
+          </ul></dd>
+<dt><a name="BedrockStream" href="#BedrockStream"><span>BedrockStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="bedrock: type BedrockStream" href="openai_leap/bedrock.html#BedrockStream">bedrock: type BedrockStream</a></li>
           </ul></dd>
 <dt><a name="CacheControl" href="#CacheControl"><span>CacheControl:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -124,6 +136,20 @@
 <dt><a name="connectRealtime" href="#connectRealtime"><span>connectRealtime:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="realtime: proc connectRealtime(api: OpenAiApi; model: string): RealtimeSession" href="openai_leap/realtime.html#connectRealtime%2COpenAiApi%2Cstring">realtime: proc connectRealtime(api: OpenAiApi; model: string): RealtimeSession</a></li>
+          </ul></dd>
+<dt><a name="createBedrockMessage" href="#createBedrockMessage"><span>createBedrockMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="bedrock: proc createBedrockMessage(api: OpenAiApi; config: BedrockConfig;
+                     req: CreateMessageReq): CreateMessageResp" href="openai_leap/bedrock.html#createBedrockMessage%2COpenAiApi%2CBedrockConfig%2CCreateMessageReq">bedrock: proc createBedrockMessage(api: OpenAiApi; config: BedrockConfig;
+                     req: CreateMessageReq): CreateMessageResp</a></li>
+          </ul></dd>
+<dt><a name="createBedrockMessageWithTools" href="#createBedrockMessageWithTools"><span>createBedrockMessageWithTools:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="bedrock: proc createBedrockMessageWithTools(api: OpenAiApi; config: BedrockConfig;
+                              req: var CreateMessageReq;
+                              tools: ResponseToolsTable; callback: proc () = nil): CreateMessageResp" href="openai_leap/bedrock.html#createBedrockMessageWithTools%2COpenAiApi%2CBedrockConfig%2CCreateMessageReq%2CResponseToolsTable%2Cproc%29">bedrock: proc createBedrockMessageWithTools(api: OpenAiApi; config: BedrockConfig;
+                              req: var CreateMessageReq;
+                              tools: ResponseToolsTable; callback: proc () = nil): CreateMessageResp</a></li>
           </ul></dd>
 <dt><a name="createChatCompletion" href="#createChatCompletion"><span>createChatCompletion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -263,6 +289,14 @@
 <li><a class="reference external"
           data-doc-search-tag="common: enum EmbeddingTask" href="openai_leap/common.html#EmbeddingTask">common: enum EmbeddingTask</a></li>
           </ul></dd>
+<dt><a name="EventStreamMessage" href="#EventStreamMessage"><span>EventStreamMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eventstream: object EventStreamMessage" href="openai_leap/eventstream.html#EventStreamMessage">eventstream: object EventStreamMessage</a></li>
+          </ul></dd>
+<dt><a name="EventStreamParser" href="#EventStreamParser"><span>EventStreamParser:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eventstream: type EventStreamParser" href="openai_leap/eventstream.html#EventStreamParser">eventstream: type EventStreamParser</a></li>
+          </ul></dd>
 <dt><a name="extractText" href="#extractText"><span>extractText:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="realtime: proc extractText(events: seq[RealtimeServerEvent]): string" href="openai_leap/realtime.html#extractText%2Cseq%5BRealtimeServerEvent%5D">realtime: proc extractText(events: seq[RealtimeServerEvent]): string</a></li>
@@ -270,6 +304,10 @@
 <dt><a name="FactVerification" href="#FactVerification"><span>FactVerification:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: EmbeddingTask.FactVerification" href="openai_leap/common.html#FactVerification">common: EmbeddingTask.FactVerification</a></li>
+          </ul></dd>
+<dt><a name="feed" href="#feed"><span>feed:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eventstream: proc feed(parser: EventStreamParser; data: string)" href="openai_leap/eventstream.html#feed%2CEventStreamParser%2Cstring">eventstream: proc feed(parser: EventStreamParser; data: string)</a></li>
           </ul></dd>
 <dt><a name="FineTuneError" href="#FineTuneError"><span>FineTuneError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -371,6 +409,10 @@
 <li><a class="reference external"
           data-doc-search-tag="models: proc listModels(api: OpenAiApi): seq[OpenAiModel]" href="openai_leap/models.html#listModels%2COpenAiApi">models: proc listModels(api: OpenAiApi): seq[OpenAiModel]</a></li>
           </ul></dd>
+<dt><a name="loadAwsCredentials" href="#loadAwsCredentials"><span>loadAwsCredentials:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aws_credentials: proc loadAwsCredentials(profile: string = &quot;&quot;): AwsCredentials" href="openai_leap/aws_credentials.html#loadAwsCredentials%2Cstring">aws_credentials: proc loadAwsCredentials(profile: string = &quot;&quot;): AwsCredentials</a></li>
+          </ul></dd>
 <dt><a name="Message" href="#Message"><span>Message:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: type Message" href="openai_leap/common.html#Message">common: type Message</a></li>
@@ -394,6 +436,10 @@
 <dt><a name="messageToolUses" href="#messageToolUses"><span>messageToolUses:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="messages: proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]" href="openai_leap/messages.html#messageToolUses%2CCreateMessageResp">messages: proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]</a></li>
+          </ul></dd>
+<dt><a name="newEventStreamParser" href="#newEventStreamParser"><span>newEventStreamParser:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eventstream: proc newEventStreamParser(): EventStreamParser" href="openai_leap/eventstream.html#newEventStreamParser">eventstream: proc newEventStreamParser(): EventStreamParser</a></li>
           </ul></dd>
 <dt><a name="newFunctionCallOutputItem" href="#newFunctionCallOutputItem"><span>newFunctionCallOutputItem:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -422,6 +468,12 @@
 <dt><a name="next" href="#next"><span>next:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="chat: proc next(s: OpenAIStream): Option[ChatCompletionChunk]" href="openai_leap/chat.html#next%2COpenAIStream">chat: proc next(s: OpenAIStream): Option[ChatCompletionChunk]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="eventstream: proc next(parser: EventStreamParser): Option[EventStreamMessage]" href="openai_leap/eventstream.html#next%2CEventStreamParser">eventstream: proc next(parser: EventStreamParser): Option[EventStreamMessage]</a></li>
+          </ul></dd>
+<dt><a name="nextBedrockMessageEvent" href="#nextBedrockMessageEvent"><span>nextBedrockMessageEvent:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="bedrock: proc nextBedrockMessageEvent(s: BedrockStream): Option[JsonNode]" href="openai_leap/bedrock.html#nextBedrockMessageEvent%2CBedrockStream">bedrock: proc nextBedrockMessageEvent(s: BedrockStream): Option[JsonNode]</a></li>
           </ul></dd>
 <dt><a name="nextEvent" href="#nextEvent"><span>nextEvent:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -705,6 +757,20 @@
 <li><a class="reference external"
           data-doc-search-tag="realtime: proc sendToolResult(session: RealtimeSession; callId: string; output: string)" href="openai_leap/realtime.html#sendToolResult%2CRealtimeSession%2Cstring%2Cstring">realtime: proc sendToolResult(session: RealtimeSession; callId: string; output: string)</a></li>
           </ul></dd>
+<dt><a name="signRequest" href="#signRequest"><span>signRequest:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="sigv4: proc signRequest(creds: AwsCredentials; verb, url, region, service: string;
+            headers: var curly.HttpHeaders; body: string;
+            timestamp: DateTime = now().utc)" href="openai_leap/sigv4.html#signRequest%2CAwsCredentials%2Cstring%2Cstring%2Cstring%2Cstring%2C%2Cstring%2CDateTime">sigv4: proc signRequest(creds: AwsCredentials; verb, url, region, service: string;
+            headers: var curly.HttpHeaders; body: string;
+            timestamp: DateTime = now().utc)</a></li>
+          </ul></dd>
+<dt><a name="streamBedrockMessage" href="#streamBedrockMessage"><span>streamBedrockMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="bedrock: proc streamBedrockMessage(api: OpenAiApi; config: BedrockConfig;
+                     req: CreateMessageReq): BedrockStream" href="openai_leap/bedrock.html#streamBedrockMessage%2COpenAiApi%2CBedrockConfig%2CCreateMessageReq">bedrock: proc streamBedrockMessage(api: OpenAiApi; config: BedrockConfig;
+                     req: CreateMessageReq): BedrockStream</a></li>
+          </ul></dd>
 <dt><a name="streamChatCompletion" href="#streamChatCompletion"><span>streamChatCompletion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="chat: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream" href="openai_leap/chat.html#streamChatCompletion%2COpenAiApi%2CCreateChatCompletionReq">chat: proc streamChatCompletion(api: OpenAiApi; req: CreateChatCompletionReq): OpenAIStream</a></li>
@@ -873,7 +939,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-05-01 22:22:58 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-05-01 23:05:29 UTC</small>
       </div>
     </div>
   </div>

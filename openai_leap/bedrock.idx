@@ -1,0 +1,6 @@
+nimTitle	bedrock	openai_leap/bedrock.html	module openai_leap/bedrock		0
+nim	BedrockStream	openai_leap/bedrock.html#BedrockStream	type BedrockStream		9
+nim	createBedrockMessage	openai_leap/bedrock.html#createBedrockMessage,OpenAiApi,BedrockConfig,CreateMessageReq	proc createBedrockMessage(api: OpenAiApi; config: BedrockConfig;\n                     req: CreateMessageReq): CreateMessageResp		92
+nim	streamBedrockMessage	openai_leap/bedrock.html#streamBedrockMessage,OpenAiApi,BedrockConfig,CreateMessageReq	proc streamBedrockMessage(api: OpenAiApi; config: BedrockConfig;\n                     req: CreateMessageReq): BedrockStream		102
+nim	nextBedrockMessageEvent	openai_leap/bedrock.html#nextBedrockMessageEvent,BedrockStream	proc nextBedrockMessageEvent(s: BedrockStream): Option[JsonNode]		112
+nim	createBedrockMessageWithTools	openai_leap/bedrock.html#createBedrockMessageWithTools,OpenAiApi,BedrockConfig,CreateMessageReq,ResponseToolsTable,proc)	proc createBedrockMessageWithTools(api: OpenAiApi; config: BedrockConfig;\n                              req: var CreateMessageReq;\n                              tools: ResponseToolsTable; callback: proc () = nil): CreateMessageResp		145

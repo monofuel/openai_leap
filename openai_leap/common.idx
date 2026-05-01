@@ -95,24 +95,25 @@ nim	RedactedThinkingContentBlock	openai_leap/common.html#RedactedThinkingContent
 nim	ToolUseContentBlock	openai_leap/common.html#ToolUseContentBlock	type ToolUseContentBlock		538
 nim	CreateMessageResp	openai_leap/common.html#CreateMessageResp	type CreateMessageResp		544
 nim	MessageStreamEvent	openai_leap/common.html#MessageStreamEvent	type MessageStreamEvent		554
-nim	len	openai_leap/common.html#len,ResponseToolsTable	proc len(table: ResponseToolsTable): int		562
-nim	pairs	openai_leap/common.html#pairs.i,ResponseToolsTable	iterator pairs(table: ResponseToolsTable): (string, (ToolFunction, ToolImpl))		565
-nim	keys	openai_leap/common.html#keys.i,ResponseToolsTable	iterator keys(table: ResponseToolsTable): string		569
-nim	hasKey	openai_leap/common.html#hasKey,ResponseToolsTable,string	proc hasKey(table: ResponseToolsTable; key: string): bool		573
-nim	`[]`	openai_leap/common.html#[],ResponseToolsTable,string	proc `[]`(table: ResponseToolsTable; key: string): (ToolFunction, ToolImpl)		576
-nim	`[]=`	openai_leap/common.html#[]=,ResponseToolsTable,string,	proc `[]=`(table: var ResponseToolsTable; key: string;\n      value: (ToolFunction, ToolImpl))		579
-nim	newResponseToolsTable	openai_leap/common.html#newResponseToolsTable	proc newResponseToolsTable(): ResponseToolsTable		582
-nim	register	openai_leap/common.html#register,ResponseToolsTable,string,ToolFunction,ToolImpl	proc register(table: var ResponseToolsTable; name: string; toolFunc: ToolFunction;\n         impl: ToolImpl)		586
-nim	registerResponseTool	openai_leap/common.html#registerResponseTool,ResponseToolsTable,string,ToolFunction,ToolImpl	proc registerResponseTool(table: var ResponseToolsTable; name: string;\n                     toolFunc: ToolFunction; impl: ToolImpl)		590
-nim	sync	openai_leap/common.html#sync.t,SysLockObj,untyped	template sync(a: Lock; body: untyped)		594
-nim	stripEscapeSequences	openai_leap/common.html#stripEscapeSequences,string	proc stripEscapeSequences(input: string): string		601
-nim	sanitizeText	openai_leap/common.html#sanitizeText,string	proc sanitizeText(s: string): string		618
-nim	sanitizeChatReq	openai_leap/common.html#sanitizeChatReq,CreateChatCompletionReq	proc sanitizeChatReq(req: var CreateChatCompletionReq)		638
-nim	newOpenAiApi	openai_leap/common.html#newOpenAiApi,string,string,string,int,int	proc newOpenAiApi(baseUrl: string = "https://api.openai.com/v1"; apiKey: string = "";\n             organization: string = ""; maxInFlight: int = 16;\n             curlTimeout: int = 60 * 5): OpenAiApi		647
-nim	updateApiKey	openai_leap/common.html#updateApiKey,OpenAiApi,string	proc updateApiKey(api: OpenAiApi; apiKey: string)		670
-nim	close	openai_leap/common.html#close,OpenAiApi	proc close(api: OpenAiApi)		675
-nim	get	openai_leap/common.html#get,OpenAiApi,string,Opts	proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response		680
-nim	post	openai_leap/common.html#post,OpenAiApi,string,string,Opts	proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response		710
-nim	postStream	openai_leap/common.html#postStream,OpenAiApi,string,string,Opts	proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream		744
-nim	getStream	openai_leap/common.html#getStream,OpenAiApi,string,seq[],Opts	proc getStream(api: OpenAiApi; path: string;\n          queryParams: seq[(string, string)] = @[]; opts: Opts = Opts()): ResponseStream		791
-nim	delete	openai_leap/common.html#delete,OpenAiApi,string	proc delete(api: OpenAiApi; path: string): Response		834
+nim	BedrockConfig	openai_leap/common.html#BedrockConfig	object BedrockConfig		562
+nim	len	openai_leap/common.html#len,ResponseToolsTable	proc len(table: ResponseToolsTable): int		566
+nim	pairs	openai_leap/common.html#pairs.i,ResponseToolsTable	iterator pairs(table: ResponseToolsTable): (string, (ToolFunction, ToolImpl))		569
+nim	keys	openai_leap/common.html#keys.i,ResponseToolsTable	iterator keys(table: ResponseToolsTable): string		573
+nim	hasKey	openai_leap/common.html#hasKey,ResponseToolsTable,string	proc hasKey(table: ResponseToolsTable; key: string): bool		577
+nim	`[]`	openai_leap/common.html#[],ResponseToolsTable,string	proc `[]`(table: ResponseToolsTable; key: string): (ToolFunction, ToolImpl)		580
+nim	`[]=`	openai_leap/common.html#[]=,ResponseToolsTable,string,	proc `[]=`(table: var ResponseToolsTable; key: string;\n      value: (ToolFunction, ToolImpl))		583
+nim	newResponseToolsTable	openai_leap/common.html#newResponseToolsTable	proc newResponseToolsTable(): ResponseToolsTable		586
+nim	register	openai_leap/common.html#register,ResponseToolsTable,string,ToolFunction,ToolImpl	proc register(table: var ResponseToolsTable; name: string; toolFunc: ToolFunction;\n         impl: ToolImpl)		590
+nim	registerResponseTool	openai_leap/common.html#registerResponseTool,ResponseToolsTable,string,ToolFunction,ToolImpl	proc registerResponseTool(table: var ResponseToolsTable; name: string;\n                     toolFunc: ToolFunction; impl: ToolImpl)		594
+nim	sync	openai_leap/common.html#sync.t,SysLockObj,untyped	template sync(a: Lock; body: untyped)		598
+nim	stripEscapeSequences	openai_leap/common.html#stripEscapeSequences,string	proc stripEscapeSequences(input: string): string		605
+nim	sanitizeText	openai_leap/common.html#sanitizeText,string	proc sanitizeText(s: string): string		622
+nim	sanitizeChatReq	openai_leap/common.html#sanitizeChatReq,CreateChatCompletionReq	proc sanitizeChatReq(req: var CreateChatCompletionReq)		642
+nim	newOpenAiApi	openai_leap/common.html#newOpenAiApi,string,string,string,int,int	proc newOpenAiApi(baseUrl: string = "https://api.openai.com/v1"; apiKey: string = "";\n             organization: string = ""; maxInFlight: int = 16;\n             curlTimeout: int = 60 * 5): OpenAiApi		651
+nim	updateApiKey	openai_leap/common.html#updateApiKey,OpenAiApi,string	proc updateApiKey(api: OpenAiApi; apiKey: string)		674
+nim	close	openai_leap/common.html#close,OpenAiApi	proc close(api: OpenAiApi)		679
+nim	get	openai_leap/common.html#get,OpenAiApi,string,Opts	proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response		684
+nim	post	openai_leap/common.html#post,OpenAiApi,string,string,Opts	proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response		714
+nim	postStream	openai_leap/common.html#postStream,OpenAiApi,string,string,Opts	proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream		748
+nim	getStream	openai_leap/common.html#getStream,OpenAiApi,string,seq[],Opts	proc getStream(api: OpenAiApi; path: string;\n          queryParams: seq[(string, string)] = @[]; opts: Opts = Opts()): ResponseStream		795
+nim	delete	openai_leap/common.html#delete,OpenAiApi,string	proc delete(api: OpenAiApi; path: string): Response		838
