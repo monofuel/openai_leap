@@ -28,15 +28,22 @@ proc dumpHook(s: var string, v: object) =
 # --- Anthropic-specific HTTP helpers ---
 
 proc anthropicPost(api: OpenAiApi, path: string, body: string, opts: Opts = Opts()): Response =
-  ## Make a POST request using Anthropic-style authentication (x-api-key header).
+  ## Make a POST request using Anthropic-style authentication.
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
   headers["anthropic-version"] = "2023-06-01"
-  if opts.bearerToken != "":
-    headers["x-api-key"] = opts.bearerToken
+  if api.useBearerForMessages:
+    if opts.bearerToken != "":
+      headers["Authorization"] = "Bearer " & opts.bearerToken
+    else:
+      api.lock.sync:
+        headers["Authorization"] = "Bearer " & api.apiKey
   else:
-    api.lock.sync:
-      headers["x-api-key"] = api.apiKey
+    if opts.bearerToken != "":
+      headers["x-api-key"] = opts.bearerToken
+    else:
+      api.lock.sync:
+        headers["x-api-key"] = api.apiKey
   var timeout = api.curlTimeout
   if opts.curlTimeout != 0:
     timeout = opts.curlTimeout
@@ -58,11 +65,18 @@ proc anthropicPostStream(api: OpenAiApi, path: string, body: string, opts: Opts 
   var headers: curly.HttpHeaders
   headers["Content-Type"] = "application/json"
   headers["anthropic-version"] = "2023-06-01"
-  if opts.bearerToken != "":
-    headers["x-api-key"] = opts.bearerToken
+  if api.useBearerForMessages:
+    if opts.bearerToken != "":
+      headers["Authorization"] = "Bearer " & opts.bearerToken
+    else:
+      api.lock.sync:
+        headers["Authorization"] = "Bearer " & api.apiKey
   else:
-    api.lock.sync:
-      headers["x-api-key"] = api.apiKey
+    if opts.bearerToken != "":
+      headers["x-api-key"] = opts.bearerToken
+    else:
+      api.lock.sync:
+        headers["x-api-key"] = api.apiKey
   var timeout = api.curlTimeout
   if opts.curlTimeout != 0:
     timeout = opts.curlTimeout

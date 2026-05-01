@@ -14,6 +14,7 @@ type
     curlTimeout*: int
     apiKey*: string
     organization*: string
+    useBearerForMessages*: bool
   OpenAiApi* = ptr OpenAiApiObj
 
   OpenAiError* = object of CatchableError ## Raised if an operation fails.
