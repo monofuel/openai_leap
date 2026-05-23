@@ -1,11 +1,12 @@
 import
-  std/[locks, monotimes, options, os, sequtils, strformat, strutils, times],
+  std/[locks, monotimes, options, os, strformat, strutils, times],
   openai_leap
 
 const
-  BaseUrl = "http://localhost:1234/v1"
-  Model = "gpt-oss-20b"
-  ApiKey = "lm-studio"
+  LocalBaseUrl = "http://localhost:1234/v1"
+  LocalModel = "gpt-oss-20b"
+  LocalApiKey = "lm-studio"
+  CloudBaseUrl = "https://api.openai.com/v1"
   PollIntervalMs = 200
   FinalMarker = "# FINAL"
   # Test prompts at increasing difficulty. Uncomment one and comment the rest.
@@ -18,6 +19,9 @@ type
     name: string
     role: string
     isLeader: bool
+    baseUrl: string
+    apiKey: string  # empty string falls back to OPENAI_API_KEY env var
+    model: string
 
   TranscriptEntry = object
     agentName: string
@@ -36,17 +40,26 @@ let
     AgentSpec(
       name: "Alice",
       role: "Synthesizer — weigh perspectives, find common ground, decide when to converge.",
-      isLeader: true
+      isLeader: true,
+      baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
     ),
     AgentSpec(
       name: "Bob",
       role: "Skeptic — challenge assumptions, point out gaps. Only disagree where there is real doubt.",
-      isLeader: false
+      isLeader: false,
+      baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
     ),
     AgentSpec(
       name: "Carol",
       role: "Researcher — ground claims in concrete facts. Add specifics others missed.",
-      isLeader: false
+      isLeader: false,
+      baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
+    ),
+    AgentSpec(
+      name: "Dave",
+      role: "Outside voice — you come from a different background than the others. Push back when the group is converging too easily and probe whether they are missing angles or settling for groupthink.",
+      isLeader: false,
+      baseUrl: CloudBaseUrl, apiKey: "", model: "gpt-5.4-mini"
     )
   ]
 
@@ -97,14 +110,19 @@ template log(msg: string) =
 
 proc buildSystemPrompt(agent: AgentSpec): string =
   ## Build the per-agent system prompt with council framing and role.
+  var roster = ""
+  for a in Agents:
+    if a.isLeader:
+      roster &= &"- {a.name} (leader)\n"
+    else:
+      roster &= &"- {a.name}\n"
+
   result = &"""Reasoning: low
 
-You are {agent.name}, one of three AI agents in a group chat that exists to answer the user's question. This is a rapid-fire conversation, not an essay assignment. Say partial ideas, half-formed reactions, and things you are not yet sure about. The conversation itself is how the reasoning happens — your words to the others ARE your reasoning.
+You are {agent.name}, one of {Agents.len} AI agents in a group chat that exists to answer the user's question. This is a rapid-fire conversation, not an essay assignment. Say partial ideas, half-formed reactions, and things you are not yet sure about. The conversation itself is how the reasoning happens — your words to the others ARE your reasoning.
 
 Other agents in the chat:
-- Alice (leader)
-- Bob
-- Carol
+{roster.strip()}
 
 Your role: {agent.role}
 
@@ -255,8 +273,12 @@ proc agentLoop(task: AgentTask) {.thread.} =
 
 proc main() =
   ## Spawn one thread per agent. Each agent runs its own async loop. Joins when leader signals stop.
-  let api = newOpenAiApi(baseUrl = BaseUrl, apiKey = ApiKey)
-  defer: api.close()
+  var apis = newSeq[OpenAiApi](Agents.len)
+  for i, agent in Agents:
+    apis[i] = newOpenAiApi(baseUrl = agent.baseUrl, apiKey = agent.apiKey)
+  defer:
+    for api in apis:
+      api.close()
 
   var leaderName = ""
   for a in Agents:
@@ -264,10 +286,11 @@ proc main() =
       leaderName = a.name
 
   log "Multi-agent council starting"
-  log &"  baseUrl: {BaseUrl}"
-  log &"  model:   {Model}"
-  log &"  agents:  " & Agents.mapIt(it.name).join(", ") & &" (leader: {leaderName})"
   log &"  question: {UserQuestion}"
+  log &"  agents:"
+  for agent in Agents:
+    let leaderTag = if agent.isLeader: " (leader)" else: ""
+    log &"    {agent.name}{leaderTag}: {agent.model} @ {agent.baseUrl}"
   log ""
 
   let runStart = getMonoTime()
@@ -275,8 +298,8 @@ proc main() =
   var threads = newSeq[Thread[AgentTask]](Agents.len)
   for i, agent in Agents:
     let task = AgentTask(
-      api: api,
-      model: Model,
+      api: apis[i],
+      model: agent.model,
       agentName: agent.name,
       isLeader: agent.isLeader,
       systemPrompt: buildSystemPrompt(agent),
