@@ -16,7 +16,7 @@ proc getFlightTimes(departure: string, arrival: string): string =
     return "No flight found for " & key
 
 const
-  TestModel = "gpt-4o-mini-realtime-preview"
+  TestModel = "gpt-realtime-2"
 
 suite "realtime":
   var openai: OpenAiApi
@@ -39,7 +39,7 @@ suite "realtime":
     discard session.nextEvent() # session.created
 
     let config = RealtimeSessionConfig()
-    config.modalities = option(@["text"])
+    config.output_modalities = option(@["text"])
     config.instructions = option("You are a helpful assistant. Keep responses brief.")
     session.updateSession(config)
 
@@ -53,7 +53,7 @@ suite "realtime":
     discard session.nextEvent() # session.created
 
     let config = RealtimeSessionConfig()
-    config.modalities = option(@["text"])
+    config.output_modalities = option(@["text"])
     session.updateSession(config)
     discard session.nextEvent() # session.updated
 
@@ -68,7 +68,7 @@ suite "realtime":
       if event.isNone:
         break
       case event.get.`type`
-      of "response.text.delta":
+      of "response.output_text.delta":
         gotTextDelta = true
         if event.get.delta.isSome:
           fullText &= event.get.delta.get
@@ -87,18 +87,24 @@ suite "realtime":
     discard session.nextEvent() # session.created
 
     let config = RealtimeSessionConfig()
-    config.modalities = option(@["text", "audio"])
-    config.voice = option("alloy")
-    config.input_audio_format = option("pcm16")
-    config.output_audio_format = option("pcm16")
-    config.input_audio_transcription = option(RealtimeTranscriptionConfig(
-      model: option("whisper-1"),
+    config.output_modalities = option(@["audio"])
+    config.audio = option(RealtimeAudioConfig(
+      input: option(RealtimeAudioInputConfig(
+        format: option(%*{"type": "audio/pcm", "rate": 24000}),
+        transcription: option(RealtimeTranscriptionConfig(
+          model: option("whisper-1"),
+        )),
+        turn_detection: option(%*{
+          "type": "server_vad",
+          "threshold": 0.5,
+          "silence_duration_ms": 500,
+        }),
+      )),
+      output: option(RealtimeAudioOutputConfig(
+        format: option(%*{"type": "audio/pcm", "rate": 24000}),
+        voice: option("alloy"),
+      )),
     ))
-    config.turn_detection = option(%*{
-      "type": "server_vad",
-      "threshold": 0.5,
-      "silence_duration_ms": 500,
-    })
     session.updateSession(config)
 
     let event = session.nextEvent()
@@ -111,7 +117,7 @@ suite "realtime":
     discard session.nextEvent() # session.created
 
     let config = RealtimeSessionConfig()
-    config.modalities = option(@["text"])
+    config.output_modalities = option(@["text"])
 
     var tools = newResponseToolsTable()
     tools.register("get_flight_times",
@@ -155,7 +161,7 @@ suite "realtime":
     discard session.nextEvent() # session.created
 
     let config = RealtimeSessionConfig()
-    config.modalities = option(@["text"])
+    config.output_modalities = option(@["text"])
     config.tools = option(@[ResponseTool(
       `type`: "function",
       name: "get_greeting",
@@ -203,7 +209,7 @@ suite "realtime":
       let event = session.nextEventWithTimeout(15000)
       if event.isNone:
         break
-      if event.get.`type` == "response.text.delta":
+      if event.get.`type` == "response.output_text.delta":
         gotFinalText = true
       if event.get.`type` == "response.done":
         break

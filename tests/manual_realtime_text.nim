@@ -6,7 +6,7 @@ import
   openai_leap
 
 const
-  Model = "gpt-4o-mini-realtime-preview"
+  Model = "gpt-realtime-2"
 
 proc main() =
   ## Run an interactive text chat over the Realtime API.
@@ -25,7 +25,7 @@ proc main() =
 
   # Configure text-only
   let config = RealtimeSessionConfig()
-  config.modalities = option(@["text"])
+  config.output_modalities = option(@["text"])
   config.instructions = option("You are a helpful assistant. Keep responses concise.")
   session.updateSession(config)
 
@@ -58,13 +58,13 @@ proc main() =
         openai.close()
         return
       case event.get.`type`
-      of "response.text.delta":
+      of "response.output_text.delta":
         if event.get.delta.isSome:
           let chunk = event.get.delta.get
           stdout.write(chunk)
           stdout.flushFile()
           fullText &= chunk
-      of "response.text.done":
+      of "response.output_text.done":
         discard
       of "response.done":
         echo ""

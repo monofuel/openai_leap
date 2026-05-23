@@ -34,20 +34,35 @@ type
     language*: Option[string]
     prompt*: Option[string]
 
+  RealtimeAudioInputConfig* = ref object
+    ## GA audio.input config: PCM format, transcription, turn detection, noise reduction.
+    format*: Option[JsonNode] # string ("pcm16") or object {"type": "audio/pcm", "rate": 24000}
+    transcription*: Option[RealtimeTranscriptionConfig]
+    turn_detection*: Option[JsonNode]
+    noise_reduction*: Option[JsonNode]
+
+  RealtimeAudioOutputConfig* = ref object
+    ## GA audio.output config: PCM format, voice, speed.
+    format*: Option[JsonNode]
+    voice*: Option[string]
+    speed*: Option[float32]
+
+  RealtimeAudioConfig* = ref object
+    ## GA session.audio container nesting input + output.
+    input*: Option[RealtimeAudioInputConfig]
+    output*: Option[RealtimeAudioOutputConfig]
+
   RealtimeSessionConfig* = ref object
-    ## Configuration for a realtime session.
+    ## Configuration for a realtime session (GA schema).
+    `type`*: Option[string] # "realtime" for the GA interface
     model*: Option[string]
     instructions*: Option[string]
-    modalities*: Option[seq[string]]
-    temperature*: Option[float32]
-    max_response_output_tokens*: Option[JsonNode]
-    voice*: Option[string]
-    input_audio_format*: Option[string]
-    output_audio_format*: Option[string]
-    input_audio_transcription*: Option[RealtimeTranscriptionConfig]
-    turn_detection*: Option[JsonNode]
+    output_modalities*: Option[seq[string]] # "text", "audio"
+    audio*: Option[RealtimeAudioConfig]
     tools*: Option[seq[ResponseTool]]
     tool_choice*: Option[JsonNode]
+    temperature*: Option[float32]
+    max_output_tokens*: Option[JsonNode]
 
   RealtimeContentPart* = ref object
     ## A content part within a realtime conversation item.
@@ -72,11 +87,11 @@ type
 
   RealtimeResponseConfig* = ref object
     ## Configuration for triggering a response.
-    modalities*: Option[seq[string]]
+    output_modalities*: Option[seq[string]]
     instructions*: Option[string]
     temperature*: Option[float32]
     max_output_tokens*: Option[JsonNode]
-    voice*: Option[string]
+    audio*: Option[RealtimeAudioConfig]
     tools*: Option[seq[ResponseTool]]
     tool_choice*: Option[JsonNode]
 
@@ -196,7 +211,7 @@ proc connectWebSocket(url: string, extraHeaders: seq[(string, string)]): Future[
 # --- Connection ---
 
 proc connectRealtime*(api: OpenAiApi, model: string): RealtimeSession =
-  ## Connect to the OpenAI Realtime API via WebSocket.
+  ## Connect to the OpenAI Realtime API (GA) via WebSocket.
   ## Returns a RealtimeSession for sending and receiving events.
   ## The first event received will be session.created.
   var wsUrl = api.baseUrl
@@ -212,7 +227,6 @@ proc connectRealtime*(api: OpenAiApi, model: string): RealtimeSession =
 
   let headers = @[
     ("Authorization", "Bearer " & apiKey),
-    ("OpenAI-Beta", "realtime=v1"),
   ]
 
   let socket = waitFor connectWebSocket(wsUrl, headers)
@@ -273,6 +287,9 @@ proc nextEventWithTimeout*(session: RealtimeSession, timeoutMs: int): Option[Rea
 
 proc updateSession*(session: RealtimeSession, config: RealtimeSessionConfig) =
   ## Send a session.update event to configure the session.
+  ## Automatically sets session.type to "realtime" if not provided.
+  if config.`type`.isNone:
+    config.`type` = option("realtime")
   let event = RealtimeClientEvent(
     `type`: "session.update",
     session: option(config),
@@ -439,7 +456,11 @@ proc handleToolCalls*(
 
 proc extractText*(events: seq[RealtimeServerEvent]): string =
   ## Extract all text deltas from a sequence of realtime events.
+  ## Recognizes both GA (response.output_text.delta) and legacy
+  ## (response.text.delta) event names.
   result = ""
   for event in events:
-    if event.`type` == "response.text.delta" and event.delta.isSome:
+    if event.delta.isSome and
+       (event.`type` == "response.output_text.delta" or
+        event.`type` == "response.text.delta"):
       result &= event.delta.get

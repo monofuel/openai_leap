@@ -8,7 +8,7 @@ import
   slappy
 
 const
-  Model = "gpt-realtime"
+  Model = "gpt-realtime-2"
   SampleRate = 24000
   Channels = 1
   Bits = 16
@@ -75,19 +75,25 @@ proc main() =
   )
 
   let config = RealtimeSessionConfig()
-  config.modalities = option(@["text", "audio"])
-  config.voice = option("alloy")
-  config.input_audio_format = option("pcm16")
-  config.output_audio_format = option("pcm16")
-  config.input_audio_transcription = option(RealtimeTranscriptionConfig(
-    model: option("whisper-1"),
+  config.output_modalities = option(@["audio"])
+  config.audio = option(RealtimeAudioConfig(
+    input: option(RealtimeAudioInputConfig(
+      format: option(%*{"type": "audio/pcm", "rate": 24000}),
+      transcription: option(RealtimeTranscriptionConfig(
+        model: option("whisper-1"),
+      )),
+      turn_detection: option(%*{
+        "type": "server_vad",
+        "threshold": 0.3,
+        "silence_duration_ms": 500,
+        "prefix_padding_ms": 300,
+      }),
+    )),
+    output: option(RealtimeAudioOutputConfig(
+      format: option(%*{"type": "audio/pcm", "rate": 24000}),
+      voice: option("alloy"),
+    )),
   ))
-  config.turn_detection = option(%*{
-    "type": "server_vad",
-    "threshold": 0.3,
-    "silence_duration_ms": 500,
-    "prefix_padding_ms": 300,
-  })
   session.updateSessionWithTools(config, tools)
 
   let updated = session.nextEvent()
@@ -130,23 +136,23 @@ proc main() =
         echo "[listening...]"
       of "input_audio_buffer.speech_stopped":
         echo "[processing...]"
-      of "response.audio.delta":
+      of "response.output_audio.delta":
         if event.get.delta.isSome:
           let decoded = base64.decode(event.get.delta.get)
           if decoded.len > 0:
             var pcmBytes = newSeq[uint8](decoded.len)
             copyMem(addr pcmBytes[0], unsafeAddr decoded[0], decoded.len)
             playback.queueData(pcmBytes)
-      of "response.audio.done":
+      of "response.output_audio.done":
         discard
-      of "response.audio_transcript.delta":
+      of "response.output_audio_transcript.delta":
         if event.get.delta.isSome:
           if not inAssistantResponse:
             stdout.write "Assistant: "
             inAssistantResponse = true
           stdout.write(event.get.delta.get)
           stdout.flushFile()
-      of "response.audio_transcript.done":
+      of "response.output_audio_transcript.done":
         if inAssistantResponse:
           echo ""
           inAssistantResponse = false
