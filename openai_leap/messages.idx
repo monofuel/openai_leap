@@ -1,12 +1,12 @@
 nimTitle	messages	openai_leap/messages.html	module openai_leap/messages		0
-nim	messageText	openai_leap/messages.html#messageText,CreateMessageResp	proc messageText(resp: CreateMessageResp): string		111
-nim	messageToolUses	openai_leap/messages.html#messageToolUses,CreateMessageResp	proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]		121
-nim	messageThinking	openai_leap/messages.html#messageThinking,CreateMessageResp	proc messageThinking(resp: CreateMessageResp): seq[ThinkingContentBlock]		133
-nim	toMessageReq	openai_leap/messages.html#toMessageReq,CreateResponseReq	proc toMessageReq(req: CreateResponseReq): CreateMessageReq		146
-nim	toOpenAiResponse	openai_leap/messages.html#toOpenAiResponse,CreateMessageResp	proc toOpenAiResponse(resp: CreateMessageResp): OpenAiResponse		209
-nim	createMessage	openai_leap/messages.html#createMessage,OpenAiApi,CreateMessageReq	proc createMessage(api: OpenAiApi; req: CreateMessageReq): CreateMessageResp		245
-nim	createMessage	openai_leap/messages.html#createMessage,OpenAiApi,string,int,string,string	proc createMessage(api: OpenAiApi; model: string; maxTokens: int; prompt: string;\n              system: string = ""): CreateMessageResp		253
-nim	streamMessage	openai_leap/messages.html#streamMessage,OpenAiApi,CreateMessageReq	proc streamMessage(api: OpenAiApi; req: CreateMessageReq): OpenAIStream		270
-nim	nextMessageEvent	openai_leap/messages.html#nextMessageEvent,OpenAIStream	proc nextMessageEvent(s: OpenAIStream): Option[JsonNode]		278
-nim	createMessageWithTools	openai_leap/messages.html#createMessageWithTools,OpenAiApi,CreateMessageReq,ResponseToolsTable,proc)	proc createMessageWithTools(api: OpenAiApi; req: var CreateMessageReq;\n                       tools: ResponseToolsTable; callback: proc () = nil): CreateMessageResp		356
-nimgrp	createmessage	openai_leap/messages.html#createMessage-procs-all	proc		245
+nim	messageText	openai_leap/messages.html#messageText,CreateMessageResp	proc messageText(resp: CreateMessageResp): string		130
+nim	messageToolUses	openai_leap/messages.html#messageToolUses,CreateMessageResp	proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]		140
+nim	messageThinking	openai_leap/messages.html#messageThinking,CreateMessageResp	proc messageThinking(resp: CreateMessageResp): seq[ThinkingContentBlock]		152
+nim	toMessageReq	openai_leap/messages.html#toMessageReq,CreateResponseReq	proc toMessageReq(req: CreateResponseReq): CreateMessageReq		165
+nim	toOpenAiResponse	openai_leap/messages.html#toOpenAiResponse,CreateMessageResp	proc toOpenAiResponse(resp: CreateMessageResp): OpenAiResponse		228
+nim	createMessage	openai_leap/messages.html#createMessage,OpenAiApi,CreateMessageReq	proc createMessage(api: OpenAiApi; req: CreateMessageReq): CreateMessageResp		264
+nim	createMessage	openai_leap/messages.html#createMessage,OpenAiApi,string,int,string,string	proc createMessage(api: OpenAiApi; model: string; maxTokens: int; prompt: string;\n              system: string = ""): CreateMessageResp		272
+nim	streamMessage	openai_leap/messages.html#streamMessage,OpenAiApi,CreateMessageReq	proc streamMessage(api: OpenAiApi; req: CreateMessageReq): OpenAIStream		289
+nim	nextMessageEvent	openai_leap/messages.html#nextMessageEvent,OpenAIStream	proc nextMessageEvent(s: OpenAIStream): Option[JsonNode]		297
+nim	createMessageWithTools	openai_leap/messages.html#createMessageWithTools,OpenAiApi,CreateMessageReq,ResponseToolsTable,proc)	proc createMessageWithTools(api: OpenAiApi; req: var CreateMessageReq;\n                       tools: ResponseToolsTable; callback: proc () = nil): CreateMessageResp		375
+nimgrp	createmessage	openai_leap/messages.html#createMessage-procs-all	proc		264
