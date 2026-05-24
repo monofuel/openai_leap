@@ -25,6 +25,25 @@ proc dumpHook(s: var string, v: object) =
       inc i
   s.add '}'
 
+proc stripNulls(node: var JsonNode) =
+  ## Recursively remove null-valued fields from a JSON tree. Fixes Anthropic strict schema validation.
+  if node.kind == JObject:
+    var keysToDelete: seq[string] = @[]
+    for key, val in node:
+      if val.kind == JNull:
+        keysToDelete.add(key)
+      else:
+        var mutableVal = val
+        stripNulls(mutableVal)
+        node[key] = mutableVal
+    for key in keysToDelete:
+      node.delete(key)
+  elif node.kind == JArray:
+    for i in 0 ..< node.len:
+      var elem = node[i]
+      stripNulls(elem)
+      node.elems[i] = elem
+
 # --- Anthropic-specific HTTP helpers ---
 
 proc anthropicPost(api: OpenAiApi, path: string, body: string, opts: Opts = Opts()): Response =
@@ -244,10 +263,10 @@ proc toOpenAiResponse*(resp: CreateMessageResp): OpenAiResponse =
 
 proc createMessage*(api: OpenAiApi, req: CreateMessageReq): CreateMessageResp =
   ## Create a message using the Anthropic Messages API.
-  let mutableReq = fromJson(toJson(req), CreateMessageReq)
-  mutableReq.stream = option(false)
-  let reqBody = toJson(mutableReq)
-  let resp = anthropicPost(api, "/messages", reqBody)
+  var j = parseJson(toJson(req))
+  j["stream"] = %false
+  stripNulls(j)
+  let resp = anthropicPost(api, "/messages", $j)
   result = fromJson(resp.body, CreateMessageResp)
 
 proc createMessage*(api: OpenAiApi, model: string, maxTokens: int, prompt: string, system: string = ""): CreateMessageResp =
@@ -269,10 +288,10 @@ proc createMessage*(api: OpenAiApi, model: string, maxTokens: int, prompt: strin
 
 proc streamMessage*(api: OpenAiApi, req: CreateMessageReq): OpenAIStream =
   ## Stream a message response using the Anthropic Messages API.
-  let mutableReq = fromJson(toJson(req), CreateMessageReq)
-  mutableReq.stream = option(true)
-  let reqBody = toJson(mutableReq)
-  let stream = anthropicPostStream(api, "/messages", reqBody)
+  var j = parseJson(toJson(req))
+  j["stream"] = %true
+  stripNulls(j)
+  let stream = anthropicPostStream(api, "/messages", $j)
   result = OpenAIStream(stream: stream, buffer: "")
 
 proc nextMessageEvent*(s: OpenAIStream): Option[JsonNode] =
@@ -374,8 +393,9 @@ proc createMessageWithTools*(
     if req.tool_choice.isNone:
       req.tool_choice = option(ToolChoiceConfig(`type`: "auto"))
 
-  let reqBody = toJson(req)
-  let resp = anthropicPost(api, "/messages", reqBody)
+  var bodyJson = parseJson(toJson(req))
+  stripNulls(bodyJson)
+  let resp = anthropicPost(api, "/messages", $bodyJson)
   result = fromJson(resp.body, CreateMessageResp)
 
   if callback != nil:
@@ -417,8 +437,9 @@ proc createMessageWithTools*(
       ))
 
       # Send follow-up request
-      let followUpBody = toJson(req)
-      let followUpResp = anthropicPost(api, "/messages", followUpBody)
+      var followUpJson = parseJson(toJson(req))
+      stripNulls(followUpJson)
+      let followUpResp = anthropicPost(api, "/messages", $followUpJson)
       result = fromJson(followUpResp.body, CreateMessageResp)
 
       if callback != nil:

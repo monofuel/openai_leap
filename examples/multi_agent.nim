@@ -15,12 +15,17 @@ const
   # UserQuestion = "What is a Wild n' Wooly Shambler?"                       # hard: hallucination probe, agents will bicker
 
 type
+  Provider = enum
+    ProviderOpenAI    # OpenAI-compat chat completions
+    ProviderAnthropic # Anthropic Messages API
+
   AgentSpec = object
     name: string
     role: string
     isLeader: bool
+    provider: Provider
     baseUrl: string
-    apiKey: string  # empty string falls back to OPENAI_API_KEY env var
+    apiKey: string  # empty string: OPENAI_API_KEY or ANTHROPIC_API_KEY env fallback in main()
     model: string
 
   TranscriptEntry = object
@@ -32,6 +37,7 @@ type
     model: string
     agentName: string
     isLeader: bool
+    provider: Provider
     systemPrompt: string
     question: string
 
@@ -41,25 +47,36 @@ let
       name: "Alice",
       role: "Synthesizer — weigh perspectives, find common ground, decide when to converge.",
       isLeader: true,
+      provider: ProviderOpenAI,
       baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
     ),
     AgentSpec(
       name: "Bob",
       role: "Skeptic — challenge assumptions, point out gaps. Only disagree where there is real doubt.",
       isLeader: false,
+      provider: ProviderOpenAI,
       baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
     ),
     AgentSpec(
       name: "Carol",
       role: "Researcher — ground claims in concrete facts. Add specifics others missed.",
       isLeader: false,
+      provider: ProviderOpenAI,
       baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
     ),
     AgentSpec(
       name: "Dave",
       role: "Outside voice — you come from a different background than the others. Push back when the group is converging too easily and probe whether they are missing angles or settling for groupthink.",
       isLeader: false,
+      provider: ProviderOpenAI,
       baseUrl: CloudBaseUrl, apiKey: "", model: "gpt-5.4-mini"
+    ),
+    AgentSpec(
+      name: "Eve",
+      role: "Pragmatist — translate the discussion into concrete, actionable, real-world implications. Cut through abstraction.",
+      isLeader: false,
+      provider: ProviderAnthropic,
+      baseUrl: "https://api.anthropic.com/v1", apiKey: "", model: "claude-haiku-4-5"
     )
   ]
 
@@ -159,45 +176,72 @@ proc buildUserPayload(question: string, snapshot: seq[TranscriptEntry], agentNam
     elif snapshot.len >= 20:
       result &= "\n\n[STRONG REMINDER for the leader: this chat has gone on a while. You should likely fire \"# FINAL\" now with the group's best synthesis. Start your message with \"# FINAL\" on its own line, then write the user-facing answer.]"
 
+proc streamOpenAI(task: AgentTask, userPayload: string): tuple[text: string, chunks: int] =
+  ## Stream a chat completion via the OpenAI-compat path.
+  let req = CreateChatCompletionReq()
+  req.model = task.model
+  req.messages = @[
+    Message(
+      role: "system",
+      content: option(@[MessageContentPart(`type`: "text", text: option(task.systemPrompt))])
+    ),
+    Message(
+      role: "user",
+      content: option(@[MessageContentPart(`type`: "text", text: option(userPayload))])
+    )
+  ]
+  let stream = task.api.streamChatCompletion(req)
+  var lastReport = getMonoTime()
+  while true:
+    let chunk = stream.next()
+    if chunk.isNone:
+      break
+    inc result.chunks
+    if chunk.get.choices.len > 0 and chunk.get.choices[0].delta.isSome:
+      let content = chunk.get.choices[0].delta.get.content
+      if content.len > 0:
+        result.text &= content
+    let now = getMonoTime()
+    if inMilliseconds(now - lastReport) >= 1000:
+      log &"  [{task.agentName}] streaming: {result.chunks} chunks, {result.text.len} chars..."
+      lastReport = now
+
+proc callAnthropic(task: AgentTask, userPayload: string): tuple[text: string, chunks: int] =
+  ## Non-streaming Anthropic call via the unified converter pattern (CreateResponseReq → toMessageReq → toOpenAiResponse).
+  ## Future: switch to streaming once the library's streamMessage null-leak bug is fixed.
+  ## The fix pattern exists in bedrock.nim (stripNulls); apply it to streamMessage's toJson roundtrip.
+  {.cast(gcsafe).}:
+    let respReq = CreateResponseReq()
+    respReq.model = task.model
+    respReq.max_output_tokens = option(4096)
+    respReq.instructions = option(task.systemPrompt)
+    respReq.input = option(@[
+      ResponseInput(
+        `type`: "message",
+        role: option("user"),
+        content: option(@[ResponseInputContent(`type`: "input_text", text: option(userPayload))])
+      )
+    ])
+    var msgReq = toMessageReq(respReq)
+    var emptyTools = newResponseToolsTable()
+    let msgResp = task.api.createMessageWithTools(msgReq, emptyTools)
+    let unified = toOpenAiResponse(msgResp)
+    if unified.output_text.isSome:
+      result.text = unified.output_text.get
+    result.chunks = 1
+
 proc fireOnce(task: AgentTask, snapshot: seq[TranscriptEntry]): tuple[text: string, failed: bool, error: string] =
   ## Stream one completion based on the given transcript snapshot. Returns the response text or an error.
   let started = getMonoTime()
   let userPayload = buildUserPayload(task.question, snapshot, task.agentName, task.isLeader)
   log &"  [{task.agentName}] streaming (transcript len: {snapshot.len})..."
   try:
-    let req = CreateChatCompletionReq()
-    req.model = task.model
-    req.messages = @[
-      Message(
-        role: "system",
-        content: option(@[MessageContentPart(`type`: "text", text: option(task.systemPrompt))])
-      ),
-      Message(
-        role: "user",
-        content: option(@[MessageContentPart(`type`: "text", text: option(userPayload))])
-      )
-    ]
-    let stream = task.api.streamChatCompletion(req)
-    var buf = ""
-    var chunkCount = 0
-    var lastReport = getMonoTime()
-    while true:
-      let chunk = stream.next()
-      if chunk.isNone:
-        break
-      inc chunkCount
-      if chunk.get.choices.len > 0 and chunk.get.choices[0].delta.isSome:
-        let content = chunk.get.choices[0].delta.get.content
-        if content.len > 0:
-          buf &= content
-      # Report progress roughly every second so the user sees motion without spam.
-      let now = getMonoTime()
-      if inMilliseconds(now - lastReport) >= 1000:
-        log &"  [{task.agentName}] streaming: {chunkCount} chunks, {buf.len} chars..."
-        lastReport = now
+    let streamed = case task.provider
+      of ProviderOpenAI:    streamOpenAI(task, userPayload)
+      of ProviderAnthropic: callAnthropic(task, userPayload)
     let elapsed = inMilliseconds(getMonoTime() - started)
-    log &"  [{task.agentName}] done in {elapsed}ms ({chunkCount} chunks, {buf.len} chars)"
-    result.text = buf
+    log &"  [{task.agentName}] done in {elapsed}ms ({streamed.chunks} chunks, {streamed.text.len} chars)"
+    result.text = streamed.text
   except CatchableError as e:
     # Per-agent error isolation. One stuck agent must not kill the council.
     let elapsed = inMilliseconds(getMonoTime() - started)
@@ -275,7 +319,10 @@ proc main() =
   ## Spawn one thread per agent. Each agent runs its own async loop. Joins when leader signals stop.
   var apis = newSeq[OpenAiApi](Agents.len)
   for i, agent in Agents:
-    apis[i] = newOpenAiApi(baseUrl = agent.baseUrl, apiKey = agent.apiKey)
+    var key = agent.apiKey
+    if key == "" and agent.provider == ProviderAnthropic:
+      key = getEnv("ANTHROPIC_API_KEY", "")
+    apis[i] = newOpenAiApi(baseUrl = agent.baseUrl, apiKey = key)
   defer:
     for api in apis:
       api.close()
@@ -302,6 +349,7 @@ proc main() =
       model: agent.model,
       agentName: agent.name,
       isLeader: agent.isLeader,
+      provider: agent.provider,
       systemPrompt: buildSystemPrompt(agent),
       question: UserQuestion
     )
