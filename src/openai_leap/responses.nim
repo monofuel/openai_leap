@@ -246,15 +246,11 @@ proc createResponseWithTools*(
           currentHistory.add(output)
         req.input = option(currentHistory)
 
-      var followUpReq = CreateResponseReq()
-      followUpReq.model = req.model
-      followUpReq.tools = req.tools
+      var followUpReq = fromJson(toJson(req), CreateResponseReq)
+      followUpReq.input = none(seq[ResponseInput])
+      followUpReq.previous_response_id = none(string)
+      followUpReq.stream = none(bool)
       followUpReq.tool_choice = followUpToolChoice
-      followUpReq.store = req.store
-      followUpReq.parallel_tool_calls = req.parallel_tool_calls
-      followUpReq.temperature = req.temperature
-      followUpReq.max_output_tokens = req.max_output_tokens
-      followUpReq.reasoning = req.reasoning
 
 
       if usePreviousResponseId:
@@ -405,15 +401,10 @@ proc newStreamingToolSession*(
 
 proc startFollowUp(session: StreamingToolSession, toolOutputs: seq[ResponseInput]) =
   ## Start a new streaming request with tool results.
-  var followUpReq = CreateResponseReq()
-  followUpReq.model = session.req.model
-  followUpReq.tools = session.req.tools
-  followUpReq.tool_choice = session.req.tool_choice
-  followUpReq.store = session.req.store
-  followUpReq.parallel_tool_calls = session.req.parallel_tool_calls
-  followUpReq.temperature = session.req.temperature
-  followUpReq.max_output_tokens = session.req.max_output_tokens
-  followUpReq.reasoning = session.req.reasoning
+  var followUpReq = fromJson(toJson(session.req), CreateResponseReq)
+  followUpReq.input = none(seq[ResponseInput])
+  followUpReq.previous_response_id = none(string)
+  followUpReq.stream = none(bool)
 
   if session.usePreviousResponseId and session.completedResponse != nil:
     followUpReq.previous_response_id = option(session.completedResponse.id)
