@@ -1,0 +1,16 @@
+nimTitle	council	openai_leap/council.html	module openai_leap/council		0
+nim	ProviderOpenAI	openai_leap/council.html#ProviderOpenAI	Provider.ProviderOpenAI		6
+nim	ProviderAnthropic	openai_leap/council.html#ProviderAnthropic	Provider.ProviderAnthropic		6
+nim	Provider	openai_leap/council.html#Provider	enum Provider		6
+nim	AgentSpec	openai_leap/council.html#AgentSpec	object AgentSpec		10
+nim	CouncilConfig	openai_leap/council.html#CouncilConfig	object CouncilConfig		19
+nim	TranscriptEntry	openai_leap/council.html#TranscriptEntry	object TranscriptEntry		26
+nim	CouncilResult	openai_leap/council.html#CouncilResult	object CouncilResult		30
+nim	Council	openai_leap/council.html#Council	type Council		45
+nim	DefaultConfig	openai_leap/council.html#DefaultConfig	const DefaultConfig		58
+nim	newCouncil	openai_leap/council.html#newCouncil,seq[AgentSpec],string,CouncilConfig	proc newCouncil(agents: seq[AgentSpec]; question: string;\n           config: CouncilConfig = DefaultConfig): Council		66
+nim	close	openai_leap/council.html#close,Council	proc close(council: Council)		81
+nim	buildSystemPrompt	openai_leap/council.html#buildSystemPrompt,Council,AgentSpec	proc buildSystemPrompt(council: Council; agent: AgentSpec): string		119
+nim	hasFinalMarker	openai_leap/council.html#hasFinalMarker,string,string	proc hasFinalMarker(text: string; marker: string = "# FINAL"): bool		221
+nim	extractFinal	openai_leap/council.html#extractFinal,string,string	proc extractFinal(text: string; marker: string = "# FINAL"): string		232
+nim	run	openai_leap/council.html#run,Council	proc run(council: Council): CouncilResult		302

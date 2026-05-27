@@ -28,7 +28,7 @@
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="openai_leap.html">openai_leap</a>, <a href="openai_leap/aws_credentials.html">openai_leap/aws_credentials</a>, <a href="openai_leap/bedrock.html">openai_leap/bedrock</a>, <a href="openai_leap/chat.html">openai_leap/chat</a>, <a href="openai_leap/common.html">openai_leap/common</a>, <a href="openai_leap/embeddings.html">openai_leap/embeddings</a>, <a href="openai_leap/eventstream.html">openai_leap/eventstream</a>, <a href="openai_leap/files.html">openai_leap/files</a>, <a href="openai_leap/markdown.html">openai_leap/markdown</a>, <a href="openai_leap/messages.html">openai_leap/messages</a>, <a href="openai_leap/models.html">openai_leap/models</a>, <a href="openai_leap/realtime.html">openai_leap/realtime</a>, <a href="openai_leap/responses.html">openai_leap/responses</a>, <a href="openai_leap/sigv4.html">openai_leap/sigv4</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="openai_leap.html">openai_leap</a>, <a href="openai_leap/aws_credentials.html">openai_leap/aws_credentials</a>, <a href="openai_leap/bedrock.html">openai_leap/bedrock</a>, <a href="openai_leap/chat.html">openai_leap/chat</a>, <a href="openai_leap/common.html">openai_leap/common</a>, <a href="openai_leap/council.html">openai_leap/council</a>, <a href="openai_leap/embeddings.html">openai_leap/embeddings</a>, <a href="openai_leap/eventstream.html">openai_leap/eventstream</a>, <a href="openai_leap/files.html">openai_leap/files</a>, <a href="openai_leap/markdown.html">openai_leap/markdown</a>, <a href="openai_leap/messages.html">openai_leap/messages</a>, <a href="openai_leap/models.html">openai_leap/models</a>, <a href="openai_leap/realtime.html">openai_leap/realtime</a>, <a href="openai_leap/responses.html">openai_leap/responses</a>, <a href="openai_leap/sigv4.html">openai_leap/sigv4</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%5B%5D%3D%60" href="#%60%5B%5D%3D%60"><span>`[]=`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc `[]=`(table: var ResponseToolsTable; key: string;
@@ -42,6 +42,10 @@
 <dt><a name="addItem" href="#addItem"><span>addItem:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="realtime: proc addItem(session: RealtimeSession; item: RealtimeConversationItem)" href="openai_leap/realtime.html#addItem%2CRealtimeSession%2CRealtimeConversationItem">realtime: proc addItem(session: RealtimeSession; item: RealtimeConversationItem)</a></li>
+          </ul></dd>
+<dt><a name="AgentSpec" href="#AgentSpec"><span>AgentSpec:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: object AgentSpec" href="openai_leap/council.html#AgentSpec">council: object AgentSpec</a></li>
           </ul></dd>
 <dt><a name="AnthropicMessage" href="#AnthropicMessage"><span>AnthropicMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -87,6 +91,10 @@
 <li><a class="reference external"
           data-doc-search-tag="bedrock: type BedrockStream" href="openai_leap/bedrock.html#BedrockStream">bedrock: type BedrockStream</a></li>
           </ul></dd>
+<dt><a name="buildSystemPrompt" href="#buildSystemPrompt"><span>buildSystemPrompt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: proc buildSystemPrompt(council: Council; agent: AgentSpec): string" href="openai_leap/council.html#buildSystemPrompt%2CCouncil%2CAgentSpec">council: proc buildSystemPrompt(council: Council; agent: AgentSpec): string</a></li>
+          </ul></dd>
 <dt><a name="CacheControl" href="#CacheControl"><span>CacheControl:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: type CacheControl" href="openai_leap/common.html#CacheControl">common: type CacheControl</a></li>
@@ -119,6 +127,8 @@
 <li><a class="reference external"
           data-doc-search-tag="common: proc close(api: OpenAiApi)" href="openai_leap/common.html#close%2COpenAiApi">common: proc close(api: OpenAiApi)</a></li>
           <li><a class="reference external"
+          data-doc-search-tag="council: proc close(council: Council)" href="openai_leap/council.html#close%2CCouncil">council: proc close(council: Council)</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="realtime: proc close(session: RealtimeSession)" href="openai_leap/realtime.html#close%2CRealtimeSession">realtime: proc close(session: RealtimeSession)</a></li>
           </ul></dd>
 <dt><a name="Clustering" href="#Clustering"><span>Clustering:</span></a></dt><dd><ul class="simple">
@@ -136,6 +146,18 @@
 <dt><a name="connectRealtime" href="#connectRealtime"><span>connectRealtime:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="realtime: proc connectRealtime(api: OpenAiApi; model: string): RealtimeSession" href="openai_leap/realtime.html#connectRealtime%2COpenAiApi%2Cstring">realtime: proc connectRealtime(api: OpenAiApi; model: string): RealtimeSession</a></li>
+          </ul></dd>
+<dt><a name="Council" href="#Council"><span>Council:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: type Council" href="openai_leap/council.html#Council">council: type Council</a></li>
+          </ul></dd>
+<dt><a name="CouncilConfig" href="#CouncilConfig"><span>CouncilConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: object CouncilConfig" href="openai_leap/council.html#CouncilConfig">council: object CouncilConfig</a></li>
+          </ul></dd>
+<dt><a name="CouncilResult" href="#CouncilResult"><span>CouncilResult:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: object CouncilResult" href="openai_leap/council.html#CouncilResult">council: object CouncilResult</a></li>
           </ul></dd>
 <dt><a name="createBedrockMessage" href="#createBedrockMessage"><span>createBedrockMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -245,6 +267,10 @@
                         callback: ResponseCallback = nil;
                         usePreviousResponseId: bool = true): OpenAiResponse</a></li>
           </ul></dd>
+<dt><a name="DefaultConfig" href="#DefaultConfig"><span>DefaultConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: const DefaultConfig" href="openai_leap/council.html#DefaultConfig">council: const DefaultConfig</a></li>
+          </ul></dd>
 <dt><a name="delete" href="#delete"><span>delete:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc delete(api: OpenAiApi; path: string): Response" href="openai_leap/common.html#delete%2COpenAiApi%2Cstring">common: proc delete(api: OpenAiApi; path: string): Response</a></li>
@@ -296,6 +322,10 @@
 <dt><a name="EventStreamParser" href="#EventStreamParser"><span>EventStreamParser:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventstream: type EventStreamParser" href="openai_leap/eventstream.html#EventStreamParser">eventstream: type EventStreamParser</a></li>
+          </ul></dd>
+<dt><a name="extractFinal" href="#extractFinal"><span>extractFinal:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: proc extractFinal(text: string; marker: string = &quot;# FINAL&quot;): string" href="openai_leap/council.html#extractFinal%2Cstring%2Cstring">council: proc extractFinal(text: string; marker: string = &quot;# FINAL&quot;): string</a></li>
           </ul></dd>
 <dt><a name="extractText" href="#extractText"><span>extractText:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -360,6 +390,10 @@
     RealtimeServerEvent]" href="openai_leap/realtime.html#handleToolCalls%2CRealtimeSession%2CResponseToolsTable%2Cint%2CRealtimeToolCallback">realtime: proc handleToolCalls(session: RealtimeSession; tools: ResponseToolsTable;
                 timeoutMs: int = 30000; callback: RealtimeToolCallback = nil): seq[
     RealtimeServerEvent]</a></li>
+          </ul></dd>
+<dt><a name="hasFinalMarker" href="#hasFinalMarker"><span>hasFinalMarker:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: proc hasFinalMarker(text: string; marker: string = &quot;# FINAL&quot;): bool" href="openai_leap/council.html#hasFinalMarker%2Cstring%2Cstring">council: proc hasFinalMarker(text: string; marker: string = &quot;# FINAL&quot;): bool</a></li>
           </ul></dd>
 <dt><a name="hasKey" href="#hasKey"><span>hasKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -436,6 +470,12 @@
 <dt><a name="messageToolUses" href="#messageToolUses"><span>messageToolUses:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="messages: proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]" href="openai_leap/messages.html#messageToolUses%2CCreateMessageResp">messages: proc messageToolUses(resp: CreateMessageResp): seq[ToolUseContentBlock]</a></li>
+          </ul></dd>
+<dt><a name="newCouncil" href="#newCouncil"><span>newCouncil:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: proc newCouncil(agents: seq[AgentSpec]; question: string;
+           config: CouncilConfig = DefaultConfig): Council" href="openai_leap/council.html#newCouncil%2Cseq%5BAgentSpec%5D%2Cstring%2CCouncilConfig">council: proc newCouncil(agents: seq[AgentSpec]; question: string;
+           config: CouncilConfig = DefaultConfig): Council</a></li>
           </ul></dd>
 <dt><a name="newEventStreamParser" href="#newEventStreamParser"><span>newEventStreamParser:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -572,6 +612,18 @@
 <dt><a name="postStream" href="#postStream"><span>postStream:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream" href="openai_leap/common.html#postStream%2COpenAiApi%2Cstring%2Cstring%2COpts">common: proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream</a></li>
+          </ul></dd>
+<dt><a name="Provider" href="#Provider"><span>Provider:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: enum Provider" href="openai_leap/council.html#Provider">council: enum Provider</a></li>
+          </ul></dd>
+<dt><a name="ProviderAnthropic" href="#ProviderAnthropic"><span>ProviderAnthropic:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: Provider.ProviderAnthropic" href="openai_leap/council.html#ProviderAnthropic">council: Provider.ProviderAnthropic</a></li>
+          </ul></dd>
+<dt><a name="ProviderOpenAI" href="#ProviderOpenAI"><span>ProviderOpenAI:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: Provider.ProviderOpenAI" href="openai_leap/council.html#ProviderOpenAI">council: Provider.ProviderOpenAI</a></li>
           </ul></dd>
 <dt><a name="pullModel" href="#pullModel"><span>pullModel:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -748,6 +800,10 @@
 <dt><a name="RetrievalQuery" href="#RetrievalQuery"><span>RetrievalQuery:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: EmbeddingTask.RetrievalQuery" href="openai_leap/common.html#RetrievalQuery">common: EmbeddingTask.RetrievalQuery</a></li>
+          </ul></dd>
+<dt><a name="run" href="#run"><span>run:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: proc run(council: Council): CouncilResult" href="openai_leap/council.html#run%2CCouncil">council: proc run(council: Council): CouncilResult</a></li>
           </ul></dd>
 <dt><a name="sanitizeChatReq" href="#sanitizeChatReq"><span>sanitizeChatReq:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -929,6 +985,10 @@
           <li><a class="reference external"
           data-doc-search-tag="messages: proc toOpenAiResponse(resp: CreateMessageResp): OpenAiResponse" href="openai_leap/messages.html#toOpenAiResponse%2CCreateMessageResp">messages: proc toOpenAiResponse(resp: CreateMessageResp): OpenAiResponse</a></li>
           </ul></dd>
+<dt><a name="TranscriptEntry" href="#TranscriptEntry"><span>TranscriptEntry:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="council: object TranscriptEntry" href="openai_leap/council.html#TranscriptEntry">council: object TranscriptEntry</a></li>
+          </ul></dd>
 <dt><a name="updateApiKey" href="#updateApiKey"><span>updateApiKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc updateApiKey(api: OpenAiApi; apiKey: string)" href="openai_leap/common.html#updateApiKey%2COpenAiApi%2Cstring">common: proc updateApiKey(api: OpenAiApi; apiKey: string)</a></li>
@@ -951,7 +1011,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-05-24 19:16:34 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-05-27 17:24:57 UTC</small>
       </div>
     </div>
   </div>
