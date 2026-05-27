@@ -341,3 +341,172 @@ proc nextResponseChunk*(s: OpenAIResponseStream): Option[JsonNode] =
 
   returnIfChunk()
   return none(JsonNode)
+
+
+type
+  StreamChunkKind* = enum
+    ScReasoning
+    ScOutputText
+    ScToolCall
+    ScDone
+
+  ResponseStreamChunk* = object
+    kind*: StreamChunkKind
+    text*: string
+    toolName*: string
+    toolCallId*: string
+    toolArgs*: string
+
+  StreamingToolSession* = ref object
+    api: OpenAiApi
+    tools: ResponseToolsTable
+    req: CreateResponseReq
+    stream: OpenAIResponseStream
+    completedResponse: OpenAiResponse
+    done*: bool
+    usePreviousResponseId: bool
+
+
+proc newStreamingToolSession*(
+  api: OpenAiApi,
+  req: CreateResponseReq,
+  tools: ResponseToolsTable,
+  usePreviousResponseId: bool = true
+): StreamingToolSession =
+  ## Start a streaming tool session. Call next() repeatedly to get chunks.
+  let mutableReq = fromJson(toJson(req), CreateResponseReq)
+
+  var toolSeq: seq[ResponseTool] = @[]
+  if tools.len > 0:
+    for toolName, (toolFunc, toolImpl) in tools.pairs:
+      let tool = ResponseTool(
+        `type`: "function",
+        name: toolName,
+        description: toolFunc.description,
+        parameters: toolFunc.parameters
+      )
+      toolSeq.add(tool)
+    mutableReq.tools = option(toolSeq)
+    if mutableReq.tool_choice.isNone:
+      mutableReq.tool_choice = option(% "auto")
+    if mutableReq.store.isNone or mutableReq.store.get == false:
+      mutableReq.store = option(true)
+
+  result = StreamingToolSession(
+    api: api,
+    tools: tools,
+    req: mutableReq,
+    stream: api.streamResponse(mutableReq),
+    completedResponse: nil,
+    done: false,
+    usePreviousResponseId: usePreviousResponseId
+  )
+
+
+proc startFollowUp(session: StreamingToolSession, toolOutputs: seq[ResponseInput]) =
+  ## Start a new streaming request with tool results.
+  var followUpReq = CreateResponseReq()
+  followUpReq.model = session.req.model
+  followUpReq.tools = session.req.tools
+  followUpReq.tool_choice = session.req.tool_choice
+  followUpReq.store = session.req.store
+  followUpReq.parallel_tool_calls = session.req.parallel_tool_calls
+  followUpReq.temperature = session.req.temperature
+  followUpReq.max_output_tokens = session.req.max_output_tokens
+  followUpReq.reasoning = session.req.reasoning
+
+  if session.usePreviousResponseId and session.completedResponse != nil:
+    followUpReq.previous_response_id = option(session.completedResponse.id)
+    if session.req.store.isSome and session.req.store.get:
+      followUpReq.store = option(true)
+    followUpReq.input = option(toolOutputs)
+  else:
+    if session.req.input.isNone:
+      session.req.input = option(toolOutputs)
+    else:
+      var currentHistory = session.req.input.get
+      for output in toolOutputs:
+        currentHistory.add(output)
+      session.req.input = option(currentHistory)
+    followUpReq.input = session.req.input
+
+  session.stream = session.api.streamResponse(followUpReq)
+  session.completedResponse = nil
+
+
+proc next*(session: StreamingToolSession): Option[ResponseStreamChunk] =
+  ## Get the next chunk from the streaming tool session.
+  ## Handles tool execution automatically between streaming rounds.
+  if session.done:
+    return none(ResponseStreamChunk)
+
+  while true:
+    let chunkOpt = session.stream.nextResponseChunk()
+    if chunkOpt.isNone:
+      session.done = true
+      return none(ResponseStreamChunk)
+
+    let chunk = chunkOpt.get()
+    if not chunk.hasKey("type") or chunk["type"].kind != JString:
+      continue
+
+    let eventType = chunk["type"].str
+
+    if eventType == "response.reasoning_text.delta":
+      if chunk.hasKey("delta") and chunk["delta"].kind == JString:
+        let delta = chunk["delta"].str
+        if delta.len > 0:
+          return option(ResponseStreamChunk(kind: ScReasoning, text: delta))
+
+    elif eventType == "response.output_text.delta":
+      if chunk.hasKey("delta") and chunk["delta"].kind == JString:
+        let delta = chunk["delta"].str
+        if delta.len > 0:
+          return option(ResponseStreamChunk(kind: ScOutputText, text: delta))
+
+    elif eventType == "response.function_call_arguments.done":
+      var toolName = ""
+      var callId = ""
+      var args = ""
+      if chunk.hasKey("arguments") and chunk["arguments"].kind == JString:
+        args = chunk["arguments"].str
+      if chunk.hasKey("item_id") and chunk["item_id"].kind == JString:
+        callId = chunk["item_id"].str
+      # item_id is the function_call item id, not the call_id. We'll get call_id from completed response.
+      return option(ResponseStreamChunk(kind: ScToolCall, toolName: toolName, toolCallId: callId, toolArgs: args))
+
+    elif eventType == "response.completed":
+      if not chunk.hasKey("response") or chunk["response"].kind != JObject:
+        session.done = true
+        return none(ResponseStreamChunk)
+
+      let respNode = chunk["response"]
+      session.completedResponse = fromJson($respNode, OpenAiResponse)
+
+      let toolCalls = extractToolCallsFromResponse(session.completedResponse)
+      if toolCalls.len == 0:
+        session.done = true
+        return option(ResponseStreamChunk(kind: ScDone))
+
+      # Execute tool calls and start follow-up
+      var toolOutputs: seq[ResponseInput] = @[]
+      for toolCall in toolCalls:
+        let toolResult = executeToolCall(session.tools, toolCall)
+        let toolOutput = createToolOutputInput(toolCall.call_id, toolResult)
+        toolOutputs.add(toolOutput)
+
+      # Also accumulate tool call inputs in the request history for non-previous_response_id mode
+      if not session.usePreviousResponseId:
+        var toolCallInputs: seq[ResponseInput] = @[]
+        for toolCall in toolCalls:
+          toolCallInputs.add(createToolCallInput(toolCall))
+        if session.req.input.isNone:
+          session.req.input = option(toolCallInputs)
+        else:
+          var currentHistory = session.req.input.get
+          for input in toolCallInputs:
+            currentHistory.add(input)
+          session.req.input = option(currentHistory)
+
+      startFollowUp(session, toolOutputs)
+      # Continue the while loop to read from the new stream
