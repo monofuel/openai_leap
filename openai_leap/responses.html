@@ -59,6 +59,24 @@
 </li>
 <li>
   <details open>
+    <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
+    <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#ResponseStreamChunk" title="ResponseStreamChunk = object
+  kind*: StreamChunkKind
+  text*: string
+  toolName*: string
+  toolCallId*: string
+  toolArgs*: string">ResponseStreamChunk</a></li>
+<li><a class="reference" href="#StreamChunkKind" title="StreamChunkKind = enum
+  ScReasoning, ScOutputText, ScToolCall, ScDone">StreamChunkKind</a></li>
+<li><a class="reference" href="#StreamingToolSession" title="StreamingToolSession = ref object
+  done*: bool">StreamingToolSession</a></li>
+
+    </ul>
+  </details>
+</li>
+<li>
+  <details open>
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">createResponse
@@ -84,6 +102,18 @@
 </ul>
 <ul class="simple nested-toc-section">getResponse
   <li><a class="reference" href="#getResponse%2COpenAiApi%2Cstring" title="getResponse(api: OpenAiApi; responseId: string): OpenAiResponse">getResponse(api: OpenAiApi; responseId: string): OpenAiResponse</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">newStreamingToolSession
+  <li><a class="reference" href="#newStreamingToolSession%2COpenAiApi%2CCreateResponseReq%2CResponseToolsTable%2Cbool" title="newStreamingToolSession(api: OpenAiApi; req: CreateResponseReq;
+                        tools: ResponseToolsTable;
+                        usePreviousResponseId: bool = true): StreamingToolSession">newStreamingToolSession(api: OpenAiApi; req: CreateResponseReq;
+                        tools: ResponseToolsTable;
+                        usePreviousResponseId: bool = true): StreamingToolSession</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">next
+  <li><a class="reference" href="#next%2CStreamingToolSession" title="next(session: StreamingToolSession): Option[ResponseStreamChunk]">next(session: StreamingToolSession): Option[ResponseStreamChunk]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">nextResponseChunk
@@ -117,6 +147,49 @@
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
     <a class="reference external" href="common.html">common</a>
+  </dl>
+</div>
+<div class="section" id="7">
+  <h1><a class="toc-backref" href="#7">Types</a></h1>
+  <dl class="item">
+    <div id="ResponseStreamChunk">
+  <dt><pre><a href="#ResponseStreamChunk"><span class="Identifier">ResponseStreamChunk</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
+  <span class="Identifier">kind</span><span class="Operator">*</span><span class="Other">:</span> <a href="#StreamChunkKind"><span class="Identifier">StreamChunkKind</span></a>
+  <span class="Identifier">text</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+  <span class="Identifier">toolName</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+  <span class="Identifier">toolCallId</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+  <span class="Identifier">toolArgs</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap/responses.nim#L353" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap/responses.nim#L353" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="StreamChunkKind">
+  <dt><pre><a href="#StreamChunkKind"><span class="Identifier">StreamChunkKind</span></a> <span class="Other">=</span> <span class="Keyword">enum</span>
+  <span class="Identifier">ScReasoning</span><span class="Other">,</span> <span class="Identifier">ScOutputText</span><span class="Other">,</span> <span class="Identifier">ScToolCall</span><span class="Other">,</span> <span class="Identifier">ScDone</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap/responses.nim#L347" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap/responses.nim#L347" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="StreamingToolSession">
+  <dt><pre><a href="#StreamingToolSession"><span class="Identifier">StreamingToolSession</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
+  <span class="Identifier">done</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap/responses.nim#L360" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap/responses.nim#L360" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
   </dl>
 </div>
 <div class="section" id="12">
@@ -199,6 +272,39 @@
 </div>
 
 </div>
+<div id="newStreamingToolSession-procs-all">
+  <div id="newStreamingToolSession,OpenAiApi,CreateResponseReq,ResponseToolsTable,bool">
+  <dt><pre><span class="Keyword">proc</span> <a href="#newStreamingToolSession%2COpenAiApi%2CCreateResponseReq%2CResponseToolsTable%2Cbool"><span class="Identifier">newStreamingToolSession</span></a><span class="Other">(</span><span class="Identifier">api</span><span class="Other">:</span> <a href="common.html#OpenAiApi"><span class="Identifier">OpenAiApi</span></a><span class="Other">;</span> <span class="Identifier">req</span><span class="Other">:</span> <a href="common.html#CreateResponseReq"><span class="Identifier">CreateResponseReq</span></a><span class="Other">;</span>
+                             <span class="Identifier">tools</span><span class="Other">:</span> <a href="common.html#ResponseToolsTable"><span class="Identifier">ResponseToolsTable</span></a><span class="Other">;</span>
+                             <span class="Identifier">usePreviousResponseId</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">)</span><span class="Other">:</span> <a href="#StreamingToolSession"><span class="Identifier">StreamingToolSession</span></a> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">JsonError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CatchableError</span><span class="Other">,</span> <span class="Identifier">OpenAiError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Start a streaming tool session. Call next() repeatedly to get chunks.
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap/responses.nim#L370" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap/responses.nim#L370" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="next-procs-all">
+  <div id="next,StreamingToolSession">
+  <dt><pre><span class="Keyword">proc</span> <a href="#next%2CStreamingToolSession"><span class="Identifier">next</span></a><span class="Other">(</span><span class="Identifier">session</span><span class="Other">:</span> <a href="#StreamingToolSession"><span class="Identifier">StreamingToolSession</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="#ResponseStreamChunk"><span class="Identifier">ResponseStreamChunk</span></a><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span>
+    <span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">JsonError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">JsonParsingError</span><span class="Other">,</span>
+    <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">CatchableError</span><span class="Other">,</span> <span class="Identifier">OpenAiError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span> <span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Get the next chunk from the streaming tool session. Handles tool execution automatically between streaming rounds.
+    <a href="https://github.com/monofuel/openai_leap/tree/master/src/openai_leap/responses.nim#L437" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/monofuel/openai_leap/edit/devel/src/openai_leap/responses.nim#L437" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
 <div id="nextResponseChunk-procs-all">
   <div id="nextResponseChunk,OpenAIResponseStream">
   <dt><pre><span class="Keyword">proc</span> <a href="#nextResponseChunk%2COpenAIResponseStream"><span class="Identifier">nextResponseChunk</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="common.html#OpenAIResponseStream"><span class="Identifier">OpenAIResponseStream</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">JsonNode</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
@@ -252,7 +358,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-05-27 17:24:57 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-05-27 19:18:13 UTC</small>
       </div>
     </div>
   </div>
