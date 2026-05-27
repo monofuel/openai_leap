@@ -1,5 +1,5 @@
 import
-  std/[locks, monotimes, options, os, strformat, strutils, times],
+  std/[os, strformat],
   openai_leap
 
 const
@@ -7,376 +7,65 @@ const
   LocalModel = "gpt-oss-20b"
   LocalApiKey = "lm-studio"
   CloudBaseUrl = "https://api.openai.com/v1"
-  PollIntervalMs = 200
-  FinalMarker = "# FINAL"
-  # Test prompts at increasing difficulty. Uncomment one and comment the rest.
-  # UserQuestion = "What is the capital of France?"                          # trivial: convergence sanity check
-  UserQuestion = "What causes the seasons on Earth?"                         # medium: factual, has a common misconception (proximity vs axial tilt)
-  # UserQuestion = "What is a Wild n' Wooly Shambler?"                       # hard: hallucination probe, agents will bicker
+  # Uncomment one question at a time:
+  # UserQuestion = "What is the capital of France?"                          # trivial
+  UserQuestion = "What causes the seasons on Earth?"                         # medium
+  # UserQuestion = "What is a Wild n' Wooly Shambler?"                       # hard: hallucination probe
 
-type
-  Provider = enum
-    ProviderOpenAI    # OpenAI-compat chat completions
-    ProviderAnthropic # Anthropic Messages API
-
-  AgentSpec = object
-    name: string
-    role: string
-    isLeader: bool
-    provider: Provider
-    baseUrl: string
-    apiKey: string  # empty string: OPENAI_API_KEY or ANTHROPIC_API_KEY env fallback in main()
-    model: string
-
-  TranscriptEntry = object
-    agentName: string
-    text: string
-
-  AgentTask = object
-    api: OpenAiApi
-    model: string
-    agentName: string
-    isLeader: bool
-    provider: Provider
-    systemPrompt: string
-    question: string
-
-let
-  Agents = @[
-    AgentSpec(
-      name: "Alice",
-      role: "Synthesizer — weigh perspectives, find common ground, decide when to converge.",
-      isLeader: true,
-      provider: ProviderOpenAI,
-      baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
-    ),
-    AgentSpec(
-      name: "Bob",
-      role: "Skeptic — challenge assumptions, point out gaps. Only disagree where there is real doubt.",
-      isLeader: false,
-      provider: ProviderOpenAI,
-      baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
-    ),
-    AgentSpec(
-      name: "Carol",
-      role: "Researcher — ground claims in concrete facts. Add specifics others missed.",
-      isLeader: false,
-      provider: ProviderOpenAI,
-      baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
-    ),
-    AgentSpec(
-      name: "Dave",
-      role: "Outside voice — you come from a different background than the others. Push back when the group is converging too easily and probe whether they are missing angles or settling for groupthink.",
-      isLeader: false,
-      provider: ProviderOpenAI,
-      baseUrl: CloudBaseUrl, apiKey: "", model: "gpt-5.4-mini"
-    ),
-    AgentSpec(
-      name: "Eve",
-      role: "Pragmatist — translate the discussion into concrete, actionable, real-world implications. Cut through abstraction.",
-      isLeader: false,
-      provider: ProviderAnthropic,
-      baseUrl: "https://api.anthropic.com/v1", apiKey: "", model: "claude-haiku-4-5"
-    )
-  ]
-
-var
-  stateLock: Lock
-  outputLock: Lock
-  transcript: seq[TranscriptEntry] = @[]
-  finalSignalled: bool = false
-
-initLock(stateLock)
-initLock(outputLock)
-
-proc isFinalSignalled(): bool {.gcsafe.} =
-  ## Check whether the leader (or main thread) has signalled stop.
-  {.cast(gcsafe).}:
-    withLock(stateLock):
-      result = finalSignalled
-
-proc setFinalSignalled() {.gcsafe.} =
-  ## Signal all agents that the conversation is over.
-  {.cast(gcsafe).}:
-    withLock(stateLock):
-      finalSignalled = true
-
-proc snapshotTranscript(): seq[TranscriptEntry] {.gcsafe.} =
-  ## Read a consistent copy of the current transcript.
-  {.cast(gcsafe).}:
-    withLock(stateLock):
-      result = transcript
-
-proc appendTranscript(name: string, text: string) {.gcsafe.} =
-  ## Atomically append one entry to the shared transcript.
-  {.cast(gcsafe).}:
-    withLock(stateLock):
-      transcript.add(TranscriptEntry(agentName: name, text: text))
-
-proc transcriptLen(): int {.gcsafe.} =
-  ## Current shared transcript length.
-  {.cast(gcsafe).}:
-    withLock(stateLock):
-      result = transcript.len
-
-template log(msg: string) =
-  ## Thread-safe stdout writer with explicit flush.
-  withLock(outputLock):
-    echo msg
-    flushFile(stdout)
-
-proc buildSystemPrompt(agent: AgentSpec): string =
-  ## Build the per-agent system prompt with council framing and role.
-  var roster = ""
-  for a in Agents:
-    if a.isLeader:
-      roster &= &"- {a.name} (leader)\n"
-    else:
-      roster &= &"- {a.name}\n"
-
-  result = &"""Reasoning: low
-
-You are {agent.name}, one of {Agents.len} AI agents in a group chat that exists to answer the user's question. This is a rapid-fire conversation, not an essay assignment. Say partial ideas, half-formed reactions, and things you are not yet sure about. The conversation itself is how the reasoning happens — your words to the others ARE your reasoning.
-
-Other agents in the chat:
-{roster.strip()}
-
-Your role: {agent.role}
-
-Style rules:
-- You are in a chat channel. Short messages, fast back-and-forth.
-- Address others by name when reacting to what they said.
-- Disagree out loud when you actually disagree. Be useful, not polite.
-- Do not write essays. Do not restate. Do not summarize. Add one new thing per turn."""
-
-  if agent.isLeader:
-    result &= "\n\nYou are the leader. You decide when the group has talked enough. When the conversation has converged on a real answer, emit a message that begins with \"# FINAL\" on its own line. Everything after that line is what the user sees — that one can be longer and well-structured. Until you fire \"# FINAL\", keep the chat going naturally."
-
-proc renderTranscript(transcript: seq[TranscriptEntry]): string =
-  ## Render the transcript as user-visible text with name prefixes.
-  for entry in transcript:
-    result &= &"{entry.agentName}: {entry.text}\n\n"
-
-proc buildUserPayload(question: string, snapshot: seq[TranscriptEntry], agentName: string, isLeader: bool): string =
-  ## Build the user-message payload from the current transcript snapshot.
-  ## Leaders also get a reminder to fire # FINAL when the group has converged.
-  result = &"User's question: {question}\n\n"
-  if snapshot.len > 0:
-    result &= "Chat so far:\n" & renderTranscript(snapshot)
-  else:
-    result &= "Chat so far: (empty — you're first to speak)\n\n"
-  result &= &"You are {agentName}. Say your next message in the chat. One contribution."
-
-  if isLeader:
-    # Escalating reminder so the leader keeps the # FINAL mechanism in mind as the chat grows.
-    if snapshot.len >= 4 and snapshot.len < 10:
-      result &= "\n\n[Reminder for the leader: when the group has converged on an answer, emit a message starting with \"# FINAL\" on its own line. Everything after that line is the user-facing answer.]"
-    elif snapshot.len >= 10 and snapshot.len < 20:
-      result &= "\n\n[Reminder for the leader: this chat is getting long. Decide whether the group has enough material to converge. If yes, fire \"# FINAL\" now — start a message with that marker on its own line, and put the answer after it.]"
-    elif snapshot.len >= 20:
-      result &= "\n\n[STRONG REMINDER for the leader: this chat has gone on a while. You should likely fire \"# FINAL\" now with the group's best synthesis. Start your message with \"# FINAL\" on its own line, then write the user-facing answer.]"
-
-proc streamOpenAI(task: AgentTask, userPayload: string): tuple[text: string, chunks: int] =
-  ## Stream a chat completion via the OpenAI-compat path.
-  let req = CreateChatCompletionReq()
-  req.model = task.model
-  req.messages = @[
-    Message(
-      role: "system",
-      content: option(@[MessageContentPart(`type`: "text", text: option(task.systemPrompt))])
-    ),
-    Message(
-      role: "user",
-      content: option(@[MessageContentPart(`type`: "text", text: option(userPayload))])
-    )
-  ]
-  let stream = task.api.streamChatCompletion(req)
-  var lastReport = getMonoTime()
-  while true:
-    let chunk = stream.next()
-    if chunk.isNone:
-      break
-    inc result.chunks
-    if chunk.get.choices.len > 0 and chunk.get.choices[0].delta.isSome:
-      let content = chunk.get.choices[0].delta.get.content
-      if content.len > 0:
-        result.text &= content
-    let now = getMonoTime()
-    if inMilliseconds(now - lastReport) >= 1000:
-      log &"  [{task.agentName}] streaming: {result.chunks} chunks, {result.text.len} chars..."
-      lastReport = now
-
-proc callAnthropic(task: AgentTask, userPayload: string): tuple[text: string, chunks: int] =
-  ## Non-streaming Anthropic call via the unified converter pattern (CreateResponseReq → toMessageReq → toOpenAiResponse).
-  ## Future: switch to streaming once the library's streamMessage null-leak bug is fixed.
-  ## The fix pattern exists in bedrock.nim (stripNulls); apply it to streamMessage's toJson roundtrip.
-  {.cast(gcsafe).}:
-    let respReq = CreateResponseReq()
-    respReq.model = task.model
-    respReq.max_output_tokens = option(4096)
-    respReq.instructions = option(task.systemPrompt)
-    respReq.input = option(@[
-      ResponseInput(
-        `type`: "message",
-        role: option("user"),
-        content: option(@[ResponseInputContent(`type`: "input_text", text: option(userPayload))])
-      )
-    ])
-    var msgReq = toMessageReq(respReq)
-    var emptyTools = newResponseToolsTable()
-    let msgResp = task.api.createMessageWithTools(msgReq, emptyTools)
-    let unified = toOpenAiResponse(msgResp)
-    if unified.output_text.isSome:
-      result.text = unified.output_text.get
-    result.chunks = 1
-
-proc fireOnce(task: AgentTask, snapshot: seq[TranscriptEntry]): tuple[text: string, failed: bool, error: string] =
-  ## Stream one completion based on the given transcript snapshot. Returns the response text or an error.
-  let started = getMonoTime()
-  let userPayload = buildUserPayload(task.question, snapshot, task.agentName, task.isLeader)
-  log &"  [{task.agentName}] streaming (transcript len: {snapshot.len})..."
-  try:
-    let streamed = case task.provider
-      of ProviderOpenAI:    streamOpenAI(task, userPayload)
-      of ProviderAnthropic: callAnthropic(task, userPayload)
-    let elapsed = inMilliseconds(getMonoTime() - started)
-    log &"  [{task.agentName}] done in {elapsed}ms ({streamed.chunks} chunks, {streamed.text.len} chars)"
-    result.text = streamed.text
-  except CatchableError as e:
-    # Per-agent error isolation. One stuck agent must not kill the council.
-    let elapsed = inMilliseconds(getMonoTime() - started)
-    log &"  [{task.agentName}] FAILED in {elapsed}ms: {e.msg}"
-    result.failed = true
-    result.error = e.msg
-
-proc hasFinalMarker(text: string): bool =
-  ## Detect the # FINAL marker at the start of a line, ignoring fenced code blocks.
-  var inFence = false
-  for line in text.splitLines():
-    if line.startsWith("```"):
-      inFence = not inFence
-      continue
-    if not inFence and line.startsWith(FinalMarker):
-      result = true
-      break
-
-proc extractFinal(text: string): string =
-  ## Extract everything after the # FINAL line.
-  var inFence = false
-  var foundIdx = -1
-  let lines = text.splitLines()
-  for i, line in lines:
-    if line.startsWith("```"):
-      inFence = not inFence
-      continue
-    if not inFence and line.startsWith(FinalMarker):
-      foundIdx = i
-      break
-  if foundIdx >= 0:
-    result = lines[(foundIdx + 1) .. ^1].join("\n").strip()
-
-proc agentLoop(task: AgentTask) {.thread.} =
-  ## Per-agent loop: fire whenever others have spoken since our last contribution. No rounds.
-  var seenLen = 0  # transcript length right after our most recent append (0 = never fired)
-  while true:
-    if isFinalSignalled():
-      log &"  [{task.agentName}] stopping: final signalled"
-      break
-
-    let snapshot = snapshotTranscript()
-
-    # Decide whether to fire. First time (seenLen == 0) we always fire.
-    # Otherwise we only fire if at least one OTHER agent has spoken since our last append.
-    var shouldFire = seenLen == 0
-    if not shouldFire:
-      for i in seenLen ..< snapshot.len:
-        if snapshot[i].agentName != task.agentName:
-          shouldFire = true
-          break
-
-    if not shouldFire:
-      sleep(PollIntervalMs)
-      continue
-
-    let res = fireOnce(task, snapshot)
-    if isFinalSignalled():
-      # Someone (probably the leader) finished while we were streaming. Discard our reply.
-      log &"  [{task.agentName}] discarding response (final already signalled mid-stream)"
-      break
-
-    if res.failed:
-      appendTranscript(task.agentName, &"[FAILED: {res.error}]")
-    else:
-      appendTranscript(task.agentName, res.text)
-    seenLen = transcriptLen()
-
-    if task.isLeader and not res.failed and hasFinalMarker(res.text):
-      log &"  [{task.agentName}] emitted # FINAL — signalling stop"
-      setFinalSignalled()
-      break
+let agents = @[
+  AgentSpec(
+    name: "Alice",
+    role: "Synthesizer — weigh perspectives, find common ground, decide when to converge.",
+    isLeader: true,
+    provider: ProviderOpenAI,
+    baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
+  ),
+  AgentSpec(
+    name: "Bob",
+    role: "Skeptic — challenge assumptions, point out gaps. Only disagree where there is real doubt.",
+    isLeader: false,
+    provider: ProviderOpenAI,
+    baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
+  ),
+  AgentSpec(
+    name: "Carol",
+    role: "Researcher — ground claims in concrete facts. Add specifics others missed.",
+    isLeader: false,
+    provider: ProviderOpenAI,
+    baseUrl: LocalBaseUrl, apiKey: LocalApiKey, model: LocalModel
+  ),
+  AgentSpec(
+    name: "Dave",
+    role: "Outside voice — you come from a different background than the others. Push back when the group is converging too easily and probe whether they are missing angles or settling for groupthink.",
+    isLeader: false,
+    provider: ProviderOpenAI,
+    baseUrl: CloudBaseUrl, apiKey: getEnv("OPENAI_API_KEY", ""), model: "gpt-5.4-mini"
+  ),
+  AgentSpec(
+    name: "Eve",
+    role: "Pragmatist — translate the discussion into concrete, actionable, real-world implications. Cut through abstraction.",
+    isLeader: false,
+    provider: ProviderAnthropic,
+    baseUrl: "https://api.anthropic.com/v1", apiKey: getEnv("ANTHROPIC_API_KEY", ""), model: "claude-haiku-4-5"
+  )
+]
 
 proc main() =
-  ## Spawn one thread per agent. Each agent runs its own async loop. Joins when leader signals stop.
-  var apis = newSeq[OpenAiApi](Agents.len)
-  for i, agent in Agents:
-    var key = agent.apiKey
-    if key == "" and agent.provider == ProviderAnthropic:
-      key = getEnv("ANTHROPIC_API_KEY", "")
-    apis[i] = newOpenAiApi(baseUrl = agent.baseUrl, apiKey = key)
-  defer:
-    for api in apis:
-      api.close()
+  ## Run a multi-agent council discussion.
+  let council = newCouncil(agents, UserQuestion)
+  defer: council.close()
 
-  var leaderName = ""
-  for a in Agents:
-    if a.isLeader:
-      leaderName = a.name
+  let result = council.run()
 
-  log "Multi-agent council starting"
-  log &"  question: {UserQuestion}"
-  log &"  agents:"
-  for agent in Agents:
-    let leaderTag = if agent.isLeader: " (leader)" else: ""
-    log &"    {agent.name}{leaderTag}: {agent.model} @ {agent.baseUrl}"
-  log ""
+  echo &"\n=== Transcript ({result.transcript.len} messages, total wall-clock: {result.elapsedMs}ms) ==="
+  for entry in result.transcript:
+    echo &"\n--- {entry.agentName} ---\n{entry.text}"
 
-  let runStart = getMonoTime()
-
-  var threads = newSeq[Thread[AgentTask]](Agents.len)
-  for i, agent in Agents:
-    let task = AgentTask(
-      api: apis[i],
-      model: agent.model,
-      agentName: agent.name,
-      isLeader: agent.isLeader,
-      provider: agent.provider,
-      systemPrompt: buildSystemPrompt(agent),
-      question: UserQuestion
-    )
-    log &"  [{agent.name}] spawning agent loop"
-    createThread(threads[i], agentLoop, task)
-
-  joinThreads(threads)
-  let totalElapsed = inMilliseconds(getMonoTime() - runStart)
-
-  let finalTranscript = snapshotTranscript()
-  log &"\n=== Transcript ({finalTranscript.len} messages, total wall-clock: {totalElapsed}ms) ==="
-  for entry in finalTranscript:
-    log &"\n--- {entry.agentName} ---\n{entry.text}"
-
-  # Extract the leader's # FINAL message from the transcript.
-  var finalAnswer = ""
-  for i in countdown(finalTranscript.high, 0):
-    let entry = finalTranscript[i]
-    if entry.agentName == leaderName and hasFinalMarker(entry.text):
-      finalAnswer = extractFinal(entry.text)
-      break
-
-  log "\n=== Result ==="
-  if finalAnswer.len > 0:
-    log finalAnswer
+  echo "\n=== Result ==="
+  if result.finalAnswer.len > 0:
+    echo result.finalAnswer
   else:
-    log "(No # FINAL answer in transcript.)"
+    echo "(No # FINAL answer in transcript.)"
 
 when isMainModule:
   main()
