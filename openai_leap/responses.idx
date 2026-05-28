@@ -5,15 +5,15 @@ nim	getResponse	openai_leap/responses.html#getResponse,OpenAiApi,string	proc get
 nim	deleteResponse	openai_leap/responses.html#deleteResponse,OpenAiApi,string	proc deleteResponse(api: OpenAiApi; responseId: string): DeleteResponse		71
 nim	streamGetResponse	openai_leap/responses.html#streamGetResponse,OpenAiApi,string	proc streamGetResponse(api: OpenAiApi; responseId: string): OpenAIResponseStream		79
 nim	streamResponse	openai_leap/responses.html#streamResponse,OpenAiApi,CreateResponseReq	proc streamResponse(api: OpenAiApi; req: CreateResponseReq): OpenAIResponseStream		84
-nim	createResponseWithTools	openai_leap/responses.html#createResponseWithTools,OpenAiApi,CreateResponseReq,ResponseToolsTable,ResponseCallback,bool	proc createResponseWithTools(api: OpenAiApi; req: var CreateResponseReq;\n                        tools: ResponseToolsTable;\n                        callback: ResponseCallback = nil;\n                        usePreviousResponseId: bool = true): OpenAiResponse		169
-nim	nextResponseChunk	openai_leap/responses.html#nextResponseChunk,OpenAIResponseStream	proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]		286
-nim	ScReasoning	openai_leap/responses.html#ScReasoning	StreamChunkKind.ScReasoning		347
-nim	ScOutputText	openai_leap/responses.html#ScOutputText	StreamChunkKind.ScOutputText		347
-nim	ScToolCall	openai_leap/responses.html#ScToolCall	StreamChunkKind.ScToolCall		347
-nim	ScDone	openai_leap/responses.html#ScDone	StreamChunkKind.ScDone		347
-nim	StreamChunkKind	openai_leap/responses.html#StreamChunkKind	enum StreamChunkKind		347
-nim	ResponseStreamChunk	openai_leap/responses.html#ResponseStreamChunk	object ResponseStreamChunk		353
-nim	StreamingToolSession	openai_leap/responses.html#StreamingToolSession	type StreamingToolSession		360
-nim	newStreamingToolSession	openai_leap/responses.html#newStreamingToolSession,OpenAiApi,CreateResponseReq,ResponseToolsTable,bool	proc newStreamingToolSession(api: OpenAiApi; req: CreateResponseReq;\n                        tools: ResponseToolsTable;\n                        usePreviousResponseId: bool = true): StreamingToolSession		370
-nim	next	openai_leap/responses.html#next,StreamingToolSession	proc next(session: StreamingToolSession): Option[ResponseStreamChunk]		437
+nim	createResponseWithTools	openai_leap/responses.html#createResponseWithTools,OpenAiApi,CreateResponseReq,ResponseToolsTable,ResponseCallback,bool	proc createResponseWithTools(api: OpenAiApi; req: var CreateResponseReq;\n                        tools: ResponseToolsTable;\n                        callback: ResponseCallback = nil;\n                        usePreviousResponseId: bool = true): OpenAiResponse		163
+nim	nextResponseChunk	openai_leap/responses.html#nextResponseChunk,OpenAIResponseStream	proc nextResponseChunk(s: OpenAIResponseStream): Option[JsonNode]		276
+nim	ScReasoning	openai_leap/responses.html#ScReasoning	StreamChunkKind.ScReasoning		337
+nim	ScOutputText	openai_leap/responses.html#ScOutputText	StreamChunkKind.ScOutputText		337
+nim	ScToolCall	openai_leap/responses.html#ScToolCall	StreamChunkKind.ScToolCall		337
+nim	ScDone	openai_leap/responses.html#ScDone	StreamChunkKind.ScDone		337
+nim	StreamChunkKind	openai_leap/responses.html#StreamChunkKind	enum StreamChunkKind		337
+nim	ResponseStreamChunk	openai_leap/responses.html#ResponseStreamChunk	object ResponseStreamChunk		343
+nim	StreamingToolSession	openai_leap/responses.html#StreamingToolSession	type StreamingToolSession		350
+nim	newStreamingToolSession	openai_leap/responses.html#newStreamingToolSession,OpenAiApi,CreateResponseReq,ResponseToolsTable,bool	proc newStreamingToolSession(api: OpenAiApi; req: CreateResponseReq;\n                        tools: ResponseToolsTable;\n                        usePreviousResponseId: bool = true): StreamingToolSession		360
+nim	next	openai_leap/responses.html#next,StreamingToolSession	proc next(session: StreamingToolSession): Option[ResponseStreamChunk]		422
 nimgrp	createresponse	openai_leap/responses.html#createResponse-procs-all	proc		29
