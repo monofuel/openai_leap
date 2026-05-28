@@ -294,10 +294,12 @@ type
     image_url*: Option[ResponseInputImage]
 
   ResponseInput* = ref object
-    `type`*: string # message, image_url, file, function_call_output
+    `type`*: string # message, image_url, file, function_call, function_call_output
     role*: Option[string] # user, assistant, system, developer (for message type)
     content*: Option[seq[ResponseInputContent]] # for message type
-    call_id*: Option[string] # for function_call_output
+    call_id*: Option[string] # for function_call and function_call_output
+    name*: Option[string] # for function_call
+    arguments*: Option[string] # for function_call
     output*: Option[string] # for function_call_output
 
   ResponseOutputText* = ref object

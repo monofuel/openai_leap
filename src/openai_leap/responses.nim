@@ -138,18 +138,12 @@ proc createToolOutputInput(toolCallId: string, toolResult: string): ResponseInpu
   )
 
 proc createToolCallInput(toolCall: ResponseToolCall): ResponseInput =
-  ## Create a ResponseInput for a tool call request.
-  let name = toolCall.name
-  let args = toolCall.arguments
-  let callId = toolCall.call_id
-  let contentText = "Tool call: " & name & "\nCall ID: " & callId & "\nArguments: " & args
+  ## Create a ResponseInput for a tool call (function_call type).
   result = ResponseInput(
-    `type`: "message",
-    role: option("assistant"),
-    content: option(@[ResponseInputContent(
-      `type`: "input_text",
-      text: option(contentText)
-    )])
+    `type`: "function_call",
+    call_id: option(toolCall.call_id),
+    name: option(toolCall.name),
+    arguments: option(toolCall.arguments)
   )
 
 proc executeToolCall(tools: ResponseToolsTable, toolCall: ResponseToolCall): string =
@@ -356,9 +350,9 @@ type
   StreamingToolSession* = ref object
     api: OpenAiApi
     tools: ResponseToolsTable
-    req: CreateResponseReq
+    req*: CreateResponseReq
     stream: OpenAIResponseStream
-    completedResponse: OpenAiResponse
+    completedResponse*: OpenAiResponse
     done*: bool
     usePreviousResponseId: bool
 
