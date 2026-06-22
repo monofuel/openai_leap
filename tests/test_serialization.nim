@@ -110,3 +110,36 @@ suite "serialization":
       check not jsonNode.hasKey("encoding_format")
       check not jsonNode.hasKey("dimensions")
       check not jsonNode.hasKey("user")
+
+  suite "responses":
+    test "input_image serializes image_url as a string":
+      ## The Responses API expects image_url to be a bare string with detail as a
+      ## sibling field, unlike Chat Completions which nests them in an object. A
+      ## nested object here makes xAI reject the whole input with a 422.
+      let dataUri = "data:image/png;base64,iVBORw0KGgo="
+      let req = CreateResponseReq(
+        model: "gpt-4o-mini",
+        input: option(@[
+          ResponseInput(
+            `type`: "message",
+            role: option("user"),
+            content: option(@[
+              ResponseInputContent(
+                `type`: "input_image",
+                image_url: option(dataUri),
+                detail: option("auto")
+              )
+            ])
+          )
+        ])
+      )
+
+      let contentNode = parseJson(toJson(req))["input"][0]["content"][0]
+      check contentNode["image_url"].kind == JString
+      check contentNode["image_url"].getStr == dataUri
+      check contentNode["detail"].getStr == "auto"
+
+      let roundTrip = fromJson(toJson(req), CreateResponseReq)
+      let part = roundTrip.input.get[0].content.get[0]
+      check part.image_url.get == dataUri
+      check part.detail.get == "auto"

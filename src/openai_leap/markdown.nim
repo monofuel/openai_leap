@@ -785,9 +785,9 @@ proc toMarkdown*(req: CreateResponseReq): string =
               result &= "```\n" & content.text.get & "\n```\n\n"
           of "input_image":
             if content.image_url.isSome:
-              result &= &"**Image URL**: {content.image_url.get.url}\n"
-              if content.image_url.get.detail.isSome:
-                result &= &"**Detail Level**: {content.image_url.get.detail.get}\n"
+              result &= &"**Image URL**: {content.image_url.get}\n"
+              if content.detail.isSome:
+                result &= &"**Detail Level**: {content.detail.get}\n"
               result &= "\n"
           else:
             result &= &"**Unknown content type**: {content.`type`}\n\n"
@@ -1096,13 +1096,13 @@ proc toCreateResponseReq*(markdown: string): CreateResponseReq =
               dec i
           elif inputLine.startsWith("**Image URL**: "):
             let url = inputLine["**Image URL**: ".len..^1]
-            var img = ResponseInputImage(url: url)
+            var content = ResponseInputContent(`type`: "input_image", image_url: option(url))
             let detailLineIdx = i + 1
             if detailLineIdx < lines.len and lines[detailLineIdx].strip().startsWith("**Detail Level**: "):
               let detail = lines[detailLineIdx].strip()["**Detail Level**: ".len..^1]
-              img.detail = option(detail)
+              content.detail = option(detail)
               inc i
-            contents.add(ResponseInputContent(`type`: "input_image", image_url: option(img)))
+            contents.add(content)
 
           inc i
 

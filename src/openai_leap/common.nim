@@ -281,17 +281,16 @@ type
   ResponseInputText* = ref object
     text*: string
 
-  ResponseInputImage* = ref object
-    url*: string
-    detail*: Option[string] # low, high, auto
-
   ResponseInputFile* = ref object
     file_id*: string
 
   ResponseInputContent* = ref object
     `type`*: string # input_text, input_image
     text*: Option[string]
-    image_url*: Option[ResponseInputImage]
+    # The Responses API expects image_url to be a bare string (URL or data URI)
+    # with detail as a sibling field, unlike Chat Completions which nests them.
+    image_url*: Option[string]
+    detail*: Option[string] # low, high, auto
 
   ResponseInput* = ref object
     `type`*: string # message, image_url, file, function_call, function_call_output

@@ -190,7 +190,7 @@ proc toMessageReq*(req: CreateResponseReq): CreateMessageReq =
               contentBlocks.add(% TextBlock(`type`: "text", text: part.text.get))
             elif part.image_url.isSome:
               hasImages = true
-              let url = part.image_url.get.url
+              let url = part.image_url.get
               if url.startsWith("data:"):
                 let headerEnd = url.find(",")
                 if headerEnd > 0:
