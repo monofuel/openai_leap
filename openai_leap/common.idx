@@ -54,66 +54,65 @@ nim	FineTuneError	openai_leap/common.html#FineTuneError	type FineTuneError		249
 nim	OpenAIFinetuneJob	openai_leap/common.html#OpenAIFinetuneJob	type OpenAIFinetuneJob		254
 nim	OpenAIFinetuneList	openai_leap/common.html#OpenAIFinetuneList	type OpenAIFinetuneList		273
 nim	ResponseInputText	openai_leap/common.html#ResponseInputText	type ResponseInputText		281
-nim	ResponseInputImage	openai_leap/common.html#ResponseInputImage	type ResponseInputImage		284
-nim	ResponseInputFile	openai_leap/common.html#ResponseInputFile	type ResponseInputFile		288
-nim	ResponseInputContent	openai_leap/common.html#ResponseInputContent	type ResponseInputContent		291
-nim	ResponseInput	openai_leap/common.html#ResponseInput	type ResponseInput		296
-nim	ResponseOutputText	openai_leap/common.html#ResponseOutputText	type ResponseOutputText		305
-nim	ResponseOutputImage	openai_leap/common.html#ResponseOutputImage	type ResponseOutputImage		308
-nim	ResponseOutputToolCall	openai_leap/common.html#ResponseOutputToolCall	type ResponseOutputToolCall		311
-nim	ResponseOutputContent	openai_leap/common.html#ResponseOutputContent	type ResponseOutputContent		316
-nim	ResponseOutput	openai_leap/common.html#ResponseOutput	type ResponseOutput		321
-nim	ReasoningSummaryPart	openai_leap/common.html#ReasoningSummaryPart	type ReasoningSummaryPart		332
-nim	ResponseUsage	openai_leap/common.html#ResponseUsage	type ResponseUsage		336
-nim	OpenAiResponse	openai_leap/common.html#OpenAiResponse	type OpenAiResponse		341
-nim	ResponseCallback	openai_leap/common.html#ResponseCallback	type ResponseCallback		373
-nim	CreateResponseReq	openai_leap/common.html#CreateResponseReq	type CreateResponseReq		375
-nim	OpenAIResponseStream	openai_leap/common.html#OpenAIResponseStream	type OpenAIResponseStream		403
-nim	AnthropicMetadata	openai_leap/common.html#AnthropicMetadata	type AnthropicMetadata		410
-nim	ThinkingConfig	openai_leap/common.html#ThinkingConfig	type ThinkingConfig		413
-nim	ToolChoiceConfig	openai_leap/common.html#ToolChoiceConfig	type ToolChoiceConfig		417
-nim	CacheControl	openai_leap/common.html#CacheControl	type CacheControl		422
-nim	TextBlock	openai_leap/common.html#TextBlock	type TextBlock		426
-nim	ImageSource	openai_leap/common.html#ImageSource	type ImageSource		431
-nim	ImageBlock	openai_leap/common.html#ImageBlock	type ImageBlock		437
-nim	DocumentSource	openai_leap/common.html#DocumentSource	type DocumentSource		442
-nim	DocumentBlock	openai_leap/common.html#DocumentBlock	type DocumentBlock		448
-nim	ToolUseBlock	openai_leap/common.html#ToolUseBlock	type ToolUseBlock		455
-nim	ToolResultContent	openai_leap/common.html#ToolResultContent	type ToolResultContent		462
-nim	ToolResultBlock	openai_leap/common.html#ToolResultBlock	type ToolResultBlock		467
-nim	ThinkingBlock	openai_leap/common.html#ThinkingBlock	type ThinkingBlock		474
-nim	RedactedThinkingBlock	openai_leap/common.html#RedactedThinkingBlock	type RedactedThinkingBlock		479
-nim	AnthropicMessage	openai_leap/common.html#AnthropicMessage	type AnthropicMessage		483
-nim	AnthropicToolInputSchema	openai_leap/common.html#AnthropicToolInputSchema	type AnthropicToolInputSchema		487
-nim	AnthropicTool	openai_leap/common.html#AnthropicTool	type AnthropicTool		492
-nim	OutputConfig	openai_leap/common.html#OutputConfig	type OutputConfig		499
-nim	CreateMessageReq	openai_leap/common.html#CreateMessageReq	type CreateMessageReq		503
-nim	AnthropicUsage	openai_leap/common.html#AnthropicUsage	type AnthropicUsage		520
-nim	TextContentBlock	openai_leap/common.html#TextContentBlock	type TextContentBlock		526
-nim	ThinkingContentBlock	openai_leap/common.html#ThinkingContentBlock	type ThinkingContentBlock		531
-nim	RedactedThinkingContentBlock	openai_leap/common.html#RedactedThinkingContentBlock	type RedactedThinkingContentBlock		536
-nim	ToolUseContentBlock	openai_leap/common.html#ToolUseContentBlock	type ToolUseContentBlock		540
-nim	CreateMessageResp	openai_leap/common.html#CreateMessageResp	type CreateMessageResp		546
-nim	MessageStreamEvent	openai_leap/common.html#MessageStreamEvent	type MessageStreamEvent		556
-nim	BedrockConfig	openai_leap/common.html#BedrockConfig	object BedrockConfig		564
-nim	len	openai_leap/common.html#len,ResponseToolsTable	proc len(table: ResponseToolsTable): int		568
-nim	pairs	openai_leap/common.html#pairs.i,ResponseToolsTable	iterator pairs(table: ResponseToolsTable): (string, (ToolFunction, ToolImpl))		571
-nim	keys	openai_leap/common.html#keys.i,ResponseToolsTable	iterator keys(table: ResponseToolsTable): string		575
-nim	hasKey	openai_leap/common.html#hasKey,ResponseToolsTable,string	proc hasKey(table: ResponseToolsTable; key: string): bool		579
-nim	`[]`	openai_leap/common.html#[],ResponseToolsTable,string	proc `[]`(table: ResponseToolsTable; key: string): (ToolFunction, ToolImpl)		582
-nim	`[]=`	openai_leap/common.html#[]=,ResponseToolsTable,string,	proc `[]=`(table: var ResponseToolsTable; key: string;\n      value: (ToolFunction, ToolImpl))		585
-nim	newResponseToolsTable	openai_leap/common.html#newResponseToolsTable	proc newResponseToolsTable(): ResponseToolsTable		588
-nim	register	openai_leap/common.html#register,ResponseToolsTable,string,ToolFunction,ToolImpl	proc register(table: var ResponseToolsTable; name: string; toolFunc: ToolFunction;\n         impl: ToolImpl)		592
-nim	registerResponseTool	openai_leap/common.html#registerResponseTool,ResponseToolsTable,string,ToolFunction,ToolImpl	proc registerResponseTool(table: var ResponseToolsTable; name: string;\n                     toolFunc: ToolFunction; impl: ToolImpl)		596
-nim	sync	openai_leap/common.html#sync.t,SysLockObj,untyped	template sync(a: Lock; body: untyped)		600
-nim	stripEscapeSequences	openai_leap/common.html#stripEscapeSequences,string	proc stripEscapeSequences(input: string): string		607
-nim	sanitizeText	openai_leap/common.html#sanitizeText,string	proc sanitizeText(s: string): string		624
-nim	sanitizeChatReq	openai_leap/common.html#sanitizeChatReq,CreateChatCompletionReq	proc sanitizeChatReq(req: var CreateChatCompletionReq)		644
-nim	newOpenAiApi	openai_leap/common.html#newOpenAiApi,string,string,string,int,int	proc newOpenAiApi(baseUrl: string = "https://api.openai.com/v1"; apiKey: string = "";\n             organization: string = ""; maxInFlight: int = 16;\n             curlTimeout: int = 60 * 5): OpenAiApi		653
-nim	updateApiKey	openai_leap/common.html#updateApiKey,OpenAiApi,string	proc updateApiKey(api: OpenAiApi; apiKey: string)		676
-nim	close	openai_leap/common.html#close,OpenAiApi	proc close(api: OpenAiApi)		681
-nim	get	openai_leap/common.html#get,OpenAiApi,string,Opts	proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response		686
-nim	post	openai_leap/common.html#post,OpenAiApi,string,string,Opts	proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response		716
-nim	postStream	openai_leap/common.html#postStream,OpenAiApi,string,string,Opts	proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream		750
-nim	getStream	openai_leap/common.html#getStream,OpenAiApi,string,seq[],Opts	proc getStream(api: OpenAiApi; path: string;\n          queryParams: seq[(string, string)] = @[]; opts: Opts = Opts()): ResponseStream		797
-nim	delete	openai_leap/common.html#delete,OpenAiApi,string	proc delete(api: OpenAiApi; path: string): Response		840
+nim	ResponseInputFile	openai_leap/common.html#ResponseInputFile	type ResponseInputFile		284
+nim	ResponseInputContent	openai_leap/common.html#ResponseInputContent	type ResponseInputContent		287
+nim	ResponseInput	openai_leap/common.html#ResponseInput	type ResponseInput		295
+nim	ResponseOutputText	openai_leap/common.html#ResponseOutputText	type ResponseOutputText		304
+nim	ResponseOutputImage	openai_leap/common.html#ResponseOutputImage	type ResponseOutputImage		307
+nim	ResponseOutputToolCall	openai_leap/common.html#ResponseOutputToolCall	type ResponseOutputToolCall		310
+nim	ResponseOutputContent	openai_leap/common.html#ResponseOutputContent	type ResponseOutputContent		315
+nim	ResponseOutput	openai_leap/common.html#ResponseOutput	type ResponseOutput		320
+nim	ReasoningSummaryPart	openai_leap/common.html#ReasoningSummaryPart	type ReasoningSummaryPart		331
+nim	ResponseUsage	openai_leap/common.html#ResponseUsage	type ResponseUsage		335
+nim	OpenAiResponse	openai_leap/common.html#OpenAiResponse	type OpenAiResponse		340
+nim	ResponseCallback	openai_leap/common.html#ResponseCallback	type ResponseCallback		372
+nim	CreateResponseReq	openai_leap/common.html#CreateResponseReq	type CreateResponseReq		374
+nim	OpenAIResponseStream	openai_leap/common.html#OpenAIResponseStream	type OpenAIResponseStream		402
+nim	AnthropicMetadata	openai_leap/common.html#AnthropicMetadata	type AnthropicMetadata		409
+nim	ThinkingConfig	openai_leap/common.html#ThinkingConfig	type ThinkingConfig		412
+nim	ToolChoiceConfig	openai_leap/common.html#ToolChoiceConfig	type ToolChoiceConfig		416
+nim	CacheControl	openai_leap/common.html#CacheControl	type CacheControl		421
+nim	TextBlock	openai_leap/common.html#TextBlock	type TextBlock		425
+nim	ImageSource	openai_leap/common.html#ImageSource	type ImageSource		430
+nim	ImageBlock	openai_leap/common.html#ImageBlock	type ImageBlock		436
+nim	DocumentSource	openai_leap/common.html#DocumentSource	type DocumentSource		441
+nim	DocumentBlock	openai_leap/common.html#DocumentBlock	type DocumentBlock		447
+nim	ToolUseBlock	openai_leap/common.html#ToolUseBlock	type ToolUseBlock		454
+nim	ToolResultContent	openai_leap/common.html#ToolResultContent	type ToolResultContent		461
+nim	ToolResultBlock	openai_leap/common.html#ToolResultBlock	type ToolResultBlock		466
+nim	ThinkingBlock	openai_leap/common.html#ThinkingBlock	type ThinkingBlock		473
+nim	RedactedThinkingBlock	openai_leap/common.html#RedactedThinkingBlock	type RedactedThinkingBlock		478
+nim	AnthropicMessage	openai_leap/common.html#AnthropicMessage	type AnthropicMessage		482
+nim	AnthropicToolInputSchema	openai_leap/common.html#AnthropicToolInputSchema	type AnthropicToolInputSchema		486
+nim	AnthropicTool	openai_leap/common.html#AnthropicTool	type AnthropicTool		491
+nim	OutputConfig	openai_leap/common.html#OutputConfig	type OutputConfig		498
+nim	CreateMessageReq	openai_leap/common.html#CreateMessageReq	type CreateMessageReq		502
+nim	AnthropicUsage	openai_leap/common.html#AnthropicUsage	type AnthropicUsage		519
+nim	TextContentBlock	openai_leap/common.html#TextContentBlock	type TextContentBlock		525
+nim	ThinkingContentBlock	openai_leap/common.html#ThinkingContentBlock	type ThinkingContentBlock		530
+nim	RedactedThinkingContentBlock	openai_leap/common.html#RedactedThinkingContentBlock	type RedactedThinkingContentBlock		535
+nim	ToolUseContentBlock	openai_leap/common.html#ToolUseContentBlock	type ToolUseContentBlock		539
+nim	CreateMessageResp	openai_leap/common.html#CreateMessageResp	type CreateMessageResp		545
+nim	MessageStreamEvent	openai_leap/common.html#MessageStreamEvent	type MessageStreamEvent		555
+nim	BedrockConfig	openai_leap/common.html#BedrockConfig	object BedrockConfig		563
+nim	len	openai_leap/common.html#len,ResponseToolsTable	proc len(table: ResponseToolsTable): int		567
+nim	pairs	openai_leap/common.html#pairs.i,ResponseToolsTable	iterator pairs(table: ResponseToolsTable): (string, (ToolFunction, ToolImpl))		570
+nim	keys	openai_leap/common.html#keys.i,ResponseToolsTable	iterator keys(table: ResponseToolsTable): string		574
+nim	hasKey	openai_leap/common.html#hasKey,ResponseToolsTable,string	proc hasKey(table: ResponseToolsTable; key: string): bool		578
+nim	`[]`	openai_leap/common.html#[],ResponseToolsTable,string	proc `[]`(table: ResponseToolsTable; key: string): (ToolFunction, ToolImpl)		581
+nim	`[]=`	openai_leap/common.html#[]=,ResponseToolsTable,string,	proc `[]=`(table: var ResponseToolsTable; key: string;\n      value: (ToolFunction, ToolImpl))		584
+nim	newResponseToolsTable	openai_leap/common.html#newResponseToolsTable	proc newResponseToolsTable(): ResponseToolsTable		587
+nim	register	openai_leap/common.html#register,ResponseToolsTable,string,ToolFunction,ToolImpl	proc register(table: var ResponseToolsTable; name: string; toolFunc: ToolFunction;\n         impl: ToolImpl)		591
+nim	registerResponseTool	openai_leap/common.html#registerResponseTool,ResponseToolsTable,string,ToolFunction,ToolImpl	proc registerResponseTool(table: var ResponseToolsTable; name: string;\n                     toolFunc: ToolFunction; impl: ToolImpl)		595
+nim	sync	openai_leap/common.html#sync.t,SysLockObj,untyped	template sync(a: Lock; body: untyped)		599
+nim	stripEscapeSequences	openai_leap/common.html#stripEscapeSequences,string	proc stripEscapeSequences(input: string): string		606
+nim	sanitizeText	openai_leap/common.html#sanitizeText,string	proc sanitizeText(s: string): string		623
+nim	sanitizeChatReq	openai_leap/common.html#sanitizeChatReq,CreateChatCompletionReq	proc sanitizeChatReq(req: var CreateChatCompletionReq)		643
+nim	newOpenAiApi	openai_leap/common.html#newOpenAiApi,string,string,string,int,int	proc newOpenAiApi(baseUrl: string = "https://api.openai.com/v1"; apiKey: string = "";\n             organization: string = ""; maxInFlight: int = 16;\n             curlTimeout: int = 60 * 5): OpenAiApi		652
+nim	updateApiKey	openai_leap/common.html#updateApiKey,OpenAiApi,string	proc updateApiKey(api: OpenAiApi; apiKey: string)		675
+nim	close	openai_leap/common.html#close,OpenAiApi	proc close(api: OpenAiApi)		680
+nim	get	openai_leap/common.html#get,OpenAiApi,string,Opts	proc get(api: OpenAiApi; path: string; opts: Opts = Opts()): Response		685
+nim	post	openai_leap/common.html#post,OpenAiApi,string,string,Opts	proc post(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): Response		715
+nim	postStream	openai_leap/common.html#postStream,OpenAiApi,string,string,Opts	proc postStream(api: OpenAiApi; path: string; body: string; opts: Opts = Opts()): ResponseStream		749
+nim	getStream	openai_leap/common.html#getStream,OpenAiApi,string,seq[],Opts	proc getStream(api: OpenAiApi; path: string;\n          queryParams: seq[(string, string)] = @[]; opts: Opts = Opts()): ResponseStream		796
+nim	delete	openai_leap/common.html#delete,OpenAiApi,string	proc delete(api: OpenAiApi; path: string): Response		839
