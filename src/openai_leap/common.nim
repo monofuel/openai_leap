@@ -80,6 +80,36 @@ type
     model*: string
     usage*: Usage
 
+  SystemOneQuestion* = ref object
+    `type`*: string
+    instructions*: JsonNode
+    criteria*: Option[JsonNode]
+
+  CreateSystemOneReq* = ref object
+    model*: string
+    state*: JsonNode
+    questions*: OrderedTable[string, SystemOneQuestion]
+    files*: Option[seq[string]]
+    images*: Option[seq[string]]
+
+  SystemOneAnswer* = ref object
+    `type`*: string
+    choice*: Option[string]
+    noul*: Option[float]
+    score*: Option[float]
+    confidence*: Option[float]
+    probabilities*: Option[Table[string, float]]
+    legend*: Option[Table[string, string]]
+
+  SystemOneUsage* = ref object
+    input_tokens*: int
+    output_tokens*: int
+
+  CreateSystemOneResp* = ref object
+    model*: string
+    answers*: Table[string, SystemOneAnswer]
+    usage*: SystemOneUsage
+
   ToolFunctionResp* = ref object
     name*: string
     arguments*: string # string of a JSON object
