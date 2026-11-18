@@ -1,0 +1,7 @@
+nimTitle	typesafe	openai_leap/typesafe.html	module openai_leap/typesafe		0
+nim	dumpHook	openai_leap/typesafe.html#dumpHook,string,SystemOneQuestion	proc dumpHook(s: var string; question: SystemOneQuestion)		6
+nim	dumpHook	openai_leap/typesafe.html#dumpHook,string,CreateSystemOneReq	proc dumpHook(s: var string; req: CreateSystemOneReq)		20
+nim	createSystemOne	openai_leap/typesafe.html#createSystemOne,OpenAiApi,CreateSystemOneReq,Opts	proc createSystemOne(api: OpenAiApi; req: CreateSystemOneReq; opts: Opts = Opts()): CreateSystemOneResp		47
+nim	createSystemOne	openai_leap/typesafe.html#createSystemOne,OpenAiApi,string,string,OrderedTable[string,SystemOneQuestion],Opts	proc createSystemOne(api: OpenAiApi; model: string; state: string;\n                questions: OrderedTable[string, SystemOneQuestion];\n                opts: Opts = Opts()): CreateSystemOneResp		64
+nimgrp	dumphook	openai_leap/typesafe.html#dumpHook-procs-all	proc		6
+nimgrp	createsystemone	openai_leap/typesafe.html#createSystemOne-procs-all	proc		47

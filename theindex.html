@@ -16,10 +16,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.2.10">
+<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.4.2">
 
 <!-- JS -->
-<script type="text/javascript" src="dochack.js?v=2.2.10"></script>
+<script type="text/javascript" src="dochack.js?v=2.4.2"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -28,7 +28,7 @@
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="openai_leap.html">openai_leap</a>, <a href="openai_leap/aws_credentials.html">openai_leap/aws_credentials</a>, <a href="openai_leap/bedrock.html">openai_leap/bedrock</a>, <a href="openai_leap/chat.html">openai_leap/chat</a>, <a href="openai_leap/common.html">openai_leap/common</a>, <a href="openai_leap/council.html">openai_leap/council</a>, <a href="openai_leap/embeddings.html">openai_leap/embeddings</a>, <a href="openai_leap/eventstream.html">openai_leap/eventstream</a>, <a href="openai_leap/files.html">openai_leap/files</a>, <a href="openai_leap/markdown.html">openai_leap/markdown</a>, <a href="openai_leap/messages.html">openai_leap/messages</a>, <a href="openai_leap/models.html">openai_leap/models</a>, <a href="openai_leap/realtime.html">openai_leap/realtime</a>, <a href="openai_leap/responses.html">openai_leap/responses</a>, <a href="openai_leap/sigv4.html">openai_leap/sigv4</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="openai_leap.html">openai_leap</a>, <a href="openai_leap/aws_credentials.html">openai_leap/aws_credentials</a>, <a href="openai_leap/bedrock.html">openai_leap/bedrock</a>, <a href="openai_leap/chat.html">openai_leap/chat</a>, <a href="openai_leap/common.html">openai_leap/common</a>, <a href="openai_leap/council.html">openai_leap/council</a>, <a href="openai_leap/embeddings.html">openai_leap/embeddings</a>, <a href="openai_leap/eventstream.html">openai_leap/eventstream</a>, <a href="openai_leap/files.html">openai_leap/files</a>, <a href="openai_leap/markdown.html">openai_leap/markdown</a>, <a href="openai_leap/messages.html">openai_leap/messages</a>, <a href="openai_leap/models.html">openai_leap/models</a>, <a href="openai_leap/realtime.html">openai_leap/realtime</a>, <a href="openai_leap/responses.html">openai_leap/responses</a>, <a href="openai_leap/sigv4.html">openai_leap/sigv4</a>, <a href="openai_leap/typesafe.html">openai_leap/typesafe</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%5B%5D%3D%60" href="#%60%5B%5D%3D%60"><span>`[]=`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc `[]=`(table: var ResponseToolsTable; key: string;
@@ -267,6 +267,24 @@
                         callback: ResponseCallback = nil;
                         usePreviousResponseId: bool = true): OpenAiResponse</a></li>
           </ul></dd>
+<dt><a name="createSystemOne" href="#createSystemOne"><span>createSystemOne:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="typesafe: proc createSystemOne(api: OpenAiApi; req: CreateSystemOneReq; opts: Opts = Opts()): CreateSystemOneResp" href="openai_leap/typesafe.html#createSystemOne%2COpenAiApi%2CCreateSystemOneReq%2COpts">typesafe: proc createSystemOne(api: OpenAiApi; req: CreateSystemOneReq; opts: Opts = Opts()): CreateSystemOneResp</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="typesafe: proc createSystemOne(api: OpenAiApi; model: string; state: string;
+                questions: OrderedTable[string, SystemOneQuestion];
+                opts: Opts = Opts()): CreateSystemOneResp" href="openai_leap/typesafe.html#createSystemOne%2COpenAiApi%2Cstring%2Cstring%2COrderedTable%5Bstring%2CSystemOneQuestion%5D%2COpts">typesafe: proc createSystemOne(api: OpenAiApi; model: string; state: string;
+                questions: OrderedTable[string, SystemOneQuestion];
+                opts: Opts = Opts()): CreateSystemOneResp</a></li>
+          </ul></dd>
+<dt><a name="CreateSystemOneReq" href="#CreateSystemOneReq"><span>CreateSystemOneReq:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type CreateSystemOneReq" href="openai_leap/common.html#CreateSystemOneReq">common: type CreateSystemOneReq</a></li>
+          </ul></dd>
+<dt><a name="CreateSystemOneResp" href="#CreateSystemOneResp"><span>CreateSystemOneResp:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type CreateSystemOneResp" href="openai_leap/common.html#CreateSystemOneResp">common: type CreateSystemOneResp</a></li>
+          </ul></dd>
 <dt><a name="DefaultConfig" href="#DefaultConfig"><span>DefaultConfig:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="council: const DefaultConfig" href="openai_leap/council.html#DefaultConfig">council: const DefaultConfig</a></li>
@@ -310,6 +328,12 @@
 <dt><a name="DocumentSource" href="#DocumentSource"><span>DocumentSource:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: type DocumentSource" href="openai_leap/common.html#DocumentSource">common: type DocumentSource</a></li>
+          </ul></dd>
+<dt><a name="dumpHook" href="#dumpHook"><span>dumpHook:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="typesafe: proc dumpHook(s: var string; req: CreateSystemOneReq)" href="openai_leap/typesafe.html#dumpHook%2Cstring%2CCreateSystemOneReq">typesafe: proc dumpHook(s: var string; req: CreateSystemOneReq)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="typesafe: proc dumpHook(s: var string; question: SystemOneQuestion)" href="openai_leap/typesafe.html#dumpHook%2Cstring%2CSystemOneQuestion">typesafe: proc dumpHook(s: var string; question: SystemOneQuestion)</a></li>
           </ul></dd>
 <dt><a name="EmbeddingTask" href="#EmbeddingTask"><span>EmbeddingTask:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -901,6 +925,18 @@
 <li><a class="reference external"
           data-doc-search-tag="common: template sync(a: Lock; body: untyped)" href="openai_leap/common.html#sync.t%2CSysLockObj%2Cuntyped">common: template sync(a: Lock; body: untyped)</a></li>
           </ul></dd>
+<dt><a name="SystemOneAnswer" href="#SystemOneAnswer"><span>SystemOneAnswer:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type SystemOneAnswer" href="openai_leap/common.html#SystemOneAnswer">common: type SystemOneAnswer</a></li>
+          </ul></dd>
+<dt><a name="SystemOneQuestion" href="#SystemOneQuestion"><span>SystemOneQuestion:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type SystemOneQuestion" href="openai_leap/common.html#SystemOneQuestion">common: type SystemOneQuestion</a></li>
+          </ul></dd>
+<dt><a name="SystemOneUsage" href="#SystemOneUsage"><span>SystemOneUsage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: type SystemOneUsage" href="openai_leap/common.html#SystemOneUsage">common: type SystemOneUsage</a></li>
+          </ul></dd>
 <dt><a name="TextBlock" href="#TextBlock"><span>TextBlock:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: type TextBlock" href="openai_leap/common.html#TextBlock">common: type TextBlock</a></li>
@@ -1045,7 +1081,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-06-22 03:50:03 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-18 00:43:11 UTC</small>
       </div>
     </div>
   </div>
