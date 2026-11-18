@@ -137,6 +137,22 @@ for server-specific support.
   - These tests include the embedding & chat API endpoints, tool usage, and basic serialization tests to ensure Optional types are handled correctly.
 
 - `nix develop -c nim r tests/test_typesafe.nim` runs the offline TypeSafe tests.
+- `nix develop -c nim r tests/manual_realtime_voice.nim` opens a Slappy
+  microphone and plays the assistant's streamed replies. It uses OpenAI and
+  server VAD by default, including hands-free turns and interruptions. Use
+  `--lfm` for LFM3's voice-chat settings and explicit turn handling:
+
+  ```sh
+  env OPENAI_BASE_URL=http://10.11.2.16:8001/v1 OPENAI_API_KEY=local \
+    nix develop -c nim r tests/manual_realtime_voice.nim --lfm
+  ```
+
+  With `--lfm`, press Enter to start recording, then Enter again to send the turn and hear
+  the reply. Enter during a reply interrupts it. Type `q` and Enter to exit.
+  The interactive console uses POSIX terminal input. Run the voice tester with
+  `--help` for microphone, format and other environment settings. The text-only
+  `tests/manual_realtime_text.nim` also accepts `OPENAI_BASE_URL`,
+  `REALTIME_MODEL` and `REALTIME_INSTRUCTIONS`.
 - `nix develop -c nim r tests/manual_systemone.nim` runs the live decision test
   against Azem and a loaded `kev-4b` by default. Override `SYSTEMONE_BASE_URL`,
   `SYSTEMONE_MODEL`, and `SYSTEMONE_API_KEY` for another server. This test is

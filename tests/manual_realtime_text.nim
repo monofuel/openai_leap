@@ -1,18 +1,15 @@
 # Manual interactive test for the OpenAI Realtime API (text-only).
-# Run with: nix develop -c nim r -d:ssl tests/manual_realtime_text.nim
+# Run with: nix develop -c nim r tests/manual_realtime_text.nim
 
 import
-  std/[options, strutils],
+  std/[options, os, strutils],
   openai_leap
-
-const
-  Model = "gpt-realtime-2"
 
 proc main() =
   ## Run an interactive text chat over the Realtime API.
-  let openai = newOpenAiApi()
+  let openai = newOpenAiApi(baseUrl = getEnv("OPENAI_BASE_URL", "https://api.openai.com/v1").strip(leading = false, chars = {'/'}))
   echo "Connecting to Realtime API..."
-  let session = openai.connectRealtime(Model)
+  let session = openai.connectRealtime(getEnv("REALTIME_MODEL", "gpt-realtime-2"))
 
   # Consume session.created
   let created = session.nextEvent()
@@ -26,7 +23,7 @@ proc main() =
   # Configure text-only
   let config = RealtimeSessionConfig()
   config.output_modalities = option(@["text"])
-  config.instructions = option("You are a helpful assistant. Keep responses concise.")
+  config.instructions = option(getEnv("REALTIME_INSTRUCTIONS", "You are a helpful assistant. Keep responses concise."))
   session.updateSession(config)
 
   # Consume session.updated
