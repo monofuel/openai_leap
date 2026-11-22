@@ -165,6 +165,21 @@ proc audioTranscriptions*(
   )
   return response.body.fromJson(AudioTranscription)
 
+proc audioSpeech*(
+  api: OpenAiApi,
+  model: string,
+  input: string,
+  voice = "",
+  responseFormat = "wav",
+  instructions = ""
+): string =
+  ## Synthesize speech for text with /audio/speech and return the audio bytes
+  ## in responseFormat. An empty voice or instructions is left to the server.
+  let body = %*{"model": model, "input": input, "response_format": responseFormat}
+  if voice.len > 0: body["voice"] = %voice
+  if instructions.len > 0: body["instructions"] = %instructions
+  api.post("/audio/speech", $body).body
+
 proc pullModel*(api: OpenAiApi, model: string, timeout: int = 0) =
   ## Ask Ollama to pull a model.
   ## Only for ollama! not for other providers!
