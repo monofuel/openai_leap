@@ -11,4 +11,5 @@ nim	listFineTuneCheckpoints	openai_leap/files.html#listFineTuneCheckpoints,OpenA
 nim	cancelFineTuneModel	openai_leap/files.html#cancelFineTuneModel,OpenAiApi,string	proc cancelFineTuneModel(api: OpenAiApi; modelId: string)		135
 nim	deleteFineTuneModel	openai_leap/files.html#deleteFineTuneModel,OpenAiApi,string	proc deleteFineTuneModel(api: OpenAiApi; modelId: string)		139
 nim	audioTranscriptions	openai_leap/files.html#audioTranscriptions,OpenAiApi,string,string	proc audioTranscriptions(api: OpenAiApi; model: string; audioData: string): AudioTranscription		143
-nim	pullModel	openai_leap/files.html#pullModel,OpenAiApi,string,int	proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)		168
+nim	audioSpeech	openai_leap/files.html#audioSpeech,OpenAiApi,string,string,string,string,string	proc audioSpeech(api: OpenAiApi; model: string; input: string; voice = "";\n            responseFormat = "wav"; instructions = ""): string		168
+nim	pullModel	openai_leap/files.html#pullModel,OpenAiApi,string,int	proc pullModel(api: OpenAiApi; model: string; timeout: int = 0)		183
